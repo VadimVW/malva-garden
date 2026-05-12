@@ -1,0 +1,16 @@
+{
+  "name": "malva-garden",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "concurrently -n web,api -c blue,magenta \"npm run dev -w web\" \"npm run dev -w api\"",
+    "dev:web": "npm run dev -w web",
+    "dev:api": "npm run dev -w api",
+    "build:web": "npm run build -w web",
+    "build:api": "npm run build -w api",
+    "lint": "npm run lint -w web && npm run lint -w api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
