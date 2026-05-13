@@ -8,7 +8,11 @@
     "dev:api": "npm run dev -w api",
     "build:web": "npm run build -w web",
     "build:api": "npm run build -w api",
-    "lint": "npm run lint -w web && npm run lint -w api"
+    "lint": "npm run lint -w web && npm run lint -w api",
+    "db:migrate": "node scripts/ensure-api-env.mjs && npm run prisma:migrate -w api",
+    "db:seed": "node scripts/ensure-api-env.mjs && npm run prisma:seed -w api",
+    "db:studio": "node scripts/ensure-api-env.mjs && npm run prisma:studio -w api",
+    "db:migrate:init": "node scripts/ensure-api-env.mjs && npm run prisma:migrate -w api -- --name init"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

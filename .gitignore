@@ -33,3 +33,6 @@ coverage/
 
 # Misc
 *.tsbuildinfo
+
+# Agent
+AGENT_CONTEXT.md

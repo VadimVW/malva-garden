@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: malva
+      POSTGRES_PASSWORD: malva
+      POSTGRES_DB: malva_garden
+    ports:
+      - "5432:5432"
+    volumes:
+      - malva_pgdata:/var/lib/postgresql/data
+
+volumes:
+  malva_pgdata:
