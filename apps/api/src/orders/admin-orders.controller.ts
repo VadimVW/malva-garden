@@ -11,6 +11,7 @@ import { JwtAdminAuthGuard } from "../auth/jwt-admin.guard";
 import { AdminOrdersQueryDto } from "./dto/admin-orders-query.dto";
 import { ManagerCommentDto } from "./dto/manager-comment.dto";
 import { UpdateOrderStatusDto } from "./dto/update-order-status.dto";
+import { UpdatePaymentStatusDto } from "./dto/update-payment-status.dto";
 import { OrdersService } from "./orders.service";
 
 @Controller("admin/orders")
@@ -31,6 +32,11 @@ export class AdminOrdersController {
   @Patch(":id/status")
   status(@Param("id") id: string, @Body() dto: UpdateOrderStatusDto) {
     return this.orders.updateStatus(id, dto.orderStatus);
+  }
+
+  @Patch(":id/payment-status")
+  paymentStatus(@Param("id") id: string, @Body() dto: UpdatePaymentStatusDto) {
+    return this.orders.updatePaymentStatus(id, dto.paymentStatus);
   }
 
   @Patch(":id/manager-comment")

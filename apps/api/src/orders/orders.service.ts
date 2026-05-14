@@ -179,4 +179,13 @@ export class OrdersService {
       data: { managerComment },
     });
   }
+
+  async updatePaymentStatus(id: string, paymentStatus: PaymentStatus) {
+    const order = await this.prisma.order.findUnique({ where: { id } });
+    if (!order) throw new NotFoundException("Замовлення не знайдено");
+    return this.prisma.order.update({
+      where: { id },
+      data: { paymentStatus },
+    });
+  }
 }

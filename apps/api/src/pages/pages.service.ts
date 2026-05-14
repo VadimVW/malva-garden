@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { CreateContentPageDto } from "./dto/create-content-page.dto";
 import { UpdateContentPageDto } from "./dto/update-content-page.dto";
 
 @Injectable()
@@ -23,6 +24,29 @@ export class PagesService {
     return this.prisma.contentPage.findMany({
       orderBy: { slug: "asc" },
     });
+  }
+
+  async create(dto: CreateContentPageDto) {
+    const exists = await this.prisma.contentPage.findUnique({
+      where: { slug: dto.slug },
+    });
+    if (exists) throw new BadRequestException("Slug вже зайнятий");
+    return this.prisma.contentPage.create({
+      data: {
+        title: dto.title,
+        slug: dto.slug,
+        content: dto.content,
+        seoTitle: dto.seoTitle,
+        seoDescription: dto.seoDescription,
+      },
+    });
+  }
+
+  async removeBySlug(slug: string) {
+    const cur = await this.prisma.contentPage.findUnique({ where: { slug } });
+    if (!cur) throw new NotFoundException("Сторінку не знайдено");
+    await this.prisma.contentPage.delete({ where: { slug } });
+    return { ok: true };
   }
 
   async updateBySlug(slug: string, dto: UpdateContentPageDto) {

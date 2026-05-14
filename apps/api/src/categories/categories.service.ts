@@ -119,7 +119,35 @@ export class CategoriesService {
     if (dto.parentId === id) {
       throw new BadRequestException("Категорія не може бути батьком сама собі");
     }
+    if (dto.parentId) {
+      const parent = await this.prisma.category.findUnique({
+        where: { id: dto.parentId },
+      });
+      if (!parent) throw new BadRequestException("Батьківська категорія не знайдена");
+      if (await this.wouldCreateCategoryCycle(id, dto.parentId)) {
+        throw new BadRequestException("Некоректний батьківський зв'язок (цикл у дереві)");
+      }
+    }
     return this.prisma.category.update({ where: { id }, data: dto });
+  }
+
+  private async wouldCreateCategoryCycle(
+    categoryId: string,
+    newParentId: string,
+  ): Promise<boolean> {
+    let cur = await this.prisma.category.findUnique({
+      where: { id: newParentId },
+      select: { id: true, parentId: true },
+    });
+    while (cur) {
+      if (cur.id === categoryId) return true;
+      if (!cur.parentId) break;
+      cur = await this.prisma.category.findUnique({
+        where: { id: cur.parentId },
+        select: { id: true, parentId: true },
+      });
+    }
+    return false;
   }
 
   async remove(id: string) {

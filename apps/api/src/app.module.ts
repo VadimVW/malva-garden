@@ -6,6 +6,7 @@ import { CategoriesModule } from "./categories/categories.module";
 import { OrdersModule } from "./orders/orders.module";
 import { PagesModule } from "./pages/pages.module";
 import { ProductsModule } from "./products/products.module";
+import { SettingsModule } from "./settings/settings.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
@@ -20,6 +21,7 @@ import { AppService } from "./app.service";
     CartModule,
     OrdersModule,
     PagesModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

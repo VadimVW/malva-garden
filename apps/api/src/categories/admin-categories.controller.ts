@@ -1,7 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
 import { JwtAdminAuthGuard } from "../auth/jwt-admin.guard";
-import { CurrentAdmin } from "../common/decorators/current-admin.decorator";
-import type { AdminUserPayload } from "../common/decorators/current-admin.decorator";
 import { CategoriesService } from "./categories.service";
 import { CreateCategoryDto } from "./dto/create-category.dto";
 import { UpdateCategoryDto } from "./dto/update-category.dto";
@@ -17,7 +15,7 @@ export class AdminCategoriesController {
   }
 
   @Post()
-  create(@Body() dto: CreateCategoryDto, @CurrentAdmin() _a: AdminUserPayload) {
+  create(@Body() dto: CreateCategoryDto) {
     return this.categories.create(dto);
   }
 

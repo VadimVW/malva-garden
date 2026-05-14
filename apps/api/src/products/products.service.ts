@@ -6,8 +6,10 @@ import {
 import { Prisma, ProductStatus } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { moneyToString } from "../common/money";
+import { CreateProductImageDto } from "./dto/create-product-image.dto";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { ProductsQueryDto } from "./dto/products-query.dto";
+import { UpdateProductImageDto } from "./dto/update-product-image.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
 
 @Injectable()
@@ -33,6 +35,7 @@ export class ProductsService {
           id: img.id,
           imageUrl: img.imageUrl,
           altText: img.altText,
+          sortOrder: img.sortOrder,
           isMain: img.isMain,
         })),
     };
@@ -97,7 +100,7 @@ export class ProductsService {
         query.inStock === true ? { stockQuantity: { gt: 0 } } : {},
         query.q
           ? {
-              name: { contains: query.q, mode: "insensitive" },
+              name: { contains: query.q, mode: Prisma.QueryMode.insensitive },
             }
           : {},
       ].filter((x) => Object.keys(x).length > 0),
@@ -216,5 +219,116 @@ export class ProductsService {
       data: { status: ProductStatus.HIDDEN },
     });
     return { ok: true };
+  }
+
+  private async ensureProduct(id: string) {
+    const p = await this.prisma.product.findUnique({ where: { id } });
+    if (!p) throw new NotFoundException("Товар не знайдено");
+    return p;
+  }
+
+  private async normalizeMainImagesTx(
+    tx: Prisma.TransactionClient,
+    productId: string,
+  ) {
+    const images = await tx.productImage.findMany({
+      where: { productId },
+      orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+    });
+    if (!images.length) return;
+    const mains = images.filter((i) => i.isMain);
+    if (mains.length === 1) return;
+    await tx.productImage.updateMany({
+      where: { productId },
+      data: { isMain: false },
+    });
+    const pick =
+      mains.length > 1
+        ? mains
+            .slice()
+            .sort(
+              (a, b) =>
+                a.sortOrder - b.sortOrder || a.id.localeCompare(b.id),
+            )[0]
+        : images[0];
+    await tx.productImage.update({
+      where: { id: pick.id },
+      data: { isMain: true },
+    });
+  }
+
+  async addImage(productId: string, dto: CreateProductImageDto) {
+    await this.ensureProduct(productId);
+    const count = await this.prisma.productImage.count({
+      where: { productId },
+    });
+    const sortOrder = dto.sortOrder ?? count;
+    const isMain = dto.isMain ?? count === 0;
+
+    return this.prisma.$transaction(async (tx) => {
+      if (isMain) {
+        await tx.productImage.updateMany({
+          where: { productId },
+          data: { isMain: false },
+        });
+      }
+      const created = await tx.productImage.create({
+        data: {
+          productId,
+          imageUrl: dto.imageUrl,
+          altText: dto.altText,
+          sortOrder,
+          isMain,
+        },
+      });
+      await this.normalizeMainImagesTx(tx, productId);
+      return tx.productImage.findUniqueOrThrow({ where: { id: created.id } });
+    });
+  }
+
+  async updateImage(
+    productId: string,
+    imageId: string,
+    dto: UpdateProductImageDto,
+  ) {
+    await this.ensureProduct(productId);
+    const img = await this.prisma.productImage.findFirst({
+      where: { id: imageId, productId },
+    });
+    if (!img) throw new NotFoundException("Зображення не знайдено");
+
+    return this.prisma.$transaction(async (tx) => {
+      if (dto.isMain === true) {
+        await tx.productImage.updateMany({
+          where: { productId },
+          data: { isMain: false },
+        });
+      }
+      await tx.productImage.update({
+        where: { id: imageId },
+        data: {
+          imageUrl: dto.imageUrl,
+          altText: dto.altText,
+          sortOrder: dto.sortOrder,
+          isMain: dto.isMain,
+        },
+      });
+      await this.normalizeMainImagesTx(tx, productId);
+      return tx.productImage.findUniqueOrThrow({ where: { id: imageId } });
+    });
+  }
+
+  async removeImage(productId: string, imageId: string) {
+    await this.ensureProduct(productId);
+    const img = await this.prisma.productImage.findFirst({
+      where: { id: imageId, productId },
+    });
+    if (!img) throw new NotFoundException("Зображення не знайдено");
+
+    return this.prisma.$transaction(async (tx) => {
+      await tx.productImage.delete({ where: { id: imageId } });
+      await this.normalizeMainImagesTx(tx, productId);
+      return { ok: true };
+    });
   }
 }
