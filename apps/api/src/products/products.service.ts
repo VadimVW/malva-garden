@@ -38,15 +38,54 @@ export class ProductsService {
     };
   }
 
+  /** Усі нащадки (включно з коренем) для фільтра товарів за slug батьківської категорії. */
+  private async categoryIdsInSubtreeBySlug(slug: string): Promise<string[] | null> {
+    const root = await this.prisma.category.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+    if (!root) return null;
+    const ids = new Set<string>([root.id]);
+    let frontier = [root.id];
+    while (frontier.length) {
+      const children = await this.prisma.category.findMany({
+        where: { parentId: { in: frontier } },
+        select: { id: true },
+      });
+      frontier = [];
+      for (const c of children) {
+        if (!ids.has(c.id)) {
+          ids.add(c.id);
+          frontier.push(c.id);
+        }
+      }
+    }
+    return [...ids];
+  }
+
   async findManyPublic(query: ProductsQueryDto) {
     const page = query.page ?? 1;
     const limit = Math.min(query.limit ?? 24, 48);
     const skip = (page - 1) * limit;
 
+    let categoryIds: string[] | null = null;
+    if (query.categorySlug) {
+      categoryIds = await this.categoryIdsInSubtreeBySlug(query.categorySlug);
+      if (!categoryIds?.length) {
+        return {
+          items: [],
+          page,
+          limit,
+          total: 0,
+          totalPages: 0,
+        };
+      }
+    }
+
     const where: Prisma.ProductWhereInput = {
       status: ProductStatus.ACTIVE,
-      category: query.categorySlug
-        ? { slug: query.categorySlug }
+      category: categoryIds
+        ? { id: { in: categoryIds } }
         : undefined,
       AND: [
         query.minPrice !== undefined

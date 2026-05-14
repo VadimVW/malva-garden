@@ -2,7 +2,7 @@ import MalvaGardenCatalogDesktop from "@/components/figma/MalvaGardenCatalogDesk
 
 export default function FigmaPreviewCatalogPage() {
   return (
-    <div className="flex justify-center bg-neutral-200 py-6">
+    <div className="min-h-screen w-full bg-[#F5F5F5]">
       <MalvaGardenCatalogDesktop />
     </div>
   );

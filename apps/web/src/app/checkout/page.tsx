@@ -65,7 +65,7 @@ export default function CheckoutPage() {
       <div className="mx-auto max-w-xl space-y-4 px-4 py-10">
         <h1 className="text-2xl font-semibold">Оформлення</h1>
         <p className="text-slate-600">Спочатку додайте товари в кошик.</p>
-        <Link href="/catalog" className="text-emerald-800 underline">
+        <Link href="/catalog/kvity" className="text-emerald-800 underline">
           У каталог
         </Link>
       </div>

@@ -1,6 +1,6 @@
 /**
  * Figma: сторінка товару (desktop), файл Malva Garden — верстка за повноекранним скріном макету.
- * Прев’ю: `/figma-preview/product`. Інтеграція з `/product/[slug]` — окремий крок.
+ * Прев’ю: `/figma-preview/product`. Прод: `/product/[slug]` передає `product` з API.
  *
  * Ассети:
  * — `/images/figma/product/gallery-ref.png` — референс-експорт зі скріну; для продакшену замініть на окремі кропи головного фото та мініатюр з Figma.
@@ -10,6 +10,17 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Inter, Montserrat_Alternates } from "next/font/google";
+import { MalvaGardenFigmaStoreNav } from "@/components/figma/MalvaGardenFigmaStoreNav";
+import {
+  catalogCategoryHref,
+  catalogHubCrumb,
+  categorySlugMatchesHub,
+} from "@/lib/figmaCatalogLinks";
+import { figmaNavSectionFromCategorySlug } from "@/lib/figmaStoreNavSection";
+import { ProductFigmaBuyBlock } from "@/components/figma/product/ProductFigmaBuyBlock";
+import type { GalleryImage } from "@/components/figma/product/ProductFigmaGallery";
+import { ProductFigmaGallery } from "@/components/figma/product/ProductFigmaGallery";
+import { ProductFigmaTabs } from "@/components/figma/product/ProductFigmaTabs";
 
 const inter = Inter({
   subsets: ["latin", "cyrillic", "cyrillic-ext"],
@@ -40,14 +51,35 @@ const SOCIAL_SVG = {
 
 const CATALOG_HOME_BTN = "/images/figma/catalog/home-btn.svg";
 
-const PRODUCT_TITLE =
-  "Петунія «Нічне небо» (Night Sky)";
+export type MalvaGardenProductPayload = {
+  id: string;
+  name: string;
+  slug: string;
+  price: string;
+  stockQuantity: number;
+  description: string | null;
+  careDescription: string | null;
+  category: { name: string; slug: string } | null;
+  images: GalleryImage[];
+};
 
 const DESCRIPTION_PLACEHOLDER = `Сорт «Нічне небо» вирізняється насиченим фіолетово-космічним забарвленням віночка з білими крапками, що нагадують зоряне небо. Рослина компактна, добре гілкується й рясно цвіте з ранньої весни до пізньої осені.
 
 Петунія добре переносить український клімат, любить сонячні місця та регулярний полив без застою води. Ідеально підходить для балконних ящиків, підвісних кашпо та клумб.
 
 Період цвітіння — з травня до жовтня за умови своєчасного видалення відцвілів і підживлення комплексними добривами для квітучих рослин.`;
+
+const DEMO_PRODUCT: MalvaGardenProductPayload = {
+  id: "00000000-0000-0000-0000-000000000001",
+  name: "Петунія «Нічне небо» (Night Sky)",
+  slug: "preview",
+  price: "51",
+  stockQuantity: 12,
+  description: DESCRIPTION_PLACEHOLDER,
+  careDescription: "Полив помірний, уникати перезволоження. Підживлення 1–2 рази на місяць.",
+  category: { name: "Квіти", slug: "kvity" },
+  images: [],
+};
 
 function FooterSocialLink({
   label,
@@ -116,11 +148,24 @@ function SocialSvgImg({
   );
 }
 
-export default function MalvaGardenProductDesktop() {
+export default function MalvaGardenProductDesktop({
+  product = DEMO_PRODUCT,
+  preview = false,
+}: {
+  product?: MalvaGardenProductPayload;
+  preview?: boolean;
+}) {
+  const p = product;
+  const priceLabel = p.price.includes("грн") ? p.price : `${p.price} грн`;
+  const inStock = p.stockQuantity > 0;
+  const hub = catalogHubCrumb(p.category?.slug);
+  const showCategoryCrumb =
+    Boolean(p.category) && !categorySlugMatchesHub(p.category?.slug);
+
   return (
-    <div className="relative w-full max-w-[1200px] bg-white">
+    <div className="relative flex min-h-screen w-full flex-col overflow-visible bg-[#F5F5F5]">
       <header
-        className={`absolute left-0 right-0 top-0 z-20 w-full max-w-[1200px] bg-[#5C97A8] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] ${inter.className}`}
+        className={`sticky top-0 z-30 w-full bg-[#5C97A8] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] ${inter.className}`}
       >
         <div className="pointer-events-none absolute inset-0 z-[1] opacity-40">
           <Image
@@ -128,12 +173,12 @@ export default function MalvaGardenProductDesktop() {
             alt=""
             fill
             className="object-cover object-center"
-            sizes="(max-width: 1200px) 100vw, 1200px"
+            sizes="100vw"
             priority
           />
         </div>
-        <div className="relative z-[2] flex flex-col">
-          <div className="relative flex h-[95px] items-center gap-[30px] px-[100px] pb-2 pt-[18px]">
+        <div className="relative z-[2] flex flex-col overflow-visible">
+          <div className="relative mx-auto flex h-[95px] w-full max-w-[1280px] items-center gap-4 px-4 pb-2 pt-[18px] sm:gap-6 sm:px-8 lg:gap-[30px] lg:px-12 xl:px-16">
             <Link href="/" className="relative flex shrink-0 items-center gap-3">
               <Image
                 src={IMG.logoMark}
@@ -206,51 +251,30 @@ export default function MalvaGardenProductDesktop() {
                 <circle cx="12" cy="7" r="4" />
               </svg>
             </a>
-            <div className="relative h-12 w-[119px] shrink-0 overflow-hidden rounded-[5px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]">
-              <div className="relative z-10 flex h-full w-full items-center gap-3 px-2">
-                <SocialSvgImg
-                  src={IMG.cartIcon}
-                  width={32}
-                  height={31}
-                  className="h-8 w-8 shrink-0 object-contain"
-                />
-                <span className="text-[12px] font-bold text-[#F7F4EF]">Кошик</span>
-              </div>
-            </div>
+            <Link
+              href="/cart"
+              className="relative z-10 flex h-12 w-[119px] shrink-0 items-center gap-3 overflow-hidden rounded-[5px] px-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]"
+            >
+              <SocialSvgImg
+                src={IMG.cartIcon}
+                width={32}
+                height={31}
+                className="h-8 w-8 shrink-0 object-contain"
+              />
+              <span className="text-[12px] font-bold text-[#F7F4EF]">Кошик</span>
+            </Link>
           </div>
-          <nav className="relative z-[2] flex h-[44px] min-h-[44px] w-full shrink-0 flex-nowrap items-stretch justify-center gap-0 bg-transparent px-[100px] py-0">
-            <div
-              className="pointer-events-none absolute inset-0 z-0 bg-[#548a9d]/35"
-              aria-hidden
-            />
-            <div
-              className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-black/[0.04] to-black/[0.12]"
-              aria-hidden
-            />
-            <Link
-              href="/catalog"
-              className="relative z-10 flex h-full min-w-[130px] flex-1 items-center justify-center px-3 text-center text-[12px] font-bold leading-tight text-[#F7F4EF] transition-colors hover:bg-[#4C8094]/30 sm:flex-initial"
-            >
-              Декоративні кущі
-            </Link>
-            <span className="relative z-10 flex h-full min-w-[130px] flex-1 items-center justify-center bg-[#4C8094]/45 px-3 text-center text-[12px] font-bold leading-tight text-[#F7F4EF] sm:flex-initial">
-              Квіти
-            </span>
-            <Link
-              href="/catalog"
-              className="relative z-10 flex h-full min-w-[130px] flex-1 items-center justify-center px-3 text-center text-[12px] font-bold leading-tight text-[#F7F4EF] transition-colors hover:bg-[#4C8094]/30 sm:flex-initial"
-            >
-              Декоративні трави
-            </Link>
-          </nav>
+          <MalvaGardenFigmaStoreNav
+            activeSection={figmaNavSectionFromCategorySlug(p.category?.slug)}
+          />
         </div>
       </header>
 
       <div
-        className={`flex min-h-[1100px] w-full flex-col bg-white pt-[139px] ${montserratAlternates.className}`}
+        className={`flex flex-1 flex-col bg-[#F5F5F5] ${montserratAlternates.className}`}
       >
-        <div className="flex w-full justify-center bg-[#F5F5F5] px-[100px] pb-16">
-          <div className="flex w-full max-w-[1000px] flex-col bg-[#E7F1F3] px-6 pb-12 pt-8">
+        <div className="flex w-full justify-center px-4 pb-16 pt-6 sm:px-8 lg:px-12">
+          <div className="flex w-full max-w-[1200px] flex-col bg-[#E7F1F3] px-5 pb-12 pt-8 sm:px-8">
             <nav
               className="mb-8 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] leading-snug text-[#5E8F98]"
               aria-label="Навігаційні крихти"
@@ -266,71 +290,55 @@ export default function MalvaGardenProductDesktop() {
                 />
               </Link>
               <span className="text-[#9C9A9A]">/</span>
-              <Link href="/catalog" className="hover:underline">
-                Каталог
+              <Link href={hub.href} className="hover:underline">
+                {hub.label}
               </Link>
+              {showCategoryCrumb && p.category ? (
+                <>
+                  <span className="text-[#9C9A9A]">/</span>
+                  <Link
+                    href={catalogCategoryHref(p.category.slug)}
+                    className="hover:underline"
+                  >
+                    {p.category.name}
+                  </Link>
+                </>
+              ) : null}
               <span className="text-[#9C9A9A]">/</span>
-              <Link href="/catalog" className="hover:underline">
-                Насіння квітів
-              </Link>
-              <span className="text-[#9C9A9A]">/</span>
-              <Link href="/catalog/kvity/odnorichni" className="hover:underline">
-                Однорічні
-              </Link>
-              <span className="text-[#9C9A9A]">/</span>
-              <span className="font-semibold text-black">{PRODUCT_TITLE}</span>
+              <span className="font-semibold text-black">{p.name}</span>
             </nav>
 
             <div className="flex w-full flex-col gap-10 lg:flex-row lg:items-start lg:gap-12">
-              <div className="w-full shrink-0 lg:max-w-[440px] lg:flex-1">
-                <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-white shadow-[0px_6px_20px_rgba(0,0,0,0.08)]">
-                  <Image
-                    src={IMG.galleryRef}
-                    alt=""
-                    fill
-                    className="object-cover object-[center_38%]"
-                    sizes="(max-width: 1024px) 100vw, 440px"
-                    priority
-                  />
-                </div>
-                <div className="mt-4 flex gap-3">
-                  {[0, 1, 2].map((i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      className="relative size-[72px] shrink-0 overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-black/5"
-                      aria-label={`Мініатюра ${i + 1}`}
-                    >
-                      <Image
-                        src={IMG.galleryRef}
-                        alt=""
-                        fill
-                        className="object-cover object-[center_38%]"
-                        sizes="72px"
-                      />
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <ProductFigmaGallery
+                images={p.images}
+                fallbackSrc={IMG.galleryRef}
+                productName={p.name}
+              />
 
               <div className="flex min-w-0 flex-1 flex-col gap-6">
                 <section className="rounded-2xl bg-white p-6 shadow-[0px_6px_20px_rgba(0,0,0,0.08)]">
                   <h1 className="text-[22px] font-bold leading-snug text-black lg:text-[24px]">
-                    {PRODUCT_TITLE}
+                    {p.name}
                   </h1>
-                  <p className="mt-4 text-[22px] font-bold text-black">51 грн</p>
-                  <div className="mt-4 flex items-center gap-2 text-[14px] font-semibold text-[#2d6a4f]">
-                    <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden>
-                      <path
-                        d="M20 6L9 17l-5-5"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    Є в наявності
-                  </div>
+                  <p className="mt-4 text-[22px] font-bold text-black">{priceLabel}</p>
+                  {inStock ? (
+                    <div className="mt-4 flex items-center gap-2 text-[14px] font-semibold text-[#2d6a4f]">
+                      <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden>
+                        <path
+                          d="M20 6L9 17l-5-5"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      Є в наявності
+                    </div>
+                  ) : (
+                    <div className="mt-4 text-[14px] font-semibold text-[#b91c1c]">
+                      Немає в наявності
+                    </div>
+                  )}
                   <div className="mt-3 flex items-start gap-2 text-[13px] leading-snug text-[#5a5a5a]">
                     <SocialSvgImg
                       src={IMG.truck}
@@ -340,63 +348,30 @@ export default function MalvaGardenProductDesktop() {
                     />
                     Безкоштовна доставка від 500 грн
                   </div>
-                  <div className="mt-6 flex flex-wrap items-center gap-4">
-                    <span className="text-[14px] font-semibold text-black">Кількість:</span>
-                    <div className="inline-flex items-center rounded-lg bg-[#E8E8E8] p-1">
-                      <button
-                        type="button"
-                        className="inline-flex size-9 items-center justify-center rounded-md text-lg font-medium text-[#5C97A8] transition-colors hover:bg-white"
-                        aria-label="Менше"
-                      >
-                        −
-                      </button>
-                      <span className="min-w-[2rem] text-center text-[15px] font-semibold text-black">
-                        1
-                      </span>
-                      <button
-                        type="button"
-                        className="inline-flex size-9 items-center justify-center rounded-md text-lg font-medium text-[#5C97A8] transition-colors hover:bg-white"
-                        aria-label="Більше"
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#2f6f4e] py-3.5 text-[15px] font-bold text-white shadow-[0px_4px_12px_rgba(47,111,78,0.35)] transition-opacity hover:opacity-95"
-                  >
-                    <SocialSvgImg
-                      src={IMG.cartIcon}
-                      width={22}
-                      height={21}
-                      className="h-[22px] w-[22px] object-contain brightness-0 invert"
-                    />
-                    Додати в кошик
-                  </button>
+                  <ProductFigmaBuyBlock
+                    productId={p.id}
+                    maxQty={p.stockQuantity}
+                    preview={preview}
+                  />
+                  {!preview ? null : (
+                    <p className="mt-2 text-center text-[12px] text-[#5a5a5a]">
+                      На сторінці прев’ю кошик не підключається до API.
+                    </p>
+                  )}
                 </section>
 
-                <section className="rounded-2xl bg-white p-6 shadow-[0px_6px_20px_rgba(0,0,0,0.08)]">
-                  <div className="flex gap-8 border-b border-[#E0E0E0] text-[15px] font-bold">
-                    <span className="-mb-px border-b-2 border-[#5C97A8] pb-3 text-black">
-                      Опис
-                    </span>
-                    <span className="pb-3 text-[#9C9A9A]">Догляд</span>
-                  </div>
-                  <div className="mt-5 space-y-4 text-[14px] leading-relaxed text-[#333333]">
-                    {DESCRIPTION_PLACEHOLDER.split("\n\n").map((para, i) => (
-                      <p key={i}>{para}</p>
-                    ))}
-                  </div>
-                </section>
+                <ProductFigmaTabs
+                  description={p.description}
+                  careDescription={p.careDescription}
+                />
               </div>
             </div>
           </div>
         </div>
 
-        <footer className="mt-auto w-full bg-[#5C97A8] text-[#F7F4EF]">
+        <footer className="mt-auto w-full shrink-0 bg-[#5C97A8] text-[#F7F4EF]">
           <div
-            className={`mx-auto flex min-h-[280px] w-full max-w-[1200px] flex-col gap-8 bg-[#5C97A8] px-[100px] pb-10 pt-6 ${inter.className}`}
+            className={`mx-auto flex min-h-[280px] w-full max-w-[1280px] flex-col gap-8 px-4 pb-10 pt-6 sm:px-8 lg:px-12 ${inter.className}`}
           >
             <div className="flex flex-wrap gap-x-10 gap-y-8 lg:gap-x-16">
               <div className="flex w-[151px] flex-col gap-4">

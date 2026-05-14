@@ -21,7 +21,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
             Malva Garden
           </Link>
           <nav className="flex flex-wrap gap-4 text-sm text-slate-700">
-            <Link href="/catalog" className="hover:underline">
+            <Link href="/catalog/kvity" className="hover:underline">
               Каталог
             </Link>
             <Link href="/cart" className="hover:underline">

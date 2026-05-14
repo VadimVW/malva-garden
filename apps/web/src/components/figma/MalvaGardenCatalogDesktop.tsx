@@ -12,6 +12,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { MalvaGardenFigmaStoreNav } from "@/components/figma/MalvaGardenFigmaStoreNav";
+import type { FigmaStoreNavSection } from "@/lib/figmaStoreNavSection";
+import { FIGMA_FALLBACK_PRODUCT_SLUG } from "@/lib/figmaDemoProductSlug";
 import {
   Inter,
   Montserrat_Alternates,
@@ -61,36 +64,53 @@ const PLACEHOLDER_PRODUCTS = [
   { title: "Помідори", subtitle: "Насіння", price: "50 грн" },
 ];
 
-const KVITY_SUBMENU = [
-  {
-    href: "/catalog/kvity/odnorichni",
-    label: "Однорічні",
-    icon: (
-      <svg className="size-4 shrink-0 text-[#5C97A8]" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <path d="M12 22V12M12 12c-2-3-6-3-6-8a6 6 0 0112 0c0 5-4 5-6 8z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    ),
-  },
-  {
-    href: "/catalog/kvity/bagatorichni",
-    label: "Багаторічні",
-    icon: (
-      <svg className="size-4 shrink-0 text-[#5C97A8]" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <path d="M12 8a3 3 0 100-6 3 3 0 000 6zm0 0c-4 2-6 5-6 10h12c0-5-2-8-6-10z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    ),
-  },
-  {
-    href: "/catalog/kvity/hrizantemy",
-    label: "Хризантеми",
-    icon: (
-      <svg className="size-4 shrink-0 text-[#5C97A8]" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <circle cx="12" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M12 12.5v3M8 10l-2-1M16 10l2-1M9.5 7.5L8 5.5M14.5 7.5L16 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-] as const;
+export type CatalogGridProduct = {
+  slug: string;
+  name: string;
+  price: string;
+  stockQuantity: number;
+  subtitle?: string;
+  imageUrl?: string | null;
+};
+
+export type CatalogBreadcrumbItem = { label: string; href?: string };
+
+type CatalogDesktopProps = {
+  gridProducts?: CatalogGridProduct[] | null;
+  sectionTitle?: string;
+  sectionDescription?: string;
+  breadcrumbs?: CatalogBreadcrumbItem[];
+  activeNavSection?: FigmaStoreNavSection;
+};
+
+type CatalogCardModel = {
+  slug: string | null;
+  title: string;
+  subtitle: string;
+  price: string;
+  imageUrl: string | null;
+};
+
+function catalogCardsFromProps(
+  gridProducts: CatalogGridProduct[] | null | undefined,
+): CatalogCardModel[] {
+  if (gridProducts && gridProducts.length > 0) {
+    return gridProducts.map((p) => ({
+      slug: p.slug,
+      title: p.name,
+      subtitle: p.subtitle ?? "У каталозі",
+      price: p.price.includes("грн") ? p.price : `${p.price} грн`,
+      imageUrl: p.imageUrl ?? null,
+    }));
+  }
+  return PLACEHOLDER_PRODUCTS.map((c) => ({
+    slug: null,
+    title: c.title,
+    subtitle: c.subtitle,
+    price: c.price,
+    imageUrl: null,
+  }));
+}
 
 function FooterSocialLink({
   label,
@@ -305,11 +325,19 @@ function FigmaProductCardDecor() {
   );
 }
 
-export default function MalvaGardenCatalogDesktop() {
+export default function MalvaGardenCatalogDesktop({
+  gridProducts,
+  sectionTitle = "Квіти",
+  sectionDescription = "Відбірні товари для вашого саду та дому",
+  breadcrumbs,
+  activeNavSection = "flowers",
+}: CatalogDesktopProps) {
+  const gridCards = catalogCardsFromProps(gridProducts ?? null);
+  const crumbTrail: CatalogBreadcrumbItem[] = breadcrumbs ?? [{ label: "Квіти" }];
   return (
-    <div className="relative w-full max-w-[1200px] bg-white">
+    <div className="relative flex min-h-screen w-full flex-col overflow-visible bg-[#F5F5F5]">
       <header
-        className={`absolute left-0 right-0 top-0 z-20 w-full max-w-[1200px] bg-[#5C97A8] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] ${inter.className}`}
+        className={`sticky top-0 z-30 w-full bg-[#5C97A8] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] ${inter.className}`}
       >
         <div className="pointer-events-none absolute inset-0 z-[1] opacity-40">
           <Image
@@ -317,12 +345,12 @@ export default function MalvaGardenCatalogDesktop() {
             alt=""
             fill
             className="object-cover object-center"
-            sizes="(max-width: 1200px) 100vw, 1200px"
+            sizes="100vw"
             priority
           />
         </div>
-        <div className="relative z-[2] flex flex-col">
-          <div className="relative flex h-[95px] items-center gap-[30px] px-[100px] pb-2 pt-[18px]">
+        <div className="relative z-[2] flex flex-col overflow-visible">
+          <div className="relative mx-auto flex h-[95px] w-full max-w-[1280px] items-center gap-4 px-4 pb-2 pt-[18px] sm:gap-6 sm:px-8 lg:gap-[30px] lg:px-12 xl:px-16">
             <div className="relative flex h-[69px] w-[97px] shrink-0 items-center">
               <Link href="/" className="inline-flex">
                 <Image
@@ -397,76 +425,28 @@ export default function MalvaGardenCatalogDesktop() {
                 <circle cx="12" cy="7" r="4" />
               </svg>
             </a>
-            <div className="relative h-12 w-[119px] shrink-0 overflow-hidden rounded-[5px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]">
-              <div className="relative z-10 flex h-full w-full items-center gap-3 px-2">
-                <SocialSvgImg
-                  src={IMG.cartIcon}
-                  width={32}
-                  height={31}
-                  className="h-8 w-8 shrink-0 object-contain"
-                />
-                <span className="text-[12px] font-bold text-[#F7F4EF]">Кошик</span>
-              </div>
-            </div>
+            <Link
+              href="/cart"
+              className="relative z-10 flex h-12 w-[119px] shrink-0 items-center gap-3 overflow-hidden rounded-[5px] px-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]"
+            >
+              <SocialSvgImg
+                src={IMG.cartIcon}
+                width={32}
+                height={31}
+                className="h-8 w-8 shrink-0 object-contain"
+              />
+              <span className="text-[12px] font-bold text-[#F7F4EF]">Кошик</span>
+            </Link>
           </div>
-          <nav className="relative z-[2] flex h-[44px] min-h-[44px] w-full shrink-0 flex-nowrap items-stretch justify-center gap-0 bg-transparent px-[100px] py-0">
-            <div
-              className="pointer-events-none absolute inset-0 z-0 bg-[#548a9d]/35"
-              aria-hidden
-            />
-            <div
-              className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-black/[0.04] to-black/[0.12]"
-              aria-hidden
-            />
-            <Link
-              href="/catalog"
-              className="relative z-10 flex h-full min-w-[130px] flex-1 items-center justify-center px-3 text-center text-[12px] font-bold leading-tight text-[#F7F4EF] transition-colors hover:bg-[#4C8094]/30 sm:flex-initial"
-            >
-              Декоративні кущі
-            </Link>
-            <div className="group/kv relative z-30 flex h-full min-w-[130px] flex-1 flex-col items-stretch sm:flex-initial">
-              <Link
-                href="/catalog/kvity"
-                className="relative z-10 flex h-full min-h-[44px] w-full flex-1 items-center justify-center px-3 text-center text-[12px] font-bold leading-tight text-[#F7F4EF] transition-colors hover:bg-[#4C8094]/30"
-              >
-                Квіти
-              </Link>
-              <div
-                className="pointer-events-none invisible absolute left-1/2 top-full z-50 w-[min(100vw-2rem,260px)] -translate-x-1/2 pt-1 opacity-0 transition-opacity duration-150 group-hover/kv:pointer-events-auto group-hover/kv:visible group-hover/kv:opacity-100"
-                role="menu"
-                aria-label="Підкатегорії квітів"
-              >
-                <ul className="rounded-b-xl rounded-tr-xl bg-white py-2 shadow-[0px_10px_30px_rgba(0,0,0,0.12)] ring-1 ring-black/5">
-                  {KVITY_SUBMENU.map((item) => (
-                    <li key={item.href} role="none">
-                      <Link
-                        href={item.href}
-                        role="menuitem"
-                        className="flex items-center gap-3 px-4 py-2.5 text-left text-[13px] font-semibold text-[#5C97A8] transition-colors hover:bg-[#E7F1F3]"
-                      >
-                        {item.icon}
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <Link
-              href="/catalog"
-              className="relative z-10 flex h-full min-w-[130px] flex-1 items-center justify-center px-3 text-center text-[12px] font-bold leading-tight text-[#F7F4EF] transition-colors hover:bg-[#4C8094]/30 sm:flex-initial"
-            >
-              Декоративні трави
-            </Link>
-          </nav>
+          <MalvaGardenFigmaStoreNav activeSection={activeNavSection} />
         </div>
       </header>
 
       <div
-        className={`flex min-h-[1200px] w-full flex-col bg-white pt-[139px] ${montserratAlternates.className}`}
+        className={`flex flex-1 flex-col bg-[#F5F5F5] ${montserratAlternates.className}`}
       >
-        <div className="flex w-full justify-center bg-[#F5F5F5] px-[100px] pb-14">
-          <div className="flex w-full max-w-[1000px] flex-col bg-[#E7F1F3] px-6 pb-12 pt-8">
+        <div className="flex w-full justify-center px-4 pb-12 pt-6 sm:px-8 lg:px-12">
+          <div className="flex w-full max-w-[1200px] flex-col bg-[#E7F1F3] px-5 pb-12 pt-8 sm:px-8">
             <nav
               className="mb-6 flex flex-wrap items-center gap-2 text-[12px] leading-none"
               aria-label="Навігаційні крихти"
@@ -485,16 +465,29 @@ export default function MalvaGardenCatalogDesktop() {
                   className="shrink-0"
                 />
               </Link>
-              <span className="text-[#9C9A9A]" aria-hidden>
-                /
-              </span>
-              <Link href="/catalog" className="text-[#5E8F98] hover:underline">
-                Каталог
-              </Link>
-              <span className="text-[#9C9A9A]" aria-hidden>
-                /
-              </span>
-              <span className="font-semibold text-black">Квіти</span>
+              {crumbTrail.map((c, i) => {
+                const last = i === crumbTrail.length - 1;
+                return (
+                  <span key={`${c.label}-${i}`} className="inline-flex items-center gap-2">
+                    <span className="text-[#9C9A9A]" aria-hidden>
+                      /
+                    </span>
+                    {last || !c.href ? (
+                      <span
+                        className={
+                          last ? "font-semibold text-black" : "text-[#5E8F98]"
+                        }
+                      >
+                        {c.label}
+                      </span>
+                    ) : (
+                      <Link href={c.href} className="text-[#5E8F98] hover:underline">
+                        {c.label}
+                      </Link>
+                    )}
+                  </span>
+                );
+              })}
             </nav>
 
             <section className="mb-8 w-full" aria-label="Банер категорії">
@@ -504,7 +497,7 @@ export default function MalvaGardenCatalogDesktop() {
                   alt=""
                   fill
                   className="object-cover object-[center_22%]"
-                  sizes="(max-width: 1000px) 100vw, 1000px"
+                  sizes="(max-width: 1200px) 100vw, 1200px"
                   priority
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/[0.06] p-4">
@@ -517,9 +510,11 @@ export default function MalvaGardenCatalogDesktop() {
                       className="h-[34px] w-[48px] shrink-0 object-contain opacity-[0.35] grayscale"
                     />
                     <div>
-                      <p className="text-[26px] font-bold leading-tight text-black">Квіти</p>
+                      <p className="text-[26px] font-bold leading-tight text-black">
+                        {sectionTitle}
+                      </p>
                       <p className="mt-1 text-[14px] leading-snug text-[#5a5a5a]">
-                        Відбірні товари для вашого саду та дому
+                        {sectionDescription}
                       </p>
                     </div>
                   </div>
@@ -533,7 +528,7 @@ export default function MalvaGardenCatalogDesktop() {
                   id="catalog-heading"
                   className="text-left text-[24px] font-bold leading-none text-black"
                 >
-                  Квіти
+                  {sectionTitle}
                 </h1>
                 <div className="flex flex-wrap items-center gap-2 sm:justify-end">
                   <span className="text-[14px] font-semibold text-black">Сортування:</span>
@@ -552,46 +547,61 @@ export default function MalvaGardenCatalogDesktop() {
               </div>
 
               <div className="grid w-full grid-cols-1 justify-items-center gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
-                {PLACEHOLDER_PRODUCTS.map((c, i) => (
-                  <article
-                    key={i}
-                    className="relative flex h-[346px] w-[225px] flex-col overflow-visible rounded-2xl bg-white shadow-[0px_6px_20px_rgba(0,0,0,0.12),0px_2px_8px_rgba(0,0,0,0.08)]"
-                  >
-                    <div className="flex justify-center overflow-visible rounded-t-2xl pt-2">
-                      <div className="relative h-[190px] w-[190px]">
-                        <Image
-                          src={IMG.productThumb}
-                          alt=""
-                          width={190}
-                          height={190}
-                          className="h-full w-full rounded-lg object-cover"
-                        />
+                {gridCards.map((c, i) => {
+                  const thumbSrc = c.imageUrl || IMG.productThumb;
+                  const remote = thumbSrc.startsWith("http");
+                  const inner = (
+                    <>
+                      <div className="flex justify-center overflow-visible rounded-t-2xl pt-2">
+                        <div className="relative h-[190px] w-[190px]">
+                          <Image
+                            src={thumbSrc}
+                            alt=""
+                            width={190}
+                            height={190}
+                            className="h-full w-full rounded-lg object-cover"
+                            unoptimized={remote}
+                          />
+                        </div>
                       </div>
-                    </div>
-                    <div className="relative z-[10] flex min-h-0 flex-1 flex-row items-end justify-between gap-2 px-3 pb-4 pt-3">
-                      <div className="flex min-w-0 flex-col gap-1">
-                        <h2 className="text-[25px] leading-none text-black">{c.title}</h2>
-                        <p className="text-[14px] text-[#9C9A9A]">{c.subtitle}</p>
-                        <p className="pt-1 text-[24px] font-semibold leading-none text-black">
-                          {c.price}
-                        </p>
+                      <div className="relative z-[10] flex min-h-0 flex-1 flex-row items-end justify-between gap-2 px-3 pb-4 pt-3">
+                        <div className="flex min-w-0 flex-1 flex-col gap-1">
+                          <h2 className="text-[25px] leading-none text-black">{c.title}</h2>
+                          <p className="text-[14px] text-[#9C9A9A]">{c.subtitle}</p>
+                          <p className="pt-1 text-[24px] font-semibold leading-none text-black">
+                            {c.price}
+                          </p>
+                        </div>
+                        <span
+                          className="relative z-[10] flex size-9 shrink-0 items-center justify-center rounded-full bg-[#5C97A8] text-white shadow-[0px_2px_6px_rgba(92,151,168,0.45)]"
+                          aria-hidden
+                        >
+                          <SocialSvgImg
+                            src={IMG.cartIcon}
+                            width={32}
+                            height={31}
+                            className="h-[18px] w-[18px] object-contain"
+                          />
+                        </span>
                       </div>
-                      <button
-                        type="button"
-                        className="relative z-[10] flex size-9 shrink-0 items-center justify-center rounded-full bg-[#5C97A8] text-white shadow-[0px_2px_6px_rgba(92,151,168,0.45)] transition-transform hover:scale-105 active:scale-95"
-                        aria-label="У кошик"
-                      >
-                        <SocialSvgImg
-                          src={IMG.cartIcon}
-                          width={32}
-                          height={31}
-                          className="h-[18px] w-[18px] object-contain"
-                        />
-                      </button>
-                    </div>
-                    <FigmaProductCardDecor />
-                  </article>
-                ))}
+                      <FigmaProductCardDecor />
+                    </>
+                  );
+                  const shellClass =
+                    "relative flex h-[346px] w-[225px] flex-col overflow-visible rounded-2xl bg-white shadow-[0px_6px_20px_rgba(0,0,0,0.12),0px_2px_8px_rgba(0,0,0,0.08)]";
+                  const productHref = c.slug
+                    ? `/product/${c.slug}`
+                    : `/product/${FIGMA_FALLBACK_PRODUCT_SLUG}`;
+                  return (
+                    <Link
+                      key={c.slug ?? `ph-${i}`}
+                      href={productHref}
+                      className={`${shellClass} block transition-transform hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5C97A8] focus-visible:ring-offset-2`}
+                    >
+                      {inner}
+                    </Link>
+                  );
+                })}
               </div>
 
               <nav
@@ -641,9 +651,9 @@ export default function MalvaGardenCatalogDesktop() {
           </div>
         </div>
 
-        <footer className="mt-auto w-full bg-[#5C97A8] text-[#F7F4EF]">
+        <footer className="mt-auto w-full shrink-0 bg-[#5C97A8] text-[#F7F4EF]">
           <div
-            className={`mx-auto flex min-h-[280px] w-full max-w-[1200px] flex-col gap-8 bg-[#5C97A8] px-[100px] pb-10 pt-6 ${inter.className}`}
+            className={`mx-auto flex min-h-[280px] w-full max-w-[1280px] flex-col gap-8 px-4 pb-10 pt-6 sm:px-8 lg:px-12 ${inter.className}`}
           >
             <div className="flex flex-wrap gap-x-10 gap-y-8 lg:gap-x-16">
               <div className="flex w-[151px] flex-col gap-4">

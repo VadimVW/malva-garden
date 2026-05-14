@@ -29,8 +29,8 @@ export default async function CategoryPage({
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-8">
       <nav className="text-sm text-slate-500">
-        <Link href="/catalog" className="hover:underline">
-          Каталог
+        <Link href="/catalog/kvity" className="hover:underline">
+          Квіти
         </Link>
         {meta.breadcrumbs.map((b) => (
           <span key={b.slug}>

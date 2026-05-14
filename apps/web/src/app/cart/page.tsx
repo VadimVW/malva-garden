@@ -103,7 +103,7 @@ export default function CartPage() {
       <div className="mx-auto max-w-3xl space-y-4 px-4 py-10">
         <h1 className="text-2xl font-semibold">Кошик порожній</h1>
         <p className="text-slate-600">Додайте товар з картки товару.</p>
-        <Link href="/catalog" className="text-emerald-800 underline">
+        <Link href="/catalog/kvity" className="text-emerald-800 underline">
           У каталог
         </Link>
       </div>

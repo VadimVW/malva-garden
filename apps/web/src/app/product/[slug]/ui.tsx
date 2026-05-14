@@ -7,11 +7,22 @@ import { getCartToken, setCartToken } from "@/lib/cart-token";
 type Props = {
   productId: string;
   disabled?: boolean;
+  /** Кількість позицій для додавання за один клік */
+  quantity?: number;
+  className?: string;
+  label?: string;
 };
 
-export function AddToCartButton({ productId, disabled }: Props) {
+export function AddToCartButton({
+  productId,
+  disabled,
+  quantity = 1,
+  className,
+  label,
+}: Props) {
   const [msg, setMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const qty = Math.max(1, Math.floor(quantity));
 
   async function onAdd() {
     setMsg(null);
@@ -33,7 +44,7 @@ export function AddToCartButton({ productId, disabled }: Props) {
           "Content-Type": "application/json",
           "X-Cart-Token": token,
         },
-        body: JSON.stringify({ productId, quantity: 1 }),
+        body: JSON.stringify({ productId, quantity: qty }),
       });
       if (!res.ok) throw new Error(await res.text());
       setMsg("Додано в кошик");
@@ -50,9 +61,12 @@ export function AddToCartButton({ productId, disabled }: Props) {
         type="button"
         onClick={onAdd}
         disabled={disabled || loading}
-        className="rounded bg-emerald-800 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        className={
+          className ??
+          "rounded bg-emerald-800 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        }
       >
-        {loading ? "Зачекайте…" : "У кошик"}
+        {loading ? "Зачекайте…" : (label ?? "У кошик")}
       </button>
       {msg && <p className="text-sm text-slate-600">{msg}</p>}
     </div>
