@@ -53,9 +53,26 @@ npm run dev
 
 Поточний UI — лише **каркас** (навігація + списки) без макетів. Перед **піксельною версткою** надішліть, будь ласка, **посилання на Figma** (файл і ключові фрейми / mobile + desktop), щоб узгодити компоненти й токени.
 
+## Тестовий деплой (Vercel)
+
+Монорепо: **два проєкти Vercel** + API з БД окремо.
+
+| Проєкт | Root Directory | Build | Env |
+|--------|----------------|-------|-----|
+| **malva-web** | `apps/web` | `npm run build -w web` (або через `vercel.json`) | `NEXT_PUBLIC_API_URL` → URL API |
+| **malva-admin** | `apps/admin` | `npm run build -w admin` | `NEXT_PUBLIC_API_URL` |
+| **API** | — | Nest на Railway / Render / Fly тощо | `DATABASE_URL`, `JWT_SECRET`, `WEB_ORIGIN`, `ADMIN_ORIGIN` |
+
+1. Підняти **PostgreSQL** (Neon, Vercel Postgres, або Docker на VPS) і задеплоїти **API** (`npm run build -w api`, `prisma migrate deploy`, `db:seed` на staging).
+2. У Vercel створити проєкт для `apps/web`, вказати Root Directory `apps/web`, додати `NEXT_PUBLIC_API_URL=https://…/api/v1`.
+3. Другий проєкт для `apps/admin`, Root `apps/admin`; у API виставити `ADMIN_ORIGIN` = preview-URL адмінки.
+4. У API: `WEB_ORIGIN` = preview-URL вітрини. Перевірити логін адмінки та каталог з `?page=2`.
+
+Локально каталог: `/catalog/kvity?page=2` — пагінація 24 товари на сторінку.
+
 ## Далі по продукту
 
 - Завантаження зображень (S3 / локальний стор), WebP
 - Sitemap, robots, JSON-LD Product
-- Далі: refresh-токен, rate limit на логін, завантаження зображень (замість URL)
+- Refresh-токен, rate limit на логін (адмінка)
 - LiqPay webhook і зміна `paymentStatus`

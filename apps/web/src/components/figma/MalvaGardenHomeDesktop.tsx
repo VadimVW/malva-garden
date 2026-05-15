@@ -10,7 +10,6 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { MalvaGardenFigmaStoreNav } from "@/components/figma/MalvaGardenFigmaStoreNav";
-import { FIGMA_FALLBACK_PRODUCT_SLUG } from "@/lib/figmaDemoProductSlug";
 import {
   Inter,
   Montserrat_Alternates,
@@ -58,15 +57,6 @@ const SOCIAL_SVG = {
   viber: "/images/figma/home/viber.svg",
 } as const;
 
-const PLACEHOLDER_CARDS = [
-  { title: "Помідори", subtitle: "Насіння", price: "50 грн" },
-  { title: "Помідори", subtitle: "Насіння", price: "50 грн" },
-  { title: "Помідори", subtitle: "Насіння", price: "50 грн" },
-  { title: "Помідори", subtitle: "Насіння", price: "50 грн" },
-  { title: "Помідори", subtitle: "Насіння", price: "50 грн" },
-  { title: "Помідори", subtitle: "Насіння", price: "50 грн" },
-];
-
 export type HomeLeaderProduct = {
   slug: string;
   name: string;
@@ -82,21 +72,13 @@ type HomeProps = {
 function leaderCardsFromProps(
   leaderProducts: HomeLeaderProduct[] | null | undefined,
 ) {
-  if (leaderProducts && leaderProducts.length > 0) {
-    return leaderProducts.map((p) => ({
-      slug: p.slug,
-      title: p.name,
-      subtitle: p.subtitle,
-      price: p.price.includes("грн") ? p.price : `${p.price} грн`,
-      imageUrl: p.imageUrl ?? null,
-    }));
-  }
-  return PLACEHOLDER_CARDS.map((c, i) => ({
-    slug: null as string | null,
-    title: c.title,
-    subtitle: c.subtitle,
-    price: c.price,
-    imageUrl: null as string | null,
+  if (!leaderProducts?.length) return [];
+  return leaderProducts.map((p) => ({
+    slug: p.slug,
+    title: p.name,
+    subtitle: p.subtitle,
+    price: p.price.includes("грн") ? p.price : `${p.price} грн`,
+    imageUrl: p.imageUrl ?? null,
   }));
 }
 
@@ -506,7 +488,12 @@ export default function MalvaGardenHomeDesktop({ leaderProducts }: HomeProps) {
                   Лідери продажу:
                 </h2>
                 <div className="flex w-full flex-wrap items-center justify-center gap-x-[60px] gap-y-8 rounded-2xl bg-[rgba(231,241,243,0.46)] px-3 py-[15px] sm:gap-x-[80px] lg:gap-x-[100px]">
-                  {cards.map((c, i) => {
+                  {cards.length === 0 && (
+                    <p className="w-full py-8 text-center text-[16px] text-[#5C5C5C]">
+                      Товари зʼявляться після підключення каталогу.
+                    </p>
+                  )}
+                  {cards.map((c) => {
                     const thumbSrc = c.imageUrl || IMG.productThumb;
                     const remote = thumbSrc.startsWith("http");
                     const inner = (
@@ -548,13 +535,10 @@ export default function MalvaGardenHomeDesktop({ leaderProducts }: HomeProps) {
                     );
                     const shellClass =
                       "relative flex h-[346px] w-[225px] flex-col overflow-visible rounded-2xl bg-white shadow-[0px_6px_20px_rgba(0,0,0,0.12),0px_2px_8px_rgba(0,0,0,0.08)]";
-                    const productHref = c.slug
-                      ? `/product/${c.slug}`
-                      : `/product/${FIGMA_FALLBACK_PRODUCT_SLUG}`;
                     return (
                       <Link
-                        key={c.slug ?? `ph-${i}`}
-                        href={productHref}
+                        key={c.slug}
+                        href={`/product/${c.slug}`}
                         className={`${shellClass} block transition-transform hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5C97A8] focus-visible:ring-offset-2`}
                       >
                         {inner}

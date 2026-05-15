@@ -1,5 +1,11 @@
 import { PrismaClient, ProductStatus } from "@prisma/client";
 import * as bcrypt from "bcrypt";
+import {
+  CATEGORY_SLUG_BY_LABEL,
+  REMOVED_DEMO_PRODUCT_SLUGS,
+  SEED_PRODUCTS,
+  seedProductImageUrl,
+} from "./seed-products-data";
 
 const prisma = new PrismaClient();
 
@@ -121,7 +127,7 @@ async function main() {
     },
   });
 
-  const catVeg = await prisma.category.upsert({
+  await prisma.category.upsert({
     where: { slug: "ovochi" },
     update: {},
     create: {
@@ -131,47 +137,60 @@ async function main() {
     },
   });
 
-  const p1 = await prisma.product.upsert({
-    where: { slug: "petuniya-miks" },
-    update: { categoryId: catOdnorichni.id },
-    create: {
-      name: "Петунія мікс",
-      slug: "petuniya-miks",
-      price: 49.9,
-      stockQuantity: 120,
-      status: ProductStatus.ACTIVE,
-      categoryId: catOdnorichni.id,
-      description: "Насіння петунії суміш кольорів.",
-      careDescription: "Розсаду висаджувати після заморозків.",
-      seoTitle: "Петунія мікс — купити насіння",
-      seoDescription: "Насіння петунії Malva Garden.",
-    },
+  const categoryIdBySlug: Record<string, string> = {
+    kvity: catKvity.id,
+    "dekoratyvni-kushi": catShrubs.id,
+    "dekoratyvni-travy": (
+      await prisma.category.findUnique({ where: { slug: "dekoratyvni-travy" } })
+    )!.id,
+  };
+
+  await prisma.product.deleteMany({
+    where: { slug: { in: [...REMOVED_DEMO_PRODUCT_SLUGS] } },
   });
 
-  await prisma.productImage.deleteMany({ where: { productId: p1.id } });
-  await prisma.productImage.create({
-    data: {
-      productId: p1.id,
-      imageUrl: "https://placehold.co/600x600/png?text=Petunia",
-      altText: "Петунія",
-      isMain: true,
-      sortOrder: 0,
-    },
-  });
+  for (const row of SEED_PRODUCTS) {
+    const categorySlug = CATEGORY_SLUG_BY_LABEL[row.category];
+    const categoryId = categoryIdBySlug[categorySlug];
 
-  await prisma.product.upsert({
-    where: { slug: "pomidor-cherry" },
-    update: {},
-    create: {
-      name: "Помідор черрі",
-      slug: "pomidor-cherry",
-      price: 35,
-      stockQuantity: 0,
-      status: ProductStatus.ACTIVE,
-      categoryId: catVeg.id,
-      description: "Солодкі черрі для теплиці та відкритого ґрунту.",
-    },
-  });
+    const product = await prisma.product.upsert({
+      where: { slug: row.slug },
+      update: {
+        name: row.name,
+        price: row.price,
+        stockQuantity: row.stock,
+        status: ProductStatus.ACTIVE,
+        categoryId,
+        description: row.description,
+        careDescription: row.care,
+        seoTitle: row.seoTitle,
+        seoDescription: row.seoDescription,
+      },
+      create: {
+        name: row.name,
+        slug: row.slug,
+        price: row.price,
+        stockQuantity: row.stock,
+        status: ProductStatus.ACTIVE,
+        categoryId,
+        description: row.description,
+        careDescription: row.care,
+        seoTitle: row.seoTitle,
+        seoDescription: row.seoDescription,
+      },
+    });
+
+    await prisma.productImage.deleteMany({ where: { productId: product.id } });
+    await prisma.productImage.create({
+      data: {
+        productId: product.id,
+        imageUrl: seedProductImageUrl(row.slug),
+        altText: row.name,
+        isMain: true,
+        sortOrder: 0,
+      },
+    });
+  }
 
   const pages: { slug: string; title: string; content: string }[] = [
     {

@@ -12,9 +12,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { CatalogPaginationNav } from "@/components/figma/CatalogPaginationNav";
 import { MalvaGardenFigmaStoreNav } from "@/components/figma/MalvaGardenFigmaStoreNav";
+import type { CatalogPaginationMeta } from "@/lib/catalogPagination";
 import type { FigmaStoreNavSection } from "@/lib/figmaStoreNavSection";
-import { FIGMA_FALLBACK_PRODUCT_SLUG } from "@/lib/figmaDemoProductSlug";
 import {
   Inter,
   Montserrat_Alternates,
@@ -55,15 +56,6 @@ const SOCIAL_SVG = {
 /** Іконка з `public/images/figma/catalog/home-btn.svg` (не з MCP JSON). */
 const CATALOG_HOME_BTN = "/images/figma/catalog/home-btn.svg";
 
-const PLACEHOLDER_PRODUCTS = [
-  { title: "Помідори", subtitle: "Насіння", price: "50 грн" },
-  { title: "Помідори", subtitle: "Насіння", price: "50 грн" },
-  { title: "Помідори", subtitle: "Насіння", price: "50 грн" },
-  { title: "Помідори", subtitle: "Насіння", price: "50 грн" },
-  { title: "Помідори", subtitle: "Насіння", price: "50 грн" },
-  { title: "Помідори", subtitle: "Насіння", price: "50 грн" },
-];
-
 export type CatalogGridProduct = {
   slug: string;
   name: string;
@@ -81,6 +73,8 @@ type CatalogDesktopProps = {
   sectionDescription?: string;
   breadcrumbs?: CatalogBreadcrumbItem[];
   activeNavSection?: FigmaStoreNavSection;
+  paginationBasePath?: string;
+  pagination?: CatalogPaginationMeta | null;
 };
 
 type CatalogCardModel = {
@@ -94,21 +88,13 @@ type CatalogCardModel = {
 function catalogCardsFromProps(
   gridProducts: CatalogGridProduct[] | null | undefined,
 ): CatalogCardModel[] {
-  if (gridProducts && gridProducts.length > 0) {
-    return gridProducts.map((p) => ({
-      slug: p.slug,
-      title: p.name,
-      subtitle: p.subtitle ?? "У каталозі",
-      price: p.price.includes("грн") ? p.price : `${p.price} грн`,
-      imageUrl: p.imageUrl ?? null,
-    }));
-  }
-  return PLACEHOLDER_PRODUCTS.map((c) => ({
-    slug: null,
-    title: c.title,
-    subtitle: c.subtitle,
-    price: c.price,
-    imageUrl: null,
+  if (!gridProducts?.length) return [];
+  return gridProducts.map((p) => ({
+    slug: p.slug,
+    title: p.name,
+    subtitle: p.subtitle ?? "У каталозі",
+    price: p.price.includes("грн") ? p.price : `${p.price} грн`,
+    imageUrl: p.imageUrl ?? null,
   }));
 }
 
@@ -331,6 +317,8 @@ export default function MalvaGardenCatalogDesktop({
   sectionDescription = "Відбірні товари для вашого саду та дому",
   breadcrumbs,
   activeNavSection = "flowers",
+  paginationBasePath,
+  pagination,
 }: CatalogDesktopProps) {
   const gridCards = catalogCardsFromProps(gridProducts ?? null);
   const crumbTrail: CatalogBreadcrumbItem[] = breadcrumbs ?? [{ label: "Квіти" }];
@@ -547,7 +535,12 @@ export default function MalvaGardenCatalogDesktop({
               </div>
 
               <div className="grid w-full grid-cols-1 justify-items-center gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
-                {gridCards.map((c, i) => {
+                {gridCards.length === 0 && (
+                  <p className="col-span-full py-16 text-center text-[16px] text-[#5C5C5C]">
+                    У цій категорії поки немає товарів.
+                  </p>
+                )}
+                {gridCards.map((c) => {
                   const thumbSrc = c.imageUrl || IMG.productThumb;
                   const remote = thumbSrc.startsWith("http");
                   const inner = (
@@ -589,13 +582,10 @@ export default function MalvaGardenCatalogDesktop({
                   );
                   const shellClass =
                     "relative flex h-[346px] w-[225px] flex-col overflow-visible rounded-2xl bg-white shadow-[0px_6px_20px_rgba(0,0,0,0.12),0px_2px_8px_rgba(0,0,0,0.08)]";
-                  const productHref = c.slug
-                    ? `/product/${c.slug}`
-                    : `/product/${FIGMA_FALLBACK_PRODUCT_SLUG}`;
                   return (
                     <Link
-                      key={c.slug ?? `ph-${i}`}
-                      href={productHref}
+                      key={c.slug}
+                      href={`/product/${c.slug}`}
                       className={`${shellClass} block transition-transform hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5C97A8] focus-visible:ring-offset-2`}
                     >
                       {inner}
@@ -604,49 +594,12 @@ export default function MalvaGardenCatalogDesktop({
                 })}
               </div>
 
-              <nav
-                className="mt-12 flex flex-wrap items-center justify-center gap-1.5 text-[14px] font-semibold"
-                aria-label="Сторінки каталогу"
-              >
-                <button
-                  type="button"
-                  className="inline-flex size-9 items-center justify-center rounded-full text-[#5C97A8] transition-colors hover:bg-white/80"
-                  aria-label="Попередня сторінка"
-                >
-                  ‹
-                </button>
-                <span className="inline-flex size-9 items-center justify-center rounded-full bg-[#5C97A8] text-[#F7F4EF]">
-                  1
-                </span>
-                {[2, 3].map((p) => (
-                  <button
-                    key={p}
-                    type="button"
-                    className="inline-flex size-9 items-center justify-center rounded-full text-[#5C97A8] transition-colors hover:bg-white/80"
-                  >
-                    {p}
-                  </button>
-                ))}
-                <span className="px-1 text-[#9C9A9A]" aria-hidden>
-                  …
-                </span>
-                {[67, 68].map((p) => (
-                  <button
-                    key={p}
-                    type="button"
-                    className="inline-flex size-9 items-center justify-center rounded-full text-[#5C97A8] transition-colors hover:bg-white/80"
-                  >
-                    {p}
-                  </button>
-                ))}
-                <button
-                  type="button"
-                  className="inline-flex size-9 items-center justify-center rounded-full text-[#5C97A8] transition-colors hover:bg-white/80"
-                  aria-label="Наступна сторінка"
-                >
-                  ›
-                </button>
-              </nav>
+              {paginationBasePath && pagination && pagination.totalPages > 0 ? (
+                <CatalogPaginationNav
+                  basePath={paginationBasePath}
+                  pagination={pagination}
+                />
+              ) : null}
             </main>
           </div>
         </div>
