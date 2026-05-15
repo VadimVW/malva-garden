@@ -10,6 +10,11 @@
     "build:web": "npm run build -w web",
     "build:api": "npm run build -w api",
     "build:admin": "npm run build -w admin",
+    "deploy:web": "cd apps/web && npx vercel@latest deploy --prod",
+    "deploy:admin": "cd apps/admin && npx vercel@latest deploy --prod",
+    "deploy:web:preview": "cd apps/web && npx vercel@latest deploy",
+    "deploy:admin:preview": "cd apps/admin && npx vercel@latest deploy",
+    "staging:vercel-env": "node scripts/staging-vercel-env.mjs"
     "lint": "npm run lint -w web && npm run lint -w api && npm run lint -w admin",
     "db:migrate": "node scripts/ensure-api-env.mjs && npm run prisma:migrate -w api",
     "db:seed": "node scripts/ensure-api-env.mjs && npm run prisma:seed -w api",

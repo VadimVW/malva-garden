@@ -53,6 +53,12 @@ npm run dev
 
 Поточний UI — лише **каркас** (навігація + списки) без макетів. Перед **піксельною версткою** надішліть, будь ласка, **посилання на Figma** (файл і ключові фрейми / mobile + desktop), щоб узгодити компоненти й токени.
 
+## Staging (тимчасовий тест)
+
+Повна інструкція: **[docs/STAGING.md](docs/STAGING.md)** — Render (API + Postgres) + Vercel (web/admin), без прив’язки до Vercel як до фінального production.
+
+Коротко: Blueprint з [`render.yaml`](render.yaml) → `npm run staging:vercel-env -- https://<api-host>`.
+
 ## Тестовий деплой (Vercel)
 
 Монорепо: **два проєкти Vercel** + API з БД окремо.
@@ -67,6 +73,17 @@ npm run dev
 2. У Vercel створити проєкт для `apps/web`, вказати Root Directory `apps/web`, додати `NEXT_PUBLIC_API_URL=https://…/api/v1`.
 3. Другий проєкт для `apps/admin`, Root `apps/admin`; у API виставити `ADMIN_ORIGIN` = preview-URL адмінки.
 4. У API: `WEB_ORIGIN` = preview-URL вітрини. Перевірити логін адмінки та каталог з `?page=2`.
+
+**Поточні production URL (Vercel, акаунт vadimvw):**
+
+| Додаток | URL |
+|---------|-----|
+| Вітрина | https://web-black-nine-61.vercel.app |
+| Адмінка | https://admin-swart-rho-88.vercel.app |
+
+Поки API не задеплоєно, у Vercel для **web** і **admin** треба виставити `NEXT_PUBLIC_API_URL` (після появи публічного URL API). У API — `WEB_ORIGIN` і `ADMIN_ORIGIN` з таблиці вище.
+
+CLI: `npm run deploy:web` / `npm run deploy:admin` (потрібен `npx vercel login`).
 
 Локально каталог: `/catalog/kvity?page=2` — пагінація 24 товари на сторінку.
 
