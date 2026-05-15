@@ -5,6 +5,7 @@
 ## Структура
 
 - `apps/web` — Next.js (App Router), `lang="uk"`, маршрути: `/catalog`, `/product/[slug]`, `/cart`, `/checkout`, `/pages/[slug]`
+- `apps/admin` — Next.js адмін-панель (порт **3001**): категорії, товари, замовлення, сторінки, налаштування
 - `apps/api` — NestJS, префікс `/api/v1` (товари, категорії, кошик, замовлення, контент, адмін JWT)
 - `docker-compose.yml` — PostgreSQL 16 для локальної розробки
 
@@ -23,7 +24,8 @@ docker compose up -d
 ```
 
 Створіть `apps/web/.env` з `apps/web/.env.example` (для `NEXT_PUBLIC_API_URL`).  
-Файл **`apps/api/.env`** можна створити вручну або він з’явиться автоматично при першому запуску **`npm run db:migrate:init`** / **`npm run db:seed`** (копія з `apps/api/.env.example`).
+Скопіюйте `apps/admin/.env.example` → `apps/admin/.env` (той самий `NEXT_PUBLIC_API_URL`).  
+Файл **`apps/api/.env`** можна створити вручну або він з’явиться автоматично при першому запуску **`npm run db:migrate:init`** / **`npm run db:seed`** (копія з `apps/api/.env.example`). У `apps/api/.env` додайте **`ADMIN_ORIGIN=http://localhost:3001`** для CORS адмінки.
 
 ```bash
 npm run db:migrate:init
@@ -35,8 +37,8 @@ npm run db:seed
 Не запускайте голий `npx prisma …` з кореня репозиторію без `--schema` — npm може підтягнути **Prisma 7**, де змінилась конфігурація. У проєкті зафіксовано **Prisma 6.3.1** у `apps/api`.
 
 - Сайт: http://localhost:3000  
+- **Адмін-панель:** http://localhost:3001 (логін `admin@malva.local` / пароль з `ADMIN_SEED_PASSWORD`, за замовчуванням `admin123`)  
 - API: http://localhost:4000/api/v1/health  
-- Адмін логін (seed): `admin@malva.local` / пароль з `ADMIN_SEED_PASSWORD` у `apps/api/.env` (за замовчуванням `admin123`).  
 - Токен: `POST /api/v1/admin/auth/login` → `Authorization: Bearer …` для `GET/PATCH /api/v1/admin/...`
 
 ## Розробка
@@ -45,7 +47,7 @@ npm run db:seed
 npm run dev
 ```
 
-Запускає Next і Nest паралельно (`concurrently`).
+Запускає вітрину, API та адмінку паралельно (`concurrently`). Окремо: `npm run dev:admin` (лише адмінка на порту 3001).
 
 ## Верстка з Figma
 
@@ -55,5 +57,5 @@ npm run dev
 
 - Завантаження зображень (S3 / локальний стор), WebP
 - Sitemap, robots, JSON-LD Product
-- Окрема адмін UI (React Admin або власна) поверх REST
+- Далі: refresh-токен, rate limit на логін, завантаження зображень (замість URL)
 - LiqPay webhook і зміна `paymentStatus`

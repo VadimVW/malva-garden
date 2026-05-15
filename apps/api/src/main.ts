@@ -13,8 +13,15 @@ async function bootstrap() {
       transformOptions: { enableImplicitConversion: true },
     }),
   );
+  const corsOrigins = [
+    process.env.WEB_ORIGIN ?? "http://localhost:3000",
+    process.env.ADMIN_ORIGIN ?? "http://localhost:3001",
+  ]
+    .flatMap((v) => v.split(","))
+    .map((o) => o.trim())
+    .filter(Boolean);
   app.enableCors({
-    origin: process.env.WEB_ORIGIN ?? "http://localhost:3000",
+    origin: [...new Set(corsOrigins)],
     credentials: true,
   });
   const port = Number(process.env.PORT) || 4000;

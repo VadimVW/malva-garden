@@ -2,7 +2,7 @@
 
 Базовий URL: `http://localhost:4000/api/v1` (або ваш `PORT`). Усі шляхи нижче — відносно цього префікса.
 
-Авторизація: `POST /auth/login` з JSON `{ "email", "password" }` → у відповіді `accessToken`. Далі заголовок `Authorization: Bearer <accessToken>`.
+Авторизація: `POST /admin/auth/login` з JSON `{ "email", "password" }` → у відповіді `access_token`. Далі заголовок `Authorization: Bearer <access_token>`.
 
 ---
 
