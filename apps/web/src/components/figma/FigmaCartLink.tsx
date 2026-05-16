@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { getApiBaseUrl } from "@/lib/api";
-import { getCartToken } from "@/lib/cart-token";
+import { clearCartToken, getCartToken } from "@/lib/cart-token";
 import { MG_CART_UPDATED, type CartUpdatedDetail } from "@/lib/cart-ui-events";
 
 const CART_ICON = "/images/figma/home/cart.svg";
@@ -23,6 +23,11 @@ export function FigmaCartLink() {
       const res = await fetch(`${getApiBaseUrl()}/cart`, {
         headers: { "X-Cart-Token": token },
       });
+      if (res.status === 404) {
+        clearCartToken();
+        setCount(0);
+        return;
+      }
       if (!res.ok) {
         setCount(0);
         return;

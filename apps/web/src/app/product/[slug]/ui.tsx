@@ -7,7 +7,7 @@ import {
   dispatchCartToast,
   dispatchCartUpdated,
 } from "@/lib/cart-ui-events";
-import { getCartToken, setCartToken } from "@/lib/cart-token";
+import { ensureCartToken } from "@/lib/cart-session";
 
 type Props = {
   productId: string;
@@ -33,16 +33,7 @@ export function AddToCartButton({
   async function onAdd() {
     setLoading(true);
     try {
-      let token = getCartToken();
-      if (!token) {
-        const res = await fetch(`${getApiBaseUrl()}/cart`, {
-          method: "POST",
-        });
-        if (!res.ok) throw new Error(await res.text());
-        const data = (await res.json()) as { token: string };
-        token = data.token;
-        setCartToken(token);
-      }
+      const token = await ensureCartToken();
       const res = await fetch(`${getApiBaseUrl()}/cart/items`, {
         method: "POST",
         headers: {
