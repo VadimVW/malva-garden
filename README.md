@@ -4,7 +4,7 @@
 
 ## Структура
 
-- `apps/web` — Next.js (App Router), `lang="uk"`, маршрути: `/catalog`, `/product/[slug]`, `/cart`, `/checkout`, `/pages/[slug]`
+- `apps/web` — Next.js (App Router), `lang="uk"`: Figma-вітрина (`/`, `/catalog/kvity`, товар, кошик, checkout, інфо-сторінки) + MVP-каталог `/catalog/[slug]` на `SiteShell`
 - `apps/admin` — Next.js адмін-панель (порт **3001**): категорії, товари, замовлення, сторінки, налаштування
 - `apps/api` — NestJS, префікс `/api/v1` (товари, категорії, кошик, замовлення, контент, адмін JWT)
 - `docker-compose.yml` — PostgreSQL 16 для локальної розробки
@@ -41,6 +41,8 @@ npm run db:seed
 - API: http://localhost:4000/api/v1/health  
 - Токен: `POST /api/v1/admin/auth/login` → `Authorization: Bearer …` для `GET/PATCH /api/v1/admin/...`
 
+**Корисні URL вітрини:** `/catalog/kvity`, `/product/<slug>`, `/cart`, `/checkout`, `/pages/dostavka-ta-oplata`, `/order/success` (після оформлення).
+
 ## Розробка
 
 ```bash
@@ -48,10 +50,6 @@ npm run dev
 ```
 
 Запускає вітрину, API та адмінку паралельно (`concurrently`). Окремо: `npm run dev:admin` (лише адмінка на порту 3001).
-
-## Верстка з Figma
-
-Поточний UI — лише **каркас** (навігація + списки) без макетів. Перед **піксельною версткою** надішліть, будь ласка, **посилання на Figma** (файл і ключові фрейми / mobile + desktop), щоб узгодити компоненти й токени.
 
 ## Staging (тимчасовий тест)
 
@@ -87,9 +85,16 @@ CLI: `npm run deploy:web` / `npm run deploy:admin` (потрібен `npx vercel
 
 Локально каталог: `/catalog/kvity?page=2` — пагінація 24 товари на сторінку.
 
+## Вітрина (UI)
+
+- **Figma desktop:** головна, каталоги (`/catalog/kvity`, декоративні кущі/трави), картка товару, кошик, checkout, інфо-сторінки з адмінки (`/pages/[slug]`).
+- **Кошик:** гостьовий токен у `localStorage` (`X-Cart-Token`); після «Додати в кошик» — toast і бейдж у шапці.
+- **Анімації:** CSS у `apps/web/src/app/globals.css` (класи `mg-*`, `prefers-reduced-motion`);
+
 ## Далі по продукту
 
+- SEO: `robots.txt`, `sitemap.xml`, JSON-LD для товару (базові metadata на інфо-сторінках уже є)
+- Мобільна головна (окремий Figma-кадр)
 - Завантаження зображень (S3 / локальний стор), WebP
-- Sitemap, robots, JSON-LD Product
 - Refresh-токен, rate limit на логін (адмінка)
 - LiqPay webhook і зміна `paymentStatus`

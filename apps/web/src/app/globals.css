@@ -107,6 +107,21 @@ body {
     transition-duration: var(--mg-motion-fast);
   }
 
+  .mg-product-card-deco-corner {
+    opacity: 0.95;
+  }
+
+  .mg-product-card-deco-on-hover {
+    opacity: 0;
+    transition: opacity var(--mg-motion-base) var(--mg-ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .mg-product-card:hover .mg-product-card-deco-on-hover {
+      opacity: 0.95;
+    }
+  }
+
   .mg-btn-primary {
     box-shadow: var(--mg-shadow-btn);
     transition:
@@ -311,6 +326,43 @@ body {
     animation: mg-check-draw 0.45s var(--mg-ease-out) 0.15s forwards;
   }
 
+  /* Figma store header: компактніша шапка після скролу */
+  .mg-figma-header .mg-header-top {
+    min-height: 88px;
+    padding-top: 12px;
+    padding-bottom: 8px;
+    transition:
+      min-height var(--mg-motion-base) var(--mg-ease-out),
+      padding var(--mg-motion-base) var(--mg-ease-out);
+  }
+
+  .mg-figma-header.is-scrolled .mg-header-top {
+    min-height: 62px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+
+  .mg-figma-header .mg-header-logo {
+    width: auto;
+    height: 64px;
+    transition: height var(--mg-motion-base) var(--mg-ease-out);
+  }
+
+  .mg-figma-header.is-scrolled .mg-header-logo {
+    height: 48px;
+  }
+
+  .mg-figma-header.is-scrolled .mg-header-profile {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .mg-figma-header .mg-header-profile {
+    transition:
+      width var(--mg-motion-base) var(--mg-ease-out),
+      height var(--mg-motion-base) var(--mg-ease-out);
+  }
+
   .mg-toast {
     position: fixed;
     bottom: 1.5rem;
@@ -348,6 +400,17 @@ body {
   .mg-check-path,
   .mg-toast {
     animation: none !important;
+  }
+
+  .mg-figma-header .mg-header-top,
+  .mg-figma-header .mg-header-logo,
+  .mg-figma-header .mg-header-profile {
+    transition: none !important;
+  }
+
+  .mg-figma-header.is-scrolled .mg-header-top {
+    min-height: 88px;
+    padding-top: 12px;
   }
 
   .mg-check-path {
