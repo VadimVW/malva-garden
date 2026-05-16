@@ -47,7 +47,7 @@ export function ProductFigmaGallery({
           className="mg-gallery-image object-contain object-center"
           sizes="(max-width: 1024px) 100vw, 440px"
           priority
-          unoptimized={mainSrc.startsWith("http")}
+          unoptimized={mainSrc.startsWith("http") || mainSrc.startsWith("data:")}
         />
       </div>
       <div className="mt-4 flex gap-3">
@@ -76,7 +76,7 @@ export function ProductFigmaGallery({
                 fill
                 className="object-cover object-center"
                 sizes="72px"
-                unoptimized={src.startsWith("http")}
+                unoptimized={src.startsWith("http") || src.startsWith("data:")}
               />
             </button>
           );

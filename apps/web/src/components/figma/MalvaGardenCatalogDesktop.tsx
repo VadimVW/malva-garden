@@ -228,7 +228,8 @@ export default function MalvaGardenCatalogDesktop({
                 )}
                 {gridCards.map((c) => {
                   const thumbSrc = c.imageUrl || IMG.productThumb;
-                  const remote = thumbSrc.startsWith("http");
+                  const remote =
+                    thumbSrc.startsWith("http") || thumbSrc.startsWith("data:");
                   const inner = (
                     <>
                       <div className="flex justify-center overflow-visible rounded-t-2xl pt-2">
