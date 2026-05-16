@@ -17,6 +17,9 @@ function isFigmaChromePath(pathname: string | null): boolean {
   if (pathname.startsWith("/catalog/dekoratyvni-travy")) return true;
   if (pathname === "/catalog") return true;
   if (pathname.startsWith("/product/")) return true;
+  if (pathname === "/cart" || pathname === "/checkout") return true;
+  if (pathname.startsWith("/pages/")) return true;
+  if (pathname.startsWith("/order/")) return true;
   return false;
 }
 

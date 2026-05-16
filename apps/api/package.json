@@ -10,7 +10,7 @@
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
     "prisma:migrate:deploy": "prisma migrate deploy",
-    "start:staging": "prisma migrate deploy && prisma db seed && node dist/main",
+    "start:staging": "node scripts/start-staging.mjs",
     "lint": "eslint \"src/**/*.ts\"",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",

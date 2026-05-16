@@ -6,7 +6,7 @@
  *   node scripts/staging-vercel-env.mjs https://malva-api-staging.onrender.com
  */
 
-import { execSync, spawnSync } from "node:child_process";
+import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
@@ -22,6 +22,7 @@ if (!raw) {
 }
 
 const apiUrl = raw.endsWith("/api/v1") ? raw : `${raw}/api/v1`;
+const isWin = process.platform === "win32";
 
 function run(cmd, cwd) {
   console.log(`\n> ${cmd}\n`);
@@ -34,14 +35,16 @@ function setEnv(appDir, name, value, target) {
   } catch {
     /* missing */
   }
-  const r = spawnSync(
-    "npx",
-    ["--yes", "vercel@latest", "env", "add", name, target, "--force"],
-    { cwd: appDir, input: value, encoding: "utf8" },
-  );
-  if (r.status !== 0) {
-    console.error(r.stderr || r.stdout);
-    throw new Error(`vercel env add failed for ${name} (${target})`);
+  if (isWin) {
+    run(
+      `powershell -NoProfile -Command "$v='${value.replace(/'/g, "''")}'; $v | npx --yes vercel@latest env add ${name} ${target}"`,
+      appDir,
+    );
+  } else {
+    run(
+      `printf '%s' '${value.replace(/'/g, "'\\''")}' | npx --yes vercel@latest env add ${name} ${target}`,
+      appDir,
+    );
   }
 }
 
@@ -49,9 +52,8 @@ console.log(`Staging API URL: ${apiUrl}\n`);
 
 for (const app of ["apps/web", "apps/admin"]) {
   const appDir = path.join(root, app);
-  for (const target of ["production", "preview", "development"]) {
-    setEnv(appDir, "NEXT_PUBLIC_API_URL", apiUrl, target);
-  }
+  setEnv(appDir, "NEXT_PUBLIC_API_URL", apiUrl, "production");
+  setEnv(appDir, "NEXT_PUBLIC_API_URL", apiUrl, "development");
 }
 
 run("npx --yes vercel@latest deploy --prod --yes", path.join(root, "apps/web"));

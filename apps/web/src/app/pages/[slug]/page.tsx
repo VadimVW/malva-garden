@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { MalvaGardenContentPageDesktop } from "@/components/figma/MalvaGardenContentPageDesktop";
 import { apiFetch } from "@/lib/api";
 
 type PageDto = {
@@ -9,6 +11,20 @@ type PageDto = {
   seoDescription: string | null;
 };
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const page = await apiFetch<PageDto>(`/pages/${slug}`).catch(() => null);
+  if (!page) return { title: "Сторінка" };
+  return {
+    title: page.seoTitle ?? `${page.title} | Malva Garden`,
+    description: page.seoDescription ?? undefined,
+  };
+}
+
 export default async function ContentPage({
   params,
 }: {
@@ -18,13 +34,5 @@ export default async function ContentPage({
   const page = await apiFetch<PageDto>(`/pages/${slug}`).catch(() => null);
   if (!page) notFound();
 
-  return (
-    <article className="mx-auto max-w-3xl space-y-4 px-4 py-10">
-      <h1 className="text-2xl font-semibold">{page.title}</h1>
-      <div
-        className="space-y-3 text-sm leading-relaxed text-slate-700 [&_a]:text-emerald-800 [&_a]:underline"
-        dangerouslySetInnerHTML={{ __html: page.content }}
-      />
-    </article>
-  );
+  return <MalvaGardenContentPageDesktop title={page.title} content={page.content} />;
 }

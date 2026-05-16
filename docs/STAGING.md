@@ -20,6 +20,33 @@ Vercel — лише для **вітрини** та **адмінки**. API і Б
    `https://malva-api-staging.onrender.com`
 5. Перевірка: `GET https://<host>/api/v1/health` → `{"status":"ok",...}`
 
+### Помилка P1001 (`Can't reach database server`)
+
+Часті причини на Render:
+
+1. **Різні регіони** — internal `DATABASE_URL` працює лише в одному регіоні. Регіон **не можна змінити** після створення сервісу (поле read-only у Settings).
+2. **БД ще піднімається** — `start:staging` робить до 30 спроб migrate (≈5 хв).
+3. **Free Postgres** — `malva-staging-db` у статусі **Available**.
+
+#### API Frankfurt + DB Oregon (ваш випадок)
+
+**Варіант A — швидко, без видалення API (рекомендовано зараз)**
+
+1. Render → **malva-staging-db** → **Connections** / **Info**.
+2. Скопіюйте **External Database URL** (хост на кшталт `…oregon-postgres.render.com`, не короткий `dpg-…-a`).
+3. Додайте в кінець, якщо немає: `?sslmode=require`  
+   Приклад: `postgresql://user:pass@dpg-xxx.oregon-postgres.render.com/malva_garden?sslmode=require`
+4. **malva-api-staging** → **Environment** → змінити **DATABASE_URL** на цей External URL (замість internal з Blueprint).
+5. **Manual Deploy** API.
+
+**Варіант B — чистий internal network (один регіон)**
+
+Видалити **malva-staging-db** (Oregon) → у Blueprint синхронізувати / перестворити БД з `region: frankfurt` у [`render.yaml`](../render.yaml) (API лишається Frankfurt). Потім Manual Deploy API.
+
+**Варіант C — API в Oregon**
+
+Видалити **malva-api-staging** → створити знову з Blueprint (`region: oregon` у `render.yaml`). БД Oregon лишається, internal URL знову працює.
+
 `start:staging` на Render виконує `prisma migrate deploy`, `prisma db seed`, потім запуск API.
 
 ### CORS (origins)

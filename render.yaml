@@ -31,5 +31,6 @@ services:
 databases:
   - name: malva-staging-db
     plan: free
+    region: frankfurt # той самий регіон, що malva-api-staging (internal DATABASE_URL)
     databaseName: malva_garden
     user: malva
