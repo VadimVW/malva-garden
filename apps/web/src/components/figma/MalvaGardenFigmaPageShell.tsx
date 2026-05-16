@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { Inter, Montserrat_Alternates } from "next/font/google";
+import { FigmaCartLink } from "@/components/figma/FigmaCartLink";
 import { MalvaGardenFigmaStoreNav } from "@/components/figma/MalvaGardenFigmaStoreNav";
 import type { FigmaBreadcrumbItem } from "@/components/figma/figmaPageTypes";
 import type { FigmaStoreNavSection } from "@/lib/figmaStoreNavSection";
@@ -43,7 +44,7 @@ export function FigmaPrimaryButton({
 }: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
-      className={`inline-flex items-center justify-center rounded-xl bg-[#2f6f4e] px-6 py-3.5 text-[15px] font-bold text-white shadow-[0px_4px_12px_rgba(47,111,78,0.35)] transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      className={`mg-btn-primary inline-flex items-center justify-center rounded-xl bg-[#2f6f4e] px-6 py-3.5 text-[15px] font-bold text-white ${className}`}
       {...props}
     >
       {children}
@@ -63,7 +64,7 @@ export function FigmaSecondaryLink({
   return (
     <Link
       href={href}
-      className={`inline-flex items-center justify-center rounded-xl border-2 border-[#5C97A8] bg-white px-6 py-3 text-[15px] font-semibold text-[#5C97A8] transition-colors hover:bg-[#E7F1F3] ${className}`}
+      className={`mg-btn-secondary inline-flex items-center justify-center rounded-xl border-2 border-[#5C97A8] bg-white px-6 py-3 text-[15px] font-semibold text-[#5C97A8] hover:bg-[#E7F1F3] ${className}`}
     >
       {children}
     </Link>
@@ -286,18 +287,7 @@ export function MalvaGardenFigmaPageShell({
                 <circle cx="12" cy="7" r="4" />
               </svg>
             </a>
-            <Link
-              href="/cart"
-              className="relative z-10 flex h-12 w-[119px] shrink-0 items-center gap-3 overflow-hidden rounded-[5px] px-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]"
-            >
-              <SocialSvgImg
-                src={IMG.cartIcon}
-                width={32}
-                height={31}
-                className="h-8 w-8 shrink-0 object-contain"
-              />
-              <span className="text-[12px] font-bold text-[#F7F4EF]">Кошик</span>
-            </Link>
+            <FigmaCartLink />
           </div>
           <MalvaGardenFigmaStoreNav activeSection={activeNavSection} />
         </div>

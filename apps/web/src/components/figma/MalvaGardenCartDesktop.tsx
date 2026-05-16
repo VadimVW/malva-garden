@@ -8,10 +8,13 @@ import {
   FigmaSecondaryLink,
   MalvaGardenFigmaPageShell,
 } from "@/components/figma/MalvaGardenFigmaPageShell";
+import { CartPageSkeleton } from "@/components/figma/MgSkeleton";
+import { dispatchCartUpdated } from "@/lib/cart-ui-events";
 import { getApiBaseUrl } from "@/lib/api";
 import { clearCartToken, getCartToken } from "@/lib/cart-token";
 
 const PRODUCT_THUMB = "/images/figma/home/product-thumb.png";
+const EXIT_MS = 220;
 
 type CartItem = {
   productId: string;
@@ -44,7 +47,7 @@ function CartSummaryPanel({
   checkoutHref?: string;
 }) {
   return (
-    <aside className="rounded-2xl bg-white p-6 shadow-[0px_6px_20px_rgba(0,0,0,0.08)] lg:sticky lg:top-[140px]">
+    <aside className="animate-mg-fade-in rounded-2xl bg-white p-6 shadow-[0px_6px_20px_rgba(0,0,0,0.08)] lg:sticky lg:top-[140px]">
       <h2 className="text-[18px] font-bold text-black">Підсумок</h2>
       <dl className="mt-5 space-y-3 text-[14px]">
         <div className="flex justify-between gap-4">
@@ -61,7 +64,7 @@ function CartSummaryPanel({
       </p>
       <Link
         href={checkoutHref}
-        className="mt-6 flex w-full items-center justify-center rounded-xl bg-[#2f6f4e] px-6 py-3.5 text-[15px] font-bold text-white shadow-[0px_4px_12px_rgba(47,111,78,0.35)] transition-opacity hover:opacity-95"
+        className="mg-btn-primary mt-6 flex w-full items-center justify-center rounded-xl bg-[#2f6f4e] px-6 py-3.5 text-[15px] font-bold text-white"
       >
         Оформити замовлення
       </Link>
@@ -74,7 +77,7 @@ function CartSummaryPanel({
 
 function EmptyCart() {
   return (
-    <div className="flex flex-col items-center rounded-2xl bg-white px-6 py-16 text-center shadow-[0px_6px_20px_rgba(0,0,0,0.08)]">
+    <div className="animate-mg-scale-in flex flex-col items-center rounded-2xl bg-white px-6 py-16 text-center shadow-[0px_6px_20px_rgba(0,0,0,0.08)]">
       <div className="flex size-20 items-center justify-center rounded-full bg-[#E7F1F3]">
         <svg
           className="size-10 text-[#5C97A8]"
@@ -106,14 +109,17 @@ function EmptyCart() {
 
 export function MalvaGardenCartDesktop() {
   const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<CartResp | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [exitingIds, setExitingIds] = useState<Set<string>>(new Set());
 
   async function load() {
     const token = getCartToken();
     if (!token) {
       setCart(null);
+      setLoading(false);
       return;
     }
     setError(null);
@@ -124,12 +130,18 @@ export function MalvaGardenCartDesktop() {
       if (res.status === 404) {
         clearCartToken();
         setCart(null);
+        dispatchCartUpdated(0);
         return;
       }
       if (!res.ok) throw new Error(await res.text());
-      setCart((await res.json()) as CartResp);
+      const data = (await res.json()) as CartResp;
+      setCart(data);
+      const count = data.items.reduce((n, i) => n + i.quantity, 0);
+      dispatchCartUpdated(count);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Помилка завантаження кошика");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -167,7 +179,9 @@ export function MalvaGardenCartDesktop() {
   async function remove(productId: string) {
     const token = getCartToken();
     if (!token) return;
+    setExitingIds((prev) => new Set(prev).add(productId));
     setBusyId(productId);
+    await new Promise((r) => setTimeout(r, EXIT_MS));
     try {
       const res = await fetch(
         `${getApiBaseUrl()}/cart/items/${encodeURIComponent(productId)}`,
@@ -178,8 +192,18 @@ export function MalvaGardenCartDesktop() {
       );
       if (!res.ok) {
         setError(await res.text());
+        setExitingIds((prev) => {
+          const next = new Set(prev);
+          next.delete(productId);
+          return next;
+        });
         return;
       }
+      setExitingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(productId);
+        return next;
+      });
       await load();
     } finally {
       setBusyId(null);
@@ -189,23 +213,22 @@ export function MalvaGardenCartDesktop() {
   const breadcrumbs = [{ label: "Кошик" }];
   const isEmpty = !cart || cart.items.length === 0;
   const hasToken = mounted && Boolean(getCartToken());
+  const showSkeleton = !mounted || (hasToken && loading && !cart);
 
   return (
     <MalvaGardenFigmaPageShell
       breadcrumbs={breadcrumbs}
       title="Кошик"
       subtitle={
-        !mounted || isEmpty
+        !mounted || loading || isEmpty
           ? undefined
           : `${cart!.items.length} ${cart!.items.length === 1 ? "товар" : "товари"} у кошику`
       }
     >
-      {!mounted ? (
-        <p className="text-[14px] text-[#5a5a5a]">Завантаження…</p>
+      {showSkeleton ? (
+        <CartPageSkeleton />
       ) : !hasToken && isEmpty ? (
         <EmptyCart />
-      ) : !cart ? (
-        <p className="text-[14px] text-[#5a5a5a]">Завантаження…</p>
       ) : isEmpty ? (
         <EmptyCart />
       ) : (
@@ -213,21 +236,24 @@ export function MalvaGardenCartDesktop() {
           <div className="min-w-0 flex-1 space-y-4">
             {error ? (
               <p
-                className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[14px] text-red-800"
+                className="mg-alert-error rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[14px] text-red-800"
                 role="alert"
               >
                 {error}
               </p>
             ) : null}
             <ul className="space-y-4">
-              {cart.items.map((item) => {
+              {cart!.items.map((item) => {
                 const maxQty = Math.max(item.stockQuantity ?? 99, 1);
                 const imgSrc = item.imageUrl || PRODUCT_THUMB;
                 const isRemote = imgSrc.startsWith("http");
+                const exiting = exitingIds.has(item.productId);
                 return (
                   <li
                     key={item.productId}
-                    className="flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-[0px_6px_20px_rgba(0,0,0,0.08)] sm:flex-row sm:items-center sm:p-5"
+                    className={`flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-[0px_6px_20px_rgba(0,0,0,0.08)] sm:flex-row sm:items-center sm:p-5 ${
+                      exiting ? "mg-cart-row-exit" : "animate-mg-fade-up"
+                    }`}
                   >
                     <Link
                       href={`/product/${item.slug}`}
@@ -288,8 +314,8 @@ export function MalvaGardenCartDesktop() {
           </div>
           <div className="w-full shrink-0 lg:w-[320px]">
             <CartSummaryPanel
-              subtotal={cart.subtotal}
-              itemCount={cart.items.reduce((n, i) => n + i.quantity, 0)}
+              subtotal={cart!.subtotal}
+              itemCount={cart!.items.reduce((n, i) => n + i.quantity, 0)}
             />
           </div>
         </div>

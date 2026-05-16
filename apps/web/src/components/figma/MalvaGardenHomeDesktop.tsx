@@ -9,6 +9,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { FigmaCartLink } from "@/components/figma/FigmaCartLink";
 import { MalvaGardenFigmaStoreNav } from "@/components/figma/MalvaGardenFigmaStoreNav";
 import {
   Inter,
@@ -415,18 +416,7 @@ export default function MalvaGardenHomeDesktop({ leaderProducts }: HomeProps) {
               <circle cx="12" cy="7" r="4" />
             </svg>
           </a>
-          <Link
-            href="/cart"
-            className="relative z-10 flex h-12 w-[119px] shrink-0 items-center gap-3 overflow-hidden rounded-[5px] px-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]"
-          >
-            <SocialSvgImg
-              src={IMG.cartIcon}
-              width={32}
-              height={31}
-              className="h-8 w-8 shrink-0 object-contain"
-            />
-            <span className="text-[12px] font-bold text-[#F7F4EF]">Кошик</span>
-          </Link>
+          <FigmaCartLink />
         </div>
         <MalvaGardenFigmaStoreNav />
         </div>
@@ -463,7 +453,7 @@ export default function MalvaGardenHomeDesktop({ leaderProducts }: HomeProps) {
                         </p>
                         <Link
                           href="/catalog/kvity"
-                          className="inline-flex w-fit items-center gap-2.5 rounded-lg bg-white py-2.5 pl-4 pr-5 transition-opacity hover:opacity-90"
+                          className="mg-btn-light inline-flex w-fit items-center gap-2.5 rounded-lg bg-white py-2.5 pl-4 pr-5"
                         >
                           <span className="text-[20px] text-black">До каталогу</span>
                           <span className="text-[18px] leading-none text-black" aria-hidden>
@@ -534,12 +524,12 @@ export default function MalvaGardenHomeDesktop({ leaderProducts }: HomeProps) {
                       </>
                     );
                     const shellClass =
-                      "relative flex h-[346px] w-[225px] flex-col overflow-visible rounded-2xl bg-white shadow-[0px_6px_20px_rgba(0,0,0,0.12),0px_2px_8px_rgba(0,0,0,0.08)]";
+                      "mg-product-card relative flex h-[346px] w-[225px] flex-col overflow-visible rounded-2xl bg-white";
                     return (
                       <Link
                         key={c.slug}
                         href={`/product/${c.slug}`}
-                        className={`${shellClass} block transition-transform hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5C97A8] focus-visible:ring-offset-2`}
+                        className={`${shellClass} block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5C97A8] focus-visible:ring-offset-2`}
                       >
                         {inner}
                       </Link>

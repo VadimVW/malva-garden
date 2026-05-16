@@ -21,9 +21,9 @@ export function CatalogPaginationNav({
     page < totalPages ? getCatalogPageHref(basePath, page + 1) : null;
 
   const btnClass =
-    "inline-flex size-9 items-center justify-center rounded-full text-[#5C97A8] transition-colors hover:bg-white/80";
+    "inline-flex size-9 items-center justify-center rounded-full text-[#5C97A8] transition-all duration-200 hover:bg-white/80 hover:scale-105";
   const activeClass =
-    "inline-flex size-9 items-center justify-center rounded-full bg-[#5C97A8] text-[#F7F4EF]";
+    "mg-pagination-active inline-flex size-9 items-center justify-center rounded-full bg-[#5C97A8] text-[#F7F4EF]";
 
   return (
     <nav
@@ -49,7 +49,7 @@ export function CatalogPaginationNav({
             …
           </span>
         ) : item === page ? (
-          <span key={item} className={activeClass} aria-current="page">
+          <span key={`active-${page}`} className={activeClass} aria-current="page">
             {item}
           </span>
         ) : (

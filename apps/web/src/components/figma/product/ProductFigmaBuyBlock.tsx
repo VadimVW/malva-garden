@@ -61,7 +61,7 @@ export function ProductFigmaBuyBlock({
             productId={productId}
             disabled={maxQty <= 0}
             quantity={qty}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2f6f4e] py-3.5 text-[15px] font-bold text-white shadow-[0px_4px_12px_rgba(47,111,78,0.35)] transition-opacity hover:opacity-95 disabled:opacity-50"
+            className="mg-btn-primary flex w-full items-center justify-center gap-2 rounded-xl bg-[#2f6f4e] py-3.5 text-[15px] font-bold text-white"
             label="Додати в кошик"
           />
         </div>

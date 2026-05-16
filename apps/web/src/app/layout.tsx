@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ConditionalSiteShell } from "@/components/ConditionalSiteShell";
+import { MgCartToast } from "@/components/figma/MgCartToast";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,6 +30,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}
       >
         <ConditionalSiteShell>{children}</ConditionalSiteShell>
+        <MgCartToast />
       </body>
     </html>
   );

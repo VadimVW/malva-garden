@@ -18,17 +18,18 @@ export function MalvaGardenOrderSuccessDesktop({ orderNumber }: Props) {
       title="Дякуємо за замовлення!"
       subtitle="Ми вже отримали ваше замовлення та незабаром зв’яжемося з вами"
     >
-      <div className="mx-auto max-w-lg rounded-2xl bg-white px-6 py-12 text-center shadow-[0px_6px_20px_rgba(0,0,0,0.08)] sm:px-10">
+      <div className="animate-mg-scale-in mx-auto max-w-lg rounded-2xl bg-white px-6 py-12 text-center shadow-[0px_6px_20px_rgba(0,0,0,0.08)] sm:px-10">
         <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-[#E7F1F3]">
           <svg
             className="size-9 text-[#2f6f4e]"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="2.5"
             aria-hidden
           >
             <path
+              className="mg-check-path"
               d="M20 6L9 17l-5-5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -51,7 +52,7 @@ export function MalvaGardenOrderSuccessDesktop({ orderNumber }: Props) {
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Link
             href="/catalog/kvity"
-            className="inline-flex w-full items-center justify-center rounded-xl bg-[#2f6f4e] px-6 py-3.5 text-[15px] font-bold text-white shadow-[0px_4px_12px_rgba(47,111,78,0.35)] transition-opacity hover:opacity-95 sm:min-w-[200px]"
+            className="mg-btn-primary inline-flex w-full items-center justify-center rounded-xl bg-[#2f6f4e] px-6 py-3.5 text-[15px] font-bold text-white sm:min-w-[200px]"
           >
             До каталогу
           </Link>

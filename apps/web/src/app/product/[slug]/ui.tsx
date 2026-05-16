@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import { getApiBaseUrl } from "@/lib/api";
+import {
+  cartItemCountFromResponse,
+  dispatchCartToast,
+  dispatchCartUpdated,
+} from "@/lib/cart-ui-events";
 import { getCartToken, setCartToken } from "@/lib/cart-token";
 
 type Props = {
@@ -13,6 +18,8 @@ type Props = {
   label?: string;
 };
 
+type CartLine = { quantity: number };
+
 export function AddToCartButton({
   productId,
   disabled,
@@ -20,12 +27,10 @@ export function AddToCartButton({
   className,
   label,
 }: Props) {
-  const [msg, setMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const qty = Math.max(1, Math.floor(quantity));
 
   async function onAdd() {
-    setMsg(null);
     setLoading(true);
     try {
       let token = getCartToken();
@@ -47,28 +52,29 @@ export function AddToCartButton({
         body: JSON.stringify({ productId, quantity: qty }),
       });
       if (!res.ok) throw new Error(await res.text());
-      setMsg("Додано в кошик");
+      const cart = (await res.json()) as { items: CartLine[] };
+      dispatchCartUpdated(cartItemCountFromResponse(cart.items));
+      dispatchCartToast("Товар додано в кошик");
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : "Помилка");
+      dispatchCartToast(
+        e instanceof Error ? e.message : "Не вдалося додати в кошик",
+      );
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="space-y-2">
-      <button
-        type="button"
-        onClick={onAdd}
-        disabled={disabled || loading}
-        className={
-          className ??
-          "rounded bg-emerald-800 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-        }
-      >
-        {loading ? "Зачекайте…" : (label ?? "У кошик")}
-      </button>
-      {msg && <p className="text-sm text-slate-600">{msg}</p>}
-    </div>
+    <button
+      type="button"
+      onClick={() => void onAdd()}
+      disabled={disabled || loading}
+      className={
+        className ??
+        "mg-btn-primary rounded bg-emerald-800 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+      }
+    >
+      {loading ? "Зачекайте…" : (label ?? "У кошик")}
+    </button>
   );
 }

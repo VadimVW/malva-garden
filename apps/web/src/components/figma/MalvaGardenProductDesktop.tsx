@@ -10,6 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Inter, Montserrat_Alternates } from "next/font/google";
+import { FigmaCartLink } from "@/components/figma/FigmaCartLink";
 import { MalvaGardenFigmaStoreNav } from "@/components/figma/MalvaGardenFigmaStoreNav";
 import {
   catalogCategoryHref,
@@ -251,18 +252,7 @@ export default function MalvaGardenProductDesktop({
                 <circle cx="12" cy="7" r="4" />
               </svg>
             </a>
-            <Link
-              href="/cart"
-              className="relative z-10 flex h-12 w-[119px] shrink-0 items-center gap-3 overflow-hidden rounded-[5px] px-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]"
-            >
-              <SocialSvgImg
-                src={IMG.cartIcon}
-                width={32}
-                height={31}
-                className="h-8 w-8 shrink-0 object-contain"
-              />
-              <span className="text-[12px] font-bold text-[#F7F4EF]">Кошик</span>
-            </Link>
+            <FigmaCartLink />
           </div>
           <MalvaGardenFigmaStoreNav
             activeSection={figmaNavSectionFromCategorySlug(p.category?.slug)}

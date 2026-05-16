@@ -40,10 +40,11 @@ export function ProductFigmaGallery({
     <div className="w-full shrink-0 lg:max-w-[440px] lg:flex-1">
       <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-white shadow-[0px_6px_20px_rgba(0,0,0,0.08)]">
         <Image
+          key={mainSrc}
           src={mainSrc}
           alt={mainAlt}
           fill
-          className="object-contain object-center"
+          className="mg-gallery-image object-contain object-center"
           sizes="(max-width: 1024px) 100vw, 440px"
           priority
           unoptimized={mainSrc.startsWith("http")}
@@ -53,6 +54,7 @@ export function ProductFigmaGallery({
         {(thumbs.length ? thumbs : [null, null, null]).map((img, i) => {
           const src = img?.imageUrl ?? fallbackSrc;
           const alt = img?.altText ?? `${productName} — фото ${i + 1}`;
+          const isActive = ordered.length > 0 && active === i;
           return (
             <button
               key={img?.imageUrl ? `${img.imageUrl}-${i}` : `thumb-${i}`}
@@ -60,11 +62,13 @@ export function ProductFigmaGallery({
               onClick={() => {
                 if (ordered.length) setActive(i);
               }}
-              className={`relative size-[72px] shrink-0 overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-black/5 ${
-                ordered.length && active === i ? "ring-2 ring-[#5C97A8]" : ""
+              className={`relative size-[72px] shrink-0 overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-200 ${
+                isActive
+                  ? "ring-2 ring-[#5C97A8] scale-105"
+                  : "ring-1 ring-black/5 hover:ring-[#5C97A8]/50"
               }`}
               aria-label={`Мініатюра ${i + 1}`}
-              aria-current={ordered.length && active === i ? "true" : undefined}
+              aria-current={isActive ? "true" : undefined}
             >
               <Image
                 src={src}

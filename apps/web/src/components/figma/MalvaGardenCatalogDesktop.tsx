@@ -12,7 +12,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { CatalogGridFade } from "@/components/figma/CatalogGridFade";
 import { CatalogPaginationNav } from "@/components/figma/CatalogPaginationNav";
+import { FigmaCartLink } from "@/components/figma/FigmaCartLink";
 import { MalvaGardenFigmaStoreNav } from "@/components/figma/MalvaGardenFigmaStoreNav";
 import type { CatalogPaginationMeta } from "@/lib/catalogPagination";
 import type { FigmaStoreNavSection } from "@/lib/figmaStoreNavSection";
@@ -413,18 +415,7 @@ export default function MalvaGardenCatalogDesktop({
                 <circle cx="12" cy="7" r="4" />
               </svg>
             </a>
-            <Link
-              href="/cart"
-              className="relative z-10 flex h-12 w-[119px] shrink-0 items-center gap-3 overflow-hidden rounded-[5px] px-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]"
-            >
-              <SocialSvgImg
-                src={IMG.cartIcon}
-                width={32}
-                height={31}
-                className="h-8 w-8 shrink-0 object-contain"
-              />
-              <span className="text-[12px] font-bold text-[#F7F4EF]">Кошик</span>
-            </Link>
+            <FigmaCartLink />
           </div>
           <MalvaGardenFigmaStoreNav activeSection={activeNavSection} />
         </div>
@@ -534,7 +525,10 @@ export default function MalvaGardenCatalogDesktop({
                 </div>
               </div>
 
-              <div className="grid w-full grid-cols-1 justify-items-center gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+              <CatalogGridFade
+                page={pagination?.page ?? 1}
+                className="grid w-full grid-cols-1 justify-items-center gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3"
+              >
                 {gridCards.length === 0 && (
                   <p className="col-span-full py-16 text-center text-[16px] text-[#5C5C5C]">
                     У цій категорії поки немає товарів.
@@ -581,18 +575,18 @@ export default function MalvaGardenCatalogDesktop({
                     </>
                   );
                   const shellClass =
-                    "relative flex h-[346px] w-[225px] flex-col overflow-visible rounded-2xl bg-white shadow-[0px_6px_20px_rgba(0,0,0,0.12),0px_2px_8px_rgba(0,0,0,0.08)]";
+                    "mg-product-card relative flex h-[346px] w-[225px] flex-col overflow-visible rounded-2xl bg-white";
                   return (
                     <Link
                       key={c.slug}
                       href={`/product/${c.slug}`}
-                      className={`${shellClass} block transition-transform hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5C97A8] focus-visible:ring-offset-2`}
+                      className={`${shellClass} block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5C97A8] focus-visible:ring-offset-2`}
                     >
                       {inner}
                     </Link>
                   );
                 })}
-              </div>
+              </CatalogGridFade>
 
               {paginationBasePath && pagination && pagination.totalPages > 0 ? (
                 <CatalogPaginationNav

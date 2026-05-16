@@ -9,8 +9,13 @@ import {
   FigmaSecondaryLink,
   MalvaGardenFigmaPageShell,
 } from "@/components/figma/MalvaGardenFigmaPageShell";
+import {
+  CheckoutPageSkeleton,
+  CheckoutSummarySkeleton,
+} from "@/components/figma/MgSkeleton";
 import { getApiBaseUrl } from "@/lib/api";
 import { clearCartToken, getCartToken } from "@/lib/cart-token";
+import { dispatchCartUpdated } from "@/lib/cart-ui-events";
 
 type CartItem = {
   productId: string;
@@ -35,7 +40,7 @@ function labelClass() {
 function OrderSummary({ cart }: { cart: CartResp }) {
   const count = cart.items.reduce((n, i) => n + i.quantity, 0);
   return (
-    <aside className="rounded-2xl bg-white p-6 shadow-[0px_6px_20px_rgba(0,0,0,0.08)] lg:sticky lg:top-[140px]">
+    <aside className="animate-mg-fade-in rounded-2xl bg-white p-6 shadow-[0px_6px_20px_rgba(0,0,0,0.08)] lg:sticky lg:top-[140px]">
       <h2 className="text-[18px] font-bold text-black">Ваше замовлення</h2>
       <ul className="mt-4 max-h-[280px] space-y-3 overflow-y-auto pr-1">
         {cart.items.map((item) => (
@@ -77,6 +82,7 @@ function OrderSummary({ cart }: { cart: CartResp }) {
 export function MalvaGardenCheckoutDesktop() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [cartLoading, setCartLoading] = useState(true);
   const [cart, setCart] = useState<CartResp | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -84,7 +90,10 @@ export function MalvaGardenCheckoutDesktop() {
   useEffect(() => {
     setMounted(true);
     const token = getCartToken();
-    if (!token) return;
+    if (!token) {
+      setCartLoading(false);
+      return;
+    }
     void (async () => {
       try {
         const res = await fetch(`${getApiBaseUrl()}/cart`, {
@@ -93,6 +102,8 @@ export function MalvaGardenCheckoutDesktop() {
         if (res.ok) setCart((await res.json()) as CartResp);
       } catch {
         /* summary optional */
+      } finally {
+        setCartLoading(false);
       }
     })();
   }, []);
@@ -127,6 +138,7 @@ export function MalvaGardenCheckoutDesktop() {
       if (!res.ok) throw new Error(await res.text());
       const data = (await res.json()) as { orderNumber: string };
       clearCartToken();
+      dispatchCartUpdated(0);
       router.push(
         `/order/success?orderNumber=${encodeURIComponent(data.orderNumber)}`,
       );
@@ -138,6 +150,7 @@ export function MalvaGardenCheckoutDesktop() {
   }
 
   const hasToken = mounted && Boolean(getCartToken());
+  const showSkeleton = !mounted || (hasToken && cartLoading);
 
   return (
     <MalvaGardenFigmaPageShell
@@ -148,10 +161,10 @@ export function MalvaGardenCheckoutDesktop() {
       title="Оформлення замовлення"
       subtitle="Заповніть контактні дані та адресу доставки"
     >
-      {!mounted ? (
-        <p className="text-[14px] text-[#5a5a5a]">Завантаження…</p>
+      {showSkeleton ? (
+        <CheckoutPageSkeleton />
       ) : !hasToken ? (
-        <div className="rounded-2xl bg-white px-6 py-12 text-center shadow-[0px_6px_20px_rgba(0,0,0,0.08)]">
+        <div className="animate-mg-scale-in rounded-2xl bg-white px-6 py-12 text-center shadow-[0px_6px_20px_rgba(0,0,0,0.08)]">
           <p className="text-[18px] font-bold text-black">Кошик порожній</p>
           <p className="mt-2 text-[14px] text-[#5a5a5a]">
             Спочатку додайте товари, щоб оформити замовлення.
@@ -163,12 +176,12 @@ export function MalvaGardenCheckoutDesktop() {
       ) : (
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
           <form
-            className="min-w-0 flex-1 space-y-6 rounded-2xl bg-white p-6 shadow-[0px_6px_20px_rgba(0,0,0,0.08)] sm:p-8"
+            className="mg-stagger-form min-w-0 flex-1 space-y-6 rounded-2xl bg-white p-6 shadow-[0px_6px_20px_rgba(0,0,0,0.08)] sm:p-8"
             onSubmit={(e) => void onSubmit(e)}
           >
             {error ? (
               <p
-                className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[14px] text-red-800"
+                className="mg-alert-error rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[14px] text-red-800"
                 role="alert"
               >
                 {error}
@@ -264,7 +277,7 @@ export function MalvaGardenCheckoutDesktop() {
                 <textarea
                   name="comment"
                   rows={3}
-                  className={`${figmaInputClass} resize-y min-h-[96px]`}
+                  className={`${figmaInputClass} min-h-[96px] resize-y`}
                   placeholder="Зручний час дзвінка, побажання щодо упаковки…"
                 />
               </label>
@@ -284,7 +297,11 @@ export function MalvaGardenCheckoutDesktop() {
             </div>
           </form>
 
-          {cart && cart.items.length > 0 ? (
+          {cartLoading ? (
+            <div className="w-full shrink-0 lg:w-[320px]">
+              <CheckoutSummarySkeleton />
+            </div>
+          ) : cart && cart.items.length > 0 ? (
             <div className="w-full shrink-0 lg:w-[320px]">
               <OrderSummary cart={cart} />
             </div>
