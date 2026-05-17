@@ -9,6 +9,7 @@ import {
   formatDate,
   formatPrice,
   ORDER_STATUS_LABELS,
+  PAYMENT_METHOD_LABELS,
   PAYMENT_STATUS_LABELS,
 } from "@/lib/format";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -137,7 +138,13 @@ export default function OrderDetailPage() {
               <Row label="Адреса" value={order.deliveryAddress} />
             )}
             {order.paymentMethod && (
-              <Row label="Оплата" value={order.paymentMethod} />
+              <Row
+                label="Оплата"
+                value={
+                  PAYMENT_METHOD_LABELS[order.paymentMethod] ??
+                  order.paymentMethod
+                }
+              />
             )}
           </dl>
           <p className="text-lg font-semibold">{formatPrice(order.totalAmount)}</p>

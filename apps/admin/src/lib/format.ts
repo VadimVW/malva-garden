@@ -29,6 +29,12 @@ export const PAYMENT_STATUS_LABELS: Record<string, string> = {
   FAILED: "Помилка",
 };
 
+export const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  cash_on_delivery: "При отриманні (готівка)",
+  card_on_delivery: "Карткою при отриманні",
+  wayforpay: "Онлайн (WayForPay)",
+};
+
 export const PRODUCT_STATUS_LABELS: Record<string, string> = {
   ACTIVE: "Активний",
   HIDDEN: "Прихований",

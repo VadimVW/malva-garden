@@ -97,4 +97,4 @@ CLI: `npm run deploy:web` / `npm run deploy:admin` (потрібен `npx vercel
 - Мобільна головна (окремий Figma-кадр)
 - Завантаження зображень (S3 / локальний стор), WebP
 - Refresh-токен, rate limit на логін (адмінка)
-- LiqPay webhook і зміна `paymentStatus`
+- WayForPay: `docs/PAYMENTS_WAYFORPAY.md`, callback → `paymentStatus`

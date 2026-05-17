@@ -136,12 +136,21 @@ export function MalvaGardenCheckoutDesktop() {
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error(await res.text());
-      const data = (await res.json()) as { orderNumber: string };
+      const data = (await res.json()) as {
+        orderNumber: string;
+        paymentMethod?: string;
+      };
       clearCartToken();
       dispatchCartUpdated(0);
-      router.push(
-        `/order/success?orderNumber=${encodeURIComponent(data.orderNumber)}`,
-      );
+      if (data.paymentMethod === "wayforpay") {
+        router.push(
+          `/order/pay?orderNumber=${encodeURIComponent(data.orderNumber)}`,
+        );
+      } else {
+        router.push(
+          `/order/success?orderNumber=${encodeURIComponent(data.orderNumber)}`,
+        );
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Помилка оформлення");
     } finally {
@@ -269,7 +278,7 @@ export function MalvaGardenCheckoutDesktop() {
                 >
                   <option value="cash_on_delivery">Оплата при отриманні</option>
                   <option value="card_on_delivery">Карткою при отриманні</option>
-                  <option value="liqpay">Онлайн (LiqPay — незабаром)</option>
+                  <option value="wayforpay">Онлайн (картка, WayForPay)</option>
                 </select>
               </label>
               <label className="block space-y-1.5">

@@ -58,6 +58,18 @@ Vercel — лише для **вітрини** та **адмінки**. API і Б
 
 Якщо змінилися Vercel-аліаси — оновіть змінні в Render → **malva-api-staging** → **Environment** і зробіть **Manual Deploy**.
 
+### WayForPay (оплата)
+
+Додайте в **Environment** API (див. [`PAYMENTS_WAYFORPAY.md`](PAYMENTS_WAYFORPAY.md)):
+
+- `API_PUBLIC_ORIGIN` = `https://malva-api-staging.onrender.com`
+- `WAYFORPAY_MERCHANT_ACCOUNT`, `WAYFORPAY_MERCHANT_SECRET`, `WAYFORPAY_MERCHANT_PASSWORD`
+- `WAYFORPAY_MERCHANT_DOMAIN` = `web-black-nine-61.vercel.app`
+- `WAYFORPAY_RETURN_URL` = `https://web-black-nine-61.vercel.app/order/payment/return`
+- `WAYFORPAY_SERVICE_URL` = `https://malva-api-staging.onrender.com/api/v1/payments/wayforpay/callback`
+
+Після деплою з новою міграцією — тест: checkout → «Онлайн (WayForPay)» → оплата → статус **Оплачено** в адмінці.
+
 ### Альтернатива: Neon + Render
 
 1. [Neon](https://neon.tech) → новий проєкт → скопіювати `DATABASE_URL` (з `?sslmode=require`).

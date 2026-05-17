@@ -99,6 +99,7 @@ model Order {
   deliveryAddress String?
   paymentMethod   String?
   paymentStatus   PaymentStatus @default(PENDING)
+  paidAt          DateTime?
   orderStatus     OrderStatus   @default(NEW)
   totalAmount     Decimal       @db.Decimal(10, 2)
   comment         String?
@@ -106,9 +107,25 @@ model Order {
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   items           OrderItem[]
+  paymentLogs     PaymentCallbackLog[]
 
   @@index([orderStatus])
   @@index([createdAt])
+}
+
+model PaymentCallbackLog {
+  id                String   @id @default(cuid())
+  orderId           String
+  order             Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  provider          String   @default("wayforpay")
+  orderReference    String
+  transactionStatus String?
+  amount            Decimal? @db.Decimal(10, 2)
+  rawPayload        Json
+  createdAt         DateTime @default(now())
+
+  @@index([orderId])
+  @@index([orderReference])
 }
 
 model OrderItem {

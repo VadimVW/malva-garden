@@ -6,9 +6,13 @@ import {
 
 type Props = {
   orderNumber?: string;
+  paidOnline?: boolean;
 };
 
-export function MalvaGardenOrderSuccessDesktop({ orderNumber }: Props) {
+export function MalvaGardenOrderSuccessDesktop({
+  orderNumber,
+  paidOnline,
+}: Props) {
   return (
     <MalvaGardenFigmaPageShell
       breadcrumbs={[
@@ -47,7 +51,9 @@ export function MalvaGardenOrderSuccessDesktop({ orderNumber }: Props) {
           <p className="mt-6 text-[15px] text-[#5a5a5a]">Замовлення успішно створено.</p>
         )}
         <p className="mt-3 text-[14px] leading-relaxed text-[#5a5a5a]">
-          Менеджер перевірить наявність товарів і зателефонує для підтвердження.
+          {paidOnline
+            ? "Оплату отримано. Менеджер зв’яжеться з вами щодо доставки."
+            : "Менеджер перевірить наявність товарів і зателефонує для підтвердження."}
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Link

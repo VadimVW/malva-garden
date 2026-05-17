@@ -93,6 +93,8 @@ export class OrdersService {
       return {
         id: order.id,
         orderNumber: order.orderNumber,
+        paymentMethod: order.paymentMethod,
+        paymentStatus: order.paymentStatus,
         totalAmount: moneyToString(order.totalAmount),
       };
     });
