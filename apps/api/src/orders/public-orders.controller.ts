@@ -24,4 +24,9 @@ export class PublicOrdersController {
   paymentStatus(@Param("orderNumber") orderNumber: string) {
     return this.wayforpay.getPublicPaymentStatus(orderNumber);
   }
+
+  @Post(":orderNumber/payment/wayforpay/sync")
+  syncWayforpay(@Param("orderNumber") orderNumber: string) {
+    return this.wayforpay.syncPaymentStatusFromProvider(orderNumber);
+  }
 }

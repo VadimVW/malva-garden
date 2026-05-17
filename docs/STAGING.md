@@ -65,7 +65,7 @@ Vercel — лише для **вітрини** та **адмінки**. API і Б
 - `API_PUBLIC_ORIGIN` = `https://malva-api-staging.onrender.com`
 - `WAYFORPAY_MERCHANT_ACCOUNT`, `WAYFORPAY_MERCHANT_SECRET`, `WAYFORPAY_MERCHANT_PASSWORD`
 - `WAYFORPAY_MERCHANT_DOMAIN` = `web-black-nine-61.vercel.app`
-- `WAYFORPAY_RETURN_URL` = `https://web-black-nine-61.vercel.app/order/payment/return`
+- `WAYFORPAY_RETURN_URL` = `https://web-black-nine-61.vercel.app/api/payment/wayforpay/return`
 - `WAYFORPAY_SERVICE_URL` = `https://malva-api-staging.onrender.com/api/v1/payments/wayforpay/callback`
 
 Після деплою з новою міграцією — тест: checkout → «Онлайн (WayForPay)» → оплата → статус **Оплачено** в адмінці.

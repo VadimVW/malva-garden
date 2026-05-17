@@ -30,6 +30,14 @@ export function buildPurchaseSignString(params: {
   return parts.join(";");
 }
 
+/** CHECK_STATUS request signature. */
+export function buildCheckStatusSignString(params: {
+  merchantAccount: string;
+  orderReference: string;
+}): string {
+  return [params.merchantAccount, params.orderReference].join(";");
+}
+
 /** serviceUrl callback signature. */
 export function buildCallbackSignString(params: {
   merchantAccount: string;

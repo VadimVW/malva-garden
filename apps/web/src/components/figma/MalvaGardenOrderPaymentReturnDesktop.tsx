@@ -30,9 +30,11 @@ export function MalvaGardenOrderPaymentReturnDesktop() {
 
     const poll = async () => {
       try {
-        const res = await fetch(
-          `${getApiBaseUrl()}/orders/${encodeURIComponent(orderNumber)}/payment-status`,
-        );
+        const syncFirst = attempts === 0;
+        const endpoint = syncFirst
+          ? `${getApiBaseUrl()}/orders/${encodeURIComponent(orderNumber)}/payment/wayforpay/sync`
+          : `${getApiBaseUrl()}/orders/${encodeURIComponent(orderNumber)}/payment-status`;
+        const res = await fetch(endpoint, syncFirst ? { method: "POST" } : undefined);
         if (res.ok) {
           const data = (await res.json()) as { paymentStatus: PaymentStatus };
           setStatus(data.paymentStatus);

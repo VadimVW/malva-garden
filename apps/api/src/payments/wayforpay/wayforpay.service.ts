@@ -13,12 +13,14 @@ import { moneyToString } from "../../common/money";
 import {
   buildCallbackResponseSignString,
   buildCallbackSignString,
+  buildCheckStatusSignString,
   buildPurchaseSignString,
   formatWayforpayAmount,
   hmacMd5,
 } from "./wayforpay.crypto";
 
 const WFP_PAY_URL = "https://secure.wayforpay.com/pay";
+const WFP_API_URL = "https://api.wayforpay.com/api";
 
 type OrderWithItems = Order & { items: OrderItem[] };
 
@@ -56,7 +58,8 @@ export class WayforpayService {
     const explicit = this.config.get<string>("WAYFORPAY_RETURN_URL");
     if (explicit) return explicit;
     const web = this.config.get<string>("WEB_ORIGIN") ?? "http://localhost:3000";
-    return `${web.replace(/\/$/, "")}/order/payment/return`;
+    // WayForPay POSTs to returnUrl; use Route Handler, not App Router page.
+    return `${web.replace(/\/$/, "")}/api/payment/wayforpay/return`;
   }
 
   private serviceUrl(): string {
@@ -199,7 +202,7 @@ export class WayforpayService {
     });
 
     const expectedAmount = formatWayforpayAmount(order.totalAmount);
-    if (amountStr && amountStr !== expectedAmount) {
+    if (amountStr && !this.amountsMatch(amountStr, expectedAmount)) {
       this.logger.error(
         `WayForPay amount mismatch for ${orderReference}: ${amountStr} vs ${expectedAmount}`,
       );
@@ -248,6 +251,84 @@ export class WayforpayService {
       time,
       signature: hmacMd5(signString, this.merchantSecret()),
     };
+  }
+
+  /** Poll WayForPay when serviceUrl callback was missed (cold start, amount format, etc.). */
+  async syncPaymentStatusFromProvider(orderNumber: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { orderNumber },
+      include: { items: true },
+    });
+    if (!order) throw new NotFoundException("Замовлення не знайдено");
+    if (order.paymentMethod !== "wayforpay") {
+      throw new BadRequestException("Замовлення не передбачає онлайн-оплату");
+    }
+    if (order.paymentStatus === PaymentStatus.PAID) {
+      return this.getPublicPaymentStatus(orderNumber);
+    }
+
+    const merchantAccount = this.merchantAccount();
+    const signString = buildCheckStatusSignString({
+      merchantAccount,
+      orderReference: orderNumber,
+    });
+    const secret = this.merchantSecret();
+
+    let data: WayforpayCallbackBody;
+    try {
+      const res = await fetch(WFP_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transactionType: "CHECK_STATUS",
+          merchantAccount,
+          orderReference: orderNumber,
+          merchantSignature: hmacMd5(signString, secret),
+          apiVersion: 1,
+        }),
+      });
+      data = (await res.json()) as WayforpayCallbackBody;
+    } catch (e) {
+      this.logger.warn(`WayForPay CHECK_STATUS failed for ${orderNumber}`, e);
+      return this.getPublicPaymentStatus(orderNumber);
+    }
+
+    if (!this.verifyCallbackSignature(data)) {
+      this.logger.warn(`WayForPay CHECK_STATUS: invalid signature for ${orderNumber}`);
+      return this.getPublicPaymentStatus(orderNumber);
+    }
+
+    const amountStr = String(data.amount ?? "");
+    const expectedAmount = formatWayforpayAmount(order.totalAmount);
+    if (amountStr && !this.amountsMatch(amountStr, expectedAmount)) {
+      this.logger.error(
+        `WayForPay CHECK_STATUS amount mismatch for ${orderNumber}: ${amountStr} vs ${expectedAmount}`,
+      );
+      return this.getPublicPaymentStatus(orderNumber);
+    }
+
+    const transactionStatus = String(data.transactionStatus ?? "");
+    const nextStatus = this.mapTransactionStatus(transactionStatus);
+    if (nextStatus) {
+      await this.prisma.order.update({
+        where: { id: order.id },
+        data: {
+          paymentStatus: nextStatus,
+          paidAt: nextStatus === PaymentStatus.PAID ? new Date() : order.paidAt,
+        },
+      });
+    }
+
+    return this.getPublicPaymentStatus(orderNumber);
+  }
+
+  private amountsMatch(received: string, expected: string): boolean {
+    const a = Number(received);
+    const b = Number(expected);
+    if (Number.isFinite(a) && Number.isFinite(b)) {
+      return Math.abs(a - b) < 0.01;
+    }
+    return received === expected;
   }
 
   async getPublicPaymentStatus(orderNumber: string) {
