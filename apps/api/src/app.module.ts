@@ -7,6 +7,7 @@ import { OrdersModule } from "./orders/orders.module";
 import { PagesModule } from "./pages/pages.module";
 import { ProductsModule } from "./products/products.module";
 import { SettingsModule } from "./settings/settings.module";
+import { DeliveryModule } from "./delivery/delivery.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
@@ -22,6 +23,7 @@ import { AppService } from "./app.service";
     OrdersModule,
     PagesModule,
     SettingsModule,
+    DeliveryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

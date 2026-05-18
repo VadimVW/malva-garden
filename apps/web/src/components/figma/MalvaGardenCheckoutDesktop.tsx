@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import {
   figmaInputClass,
   FigmaPrimaryButton,
@@ -13,6 +13,11 @@ import {
   CheckoutPageSkeleton,
   CheckoutSummarySkeleton,
 } from "@/components/figma/MgSkeleton";
+import { FigmaSelect } from "@/components/figma/checkout/FigmaSelect";
+import {
+  NovaPoshtaCheckoutFields,
+  type NovaPoshtaSelection,
+} from "@/components/figma/checkout/NovaPoshtaCheckoutFields";
 import { getApiBaseUrl } from "@/lib/api";
 import { clearCartToken, getCartToken } from "@/lib/cart-token";
 import { dispatchCartUpdated } from "@/lib/cart-ui-events";
@@ -86,6 +91,16 @@ export function MalvaGardenCheckoutDesktop() {
   const [cart, setCart] = useState<CartResp | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [deliveryMethod, setDeliveryMethod] = useState("nova_poshta");
+  const [npSelection, setNpSelection] = useState<NovaPoshtaSelection>({
+    cityLabel: "",
+    warehouseLabel: "",
+    complete: false,
+  });
+
+  const onNpSelectionChange = useCallback((selection: NovaPoshtaSelection) => {
+    setNpSelection(selection);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -116,14 +131,27 @@ export function MalvaGardenCheckoutDesktop() {
       setError("Немає кошика. Додайте товар.");
       return;
     }
+
+    const method = deliveryMethod;
+    if (method === "nova_poshta" && !npSelection.complete) {
+      setError("Оберіть місто та відділення / поштомат Нової пошти.");
+      return;
+    }
+
     const form = new FormData(e.currentTarget);
     const body = {
       customerName: String(form.get("customerName") ?? ""),
       customerPhone: String(form.get("customerPhone") ?? ""),
       customerEmail: String(form.get("customerEmail") ?? "") || undefined,
-      deliveryCity: String(form.get("deliveryCity") ?? ""),
-      deliveryAddress: String(form.get("deliveryAddress") ?? ""),
-      deliveryMethod: String(form.get("deliveryMethod") ?? "") || undefined,
+      deliveryCity:
+        method === "pickup"
+          ? "Самовивіз"
+          : String(form.get("deliveryCity") ?? ""),
+      deliveryAddress:
+        method === "pickup"
+          ? "Самовивіз"
+          : String(form.get("deliveryAddress") ?? ""),
+      deliveryMethod: method || undefined,
       paymentMethod: String(form.get("paymentMethod") ?? ""),
       comment: String(form.get("comment") ?? "") || undefined,
       cartToken: t,
@@ -160,6 +188,7 @@ export function MalvaGardenCheckoutDesktop() {
 
   const hasToken = mounted && Boolean(getCartToken());
   const showSkeleton = !mounted || (hasToken && cartLoading);
+  const isNovaPoshta = deliveryMethod === "nova_poshta";
 
   return (
     <MalvaGardenFigmaPageShell
@@ -185,7 +214,7 @@ export function MalvaGardenCheckoutDesktop() {
       ) : (
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
           <form
-            className="mg-stagger-form min-w-0 flex-1 space-y-6 rounded-2xl bg-white p-6 shadow-[0px_6px_20px_rgba(0,0,0,0.08)] sm:p-8"
+            className="mg-stagger-form min-w-0 flex-1 space-y-6 overflow-visible rounded-2xl bg-white p-6 shadow-[0px_6px_20px_rgba(0,0,0,0.08)] sm:p-8"
             onSubmit={(e) => void onSubmit(e)}
           >
             {error ? (
@@ -232,41 +261,32 @@ export function MalvaGardenCheckoutDesktop() {
               </label>
             </fieldset>
 
-            <fieldset className="space-y-4">
+            <fieldset className="relative z-20 space-y-4 overflow-visible">
               <legend className="text-[16px] font-bold text-black">Доставка</legend>
-              <label className="block space-y-1.5">
-                <span className={labelClass()}>Місто *</span>
-                <input
-                  required
-                  name="deliveryCity"
-                  autoComplete="address-level2"
-                  className={figmaInputClass}
-                  placeholder="Київ"
+              <FigmaSelect
+                label="Спосіб доставки"
+                name="deliveryMethod"
+                value={deliveryMethod}
+                onChange={setDeliveryMethod}
+                options={[
+                  { value: "nova_poshta", label: "Нова пошта" },
+                  { value: "pickup", label: "Самовивіз" },
+                ]}
+              />
+
+              {isNovaPoshta ? (
+                <NovaPoshtaCheckoutFields
+                  onSelectionChange={onNpSelectionChange}
                 />
-              </label>
-              <label className="block space-y-1.5">
-                <span className={labelClass()}>Адреса *</span>
-                <input
-                  required
-                  name="deliveryAddress"
-                  autoComplete="street-address"
-                  className={figmaInputClass}
-                  placeholder="вул. Садова, 12, відділення Нової пошти №5"
-                />
-              </label>
-              <label className="block space-y-1.5">
-                <span className={labelClass()}>Спосіб доставки</span>
-                <select name="deliveryMethod" className={figmaInputClass} defaultValue="">
-                  <option value="">Оберіть спосіб</option>
-                  <option value="nova_poshta">Нова пошта</option>
-                  <option value="ukrposhta">Укрпошта</option>
-                  <option value="courier">Кур’єр по місту</option>
-                  <option value="pickup">Самовивіз</option>
-                </select>
-              </label>
+              ) : (
+                <>
+                  <input type="hidden" name="deliveryCity" value="Самовивіз" />
+                  <input type="hidden" name="deliveryAddress" value="Самовивіз" />
+                </>
+              )}
             </fieldset>
 
-            <fieldset className="space-y-4">
+            <fieldset className="relative z-10 space-y-4">
               <legend className="text-[16px] font-bold text-black">Оплата</legend>
               <label className="block space-y-1.5">
                 <span className={labelClass()}>Спосіб оплати *</span>
@@ -277,8 +297,9 @@ export function MalvaGardenCheckoutDesktop() {
                   defaultValue="cash_on_delivery"
                 >
                   <option value="cash_on_delivery">Оплата при отриманні</option>
-                  <option value="card_on_delivery">Карткою при отриманні</option>
-                  <option value="wayforpay">Онлайн (картка, WayForPay)</option>
+                  <option value="wayforpay">
+                    Онлайн (картка, Apple Pay, Google Pay, WayForPay)
+                  </option>
                 </select>
               </label>
               <label className="block space-y-1.5">
