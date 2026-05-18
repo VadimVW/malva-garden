@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { getApiBaseUrl } from "@/lib/api";
+import { addCartItem } from "@/lib/cart-api";
+import { cartItemCount } from "@/lib/cart-optimistic";
 import {
-  cartItemCountFromResponse,
   dispatchCartToast,
   dispatchCartUpdated,
 } from "@/lib/cart-ui-events";
-import { ensureCartToken } from "@/lib/cart-session";
 
 type Props = {
   productId: string;
@@ -17,8 +16,6 @@ type Props = {
   className?: string;
   label?: string;
 };
-
-type CartLine = { quantity: number };
 
 export function AddToCartButton({
   productId,
@@ -32,21 +29,16 @@ export function AddToCartButton({
 
   async function onAdd() {
     setLoading(true);
+    dispatchCartUpdated({ delta: qty });
     try {
-      const token = await ensureCartToken();
-      const res = await fetch(`${getApiBaseUrl()}/cart/items`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Cart-Token": token,
-        },
-        body: JSON.stringify({ productId, quantity: qty }),
+      const cart = await addCartItem(productId, qty);
+      dispatchCartUpdated({
+        itemCount: cartItemCount(cart.items),
+        sync: true,
       });
-      if (!res.ok) throw new Error(await res.text());
-      const cart = (await res.json()) as { items: CartLine[] };
-      dispatchCartUpdated(cartItemCountFromResponse(cart.items));
       dispatchCartToast("Товар додано в кошик");
     } catch (e) {
+      dispatchCartUpdated({ reload: true });
       dispatchCartToast(
         e instanceof Error ? e.message : "Не вдалося додати в кошик",
       );

@@ -1,14 +1,23 @@
 export const MG_CART_UPDATED = "mg-cart-updated";
 export const MG_CART_TOAST = "mg-cart-toast";
 
-export type CartUpdatedDetail = { itemCount: number };
+export type CartUpdatedDetail = {
+  /** Точна кількість позицій (після відповіді API) */
+  itemCount?: number;
+  /** Оптимістична зміна лічильника в шапці */
+  delta?: number;
+  /** Перезавантажити лічильник у шапці з API (відкат після помилки) */
+  reload?: boolean;
+  /** Перезавантажити повний кошик на сторінці /cart */
+  sync?: boolean;
+};
 
-export function dispatchCartUpdated(itemCount: number) {
+export function dispatchCartUpdated(detail: number | CartUpdatedDetail) {
   if (typeof window === "undefined") return;
+  const payload: CartUpdatedDetail =
+    typeof detail === "number" ? { itemCount: detail } : detail;
   window.dispatchEvent(
-    new CustomEvent<CartUpdatedDetail>(MG_CART_UPDATED, {
-      detail: { itemCount },
-    }),
+    new CustomEvent<CartUpdatedDetail>(MG_CART_UPDATED, { detail: payload }),
   );
 }
 

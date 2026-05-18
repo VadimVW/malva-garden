@@ -3,7 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { getApiBaseUrl } from "@/lib/api";
+import { fetchCart } from "@/lib/cart-api";
+import { isCartGoneError } from "@/lib/cart-errors";
+import { cartItemCount } from "@/lib/cart-optimistic";
 import { clearCartToken, getCartToken } from "@/lib/cart-token";
 import { MG_CART_UPDATED, type CartUpdatedDetail } from "@/lib/cart-ui-events";
 
@@ -20,22 +22,19 @@ export function FigmaCartLink() {
       return;
     }
     try {
-      const res = await fetch(`${getApiBaseUrl()}/cart`, {
-        headers: { "X-Cart-Token": token },
-      });
-      if (res.status === 404) {
+      const data = await fetchCart(token);
+      if (!data) {
         clearCartToken();
         setCount(0);
         return;
       }
-      if (!res.ok) {
+      setCount(cartItemCount(data.items));
+    } catch (e) {
+      if (isCartGoneError(e)) {
+        clearCartToken();
         setCount(0);
-        return;
       }
-      const data = (await res.json()) as { items: { quantity: number }[] };
-      setCount(data.items.reduce((s, i) => s + i.quantity, 0));
-    } catch {
-      setCount(0);
+      /* мережа: лишаємо попередній count */
     }
   }, []);
 
@@ -43,13 +42,19 @@ export function FigmaCartLink() {
     void loadCount();
     function onUpdated(e: Event) {
       const detail = (e as CustomEvent<CartUpdatedDetail>).detail;
-      if (typeof detail?.itemCount === "number") {
+      if (detail?.reload) {
+        void loadCount();
+      } else if (typeof detail?.itemCount === "number") {
         setCount(detail.itemCount);
+      } else if (typeof detail?.delta === "number") {
+        setCount((c) => Math.max(0, c + detail.delta!));
       } else {
         void loadCount();
       }
-      setPulse(true);
-      window.setTimeout(() => setPulse(false), 550);
+      if (!detail?.reload) {
+        setPulse(true);
+        window.setTimeout(() => setPulse(false), 550);
+      }
     }
     window.addEventListener(MG_CART_UPDATED, onUpdated);
     return () => window.removeEventListener(MG_CART_UPDATED, onUpdated);

@@ -2,36 +2,34 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FigmaQuantityStepper } from "@/components/figma/FigmaQuantityStepper";
 import {
   FigmaSecondaryLink,
   MalvaGardenFigmaPageShell,
 } from "@/components/figma/MalvaGardenFigmaPageShell";
 import { CartPageSkeleton } from "@/components/figma/MgSkeleton";
+import {
+  fetchCart,
+  removeCartItem,
+  updateCartItemQuantity,
+} from "@/lib/cart-api";
+import {
+  CART_GONE_MESSAGE,
+  isCartGoneError,
+  isCartLineMissingError,
+} from "@/lib/cart-errors";
+import {
+  applyItemRemoved,
+  applyQuantityUpdate,
+  cartItemCount,
+} from "@/lib/cart-optimistic";
+import type { CartResponse } from "@/lib/cart-types";
 import { dispatchCartUpdated } from "@/lib/cart-ui-events";
-import { getApiBaseUrl } from "@/lib/api";
 import { clearCartToken, getCartToken } from "@/lib/cart-token";
 
 const PRODUCT_THUMB = "/images/figma/home/product-thumb.png";
 const EXIT_MS = 220;
-
-type CartItem = {
-  productId: string;
-  name: string;
-  slug: string;
-  quantity: number;
-  unitPrice: string;
-  lineTotal: string;
-  imageUrl?: string | null;
-  stockQuantity?: number;
-};
-
-type CartResp = {
-  token: string;
-  subtotal: string;
-  items: CartItem[];
-};
 
 function formatPrice(value: string) {
   return value.includes("грн") ? value : `${value} грн`;
@@ -110,103 +108,130 @@ function EmptyCart() {
 export function MalvaGardenCartDesktop() {
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [cart, setCart] = useState<CartResp | null>(null);
+  const [cart, setCart] = useState<CartResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [busyId, setBusyId] = useState<string | null>(null);
   const [exitingIds, setExitingIds] = useState<Set<string>>(new Set());
 
-  async function load() {
+  const cartRef = useRef<CartResponse | null>(null);
+  const qtySeqRef = useRef<Map<string, number>>(new Map());
+  const removingRef = useRef<Set<string>>(new Set());
+
+  cartRef.current = cart;
+
+  const commitCart = useCallback(
+    (next: CartResponse | null, opts?: { sync?: boolean }) => {
+      cartRef.current = next;
+      setCart(next);
+      const count = next ? cartItemCount(next.items) : 0;
+      if (opts?.sync) {
+        dispatchCartUpdated({ itemCount: count, sync: true });
+      } else {
+        dispatchCartUpdated(count);
+      }
+    },
+    [],
+  );
+
+  const handleCartGone = useCallback(() => {
+    clearCartToken();
+    commitCart(null);
+    setError(CART_GONE_MESSAGE);
+  }, [commitCart]);
+
+  const load = useCallback(async () => {
     const token = getCartToken();
     if (!token) {
-      setCart(null);
+      commitCart(null);
       setLoading(false);
       return;
     }
     setError(null);
     try {
-      const res = await fetch(`${getApiBaseUrl()}/cart`, {
-        headers: { "X-Cart-Token": token },
-      });
-      if (res.status === 404) {
+      const data = await fetchCart(token);
+      if (!data) {
         clearCartToken();
-        setCart(null);
-        dispatchCartUpdated(0);
+        commitCart(null);
         return;
       }
-      if (!res.ok) throw new Error(await res.text());
-      const data = (await res.json()) as CartResp;
-      setCart(data);
-      const count = data.items.reduce((n, i) => n + i.quantity, 0);
-      dispatchCartUpdated(count);
+      commitCart(data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Помилка завантаження кошика");
+      if (isCartGoneError(e)) {
+        handleCartGone();
+      } else {
+        setError(e instanceof Error ? e.message : "Помилка завантаження кошика");
+      }
     } finally {
       setLoading(false);
     }
-  }
+  }, [commitCart, handleCartGone]);
 
   useEffect(() => {
     setMounted(true);
     void load();
-  }, []);
+  }, [load]);
 
   async function setQty(productId: string, quantity: number) {
-    const token = getCartToken();
-    if (!token) return;
-    setBusyId(productId);
+    const current = cartRef.current;
+    if (!current) return;
+
+    const seq = (qtySeqRef.current.get(productId) ?? 0) + 1;
+    qtySeqRef.current.set(productId, seq);
+    const snapshot = current;
+    setError(null);
+    commitCart(applyQuantityUpdate(current, productId, quantity));
+
     try {
-      const res = await fetch(
-        `${getApiBaseUrl()}/cart/items/${encodeURIComponent(productId)}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Cart-Token": token,
-          },
-          body: JSON.stringify({ quantity }),
-        },
-      );
-      if (!res.ok) {
-        setError(await res.text());
+      const data = await updateCartItemQuantity(productId, quantity);
+      if (qtySeqRef.current.get(productId) !== seq) return;
+      commitCart(data, { sync: true });
+    } catch (e) {
+      if (qtySeqRef.current.get(productId) !== seq) return;
+      if (isCartGoneError(e)) {
+        handleCartGone();
         return;
       }
-      await load();
-    } finally {
-      setBusyId(null);
+      commitCart(snapshot);
+      setError(e instanceof Error ? e.message : "Не вдалося оновити кількість");
     }
   }
 
   async function remove(productId: string) {
-    const token = getCartToken();
-    if (!token) return;
+    if (removingRef.current.has(productId)) return;
+    const current = cartRef.current;
+    if (!current) return;
+
+    removingRef.current.add(productId);
+    const snapshot = current;
+    setError(null);
     setExitingIds((prev) => new Set(prev).add(productId));
-    setBusyId(productId);
+
     await new Promise((r) => setTimeout(r, EXIT_MS));
+
+    const latest = cartRef.current;
+    if (latest) {
+      commitCart(applyItemRemoved(latest, productId));
+    }
+
     try {
-      const res = await fetch(
-        `${getApiBaseUrl()}/cart/items/${encodeURIComponent(productId)}`,
-        {
-          method: "DELETE",
-          headers: { "X-Cart-Token": token },
-        },
-      );
-      if (!res.ok) {
-        setError(await res.text());
-        setExitingIds((prev) => {
-          const next = new Set(prev);
-          next.delete(productId);
-          return next;
-        });
+      const data = await removeCartItem(productId);
+      commitCart(data, { sync: true });
+    } catch (e) {
+      if (isCartGoneError(e)) {
+        handleCartGone();
         return;
       }
+      if (isCartLineMissingError(e)) {
+        return;
+      }
+      commitCart(snapshot);
+      setError(e instanceof Error ? e.message : "Не вдалося видалити товар");
+    } finally {
+      removingRef.current.delete(productId);
       setExitingIds((prev) => {
         const next = new Set(prev);
         next.delete(productId);
         return next;
       });
-      await load();
-    } finally {
-      setBusyId(null);
     }
   }
 
@@ -248,6 +273,7 @@ export function MalvaGardenCartDesktop() {
                 const imgSrc = item.imageUrl || PRODUCT_THUMB;
                 const isRemote = imgSrc.startsWith("http");
                 const exiting = exitingIds.has(item.productId);
+                const rowBusy = exiting;
                 return (
                   <li
                     key={item.productId}
@@ -283,7 +309,7 @@ export function MalvaGardenCartDesktop() {
                           value={item.quantity}
                           min={1}
                           max={maxQty}
-                          disabled={busyId === item.productId}
+                          disabled={rowBusy}
                           onDecrease={() =>
                             void setQty(item.productId, Math.max(1, item.quantity - 1))
                           }
@@ -296,7 +322,7 @@ export function MalvaGardenCartDesktop() {
                         />
                         <button
                           type="button"
-                          disabled={busyId === item.productId}
+                          disabled={rowBusy}
                           onClick={() => void remove(item.productId)}
                           className="text-[13px] font-medium text-[#b91c1c] underline-offset-2 hover:underline disabled:opacity-50"
                         >

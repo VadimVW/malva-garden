@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import {
   figmaInputClass,
   FigmaPrimaryButton,
@@ -19,20 +19,15 @@ import {
   type NovaPoshtaSelection,
 } from "@/components/figma/checkout/NovaPoshtaCheckoutFields";
 import { getApiBaseUrl } from "@/lib/api";
+import { fetchCart } from "@/lib/cart-api";
+import { isCartGoneError } from "@/lib/cart-errors";
+import type { CartResponse } from "@/lib/cart-types";
 import { clearCartToken, getCartToken } from "@/lib/cart-token";
-import { dispatchCartUpdated } from "@/lib/cart-ui-events";
-
-type CartItem = {
-  productId: string;
-  name: string;
-  quantity: number;
-  lineTotal: string;
-};
-
-type CartResp = {
-  subtotal: string;
-  items: CartItem[];
-};
+import {
+  dispatchCartUpdated,
+  MG_CART_UPDATED,
+  type CartUpdatedDetail,
+} from "@/lib/cart-ui-events";
 
 function formatPrice(value: string) {
   return value.includes("грн") ? value : `${value} грн`;
@@ -42,7 +37,7 @@ function labelClass() {
   return "block text-[13px] font-semibold text-black";
 }
 
-function OrderSummary({ cart }: { cart: CartResp }) {
+function OrderSummary({ cart }: { cart: CartResponse }) {
   const count = cart.items.reduce((n, i) => n + i.quantity, 0);
   return (
     <aside className="animate-mg-fade-in rounded-2xl bg-white p-6 shadow-[0px_6px_20px_rgba(0,0,0,0.08)] lg:sticky lg:top-[140px]">
@@ -88,7 +83,9 @@ export function MalvaGardenCheckoutDesktop() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [cartLoading, setCartLoading] = useState(true);
-  const [cart, setCart] = useState<CartResp | null>(null);
+  const [summaryRefreshing, setSummaryRefreshing] = useState(false);
+  const [cart, setCart] = useState<CartResponse | null>(null);
+  const initialLoadDone = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [deliveryMethod, setDeliveryMethod] = useState("nova_poshta");
@@ -102,26 +99,57 @@ export function MalvaGardenCheckoutDesktop() {
     setNpSelection(selection);
   }, []);
 
-  useEffect(() => {
-    setMounted(true);
+  const loadCartSummary = useCallback(async (background = false) => {
     const token = getCartToken();
     if (!token) {
+      setCart(null);
       setCartLoading(false);
+      initialLoadDone.current = true;
       return;
     }
-    void (async () => {
-      try {
-        const res = await fetch(`${getApiBaseUrl()}/cart`, {
-          headers: { "X-Cart-Token": token },
-        });
-        if (res.ok) setCart((await res.json()) as CartResp);
-      } catch {
-        /* summary optional */
-      } finally {
-        setCartLoading(false);
+    if (background) {
+      setSummaryRefreshing(true);
+    }
+    try {
+      const data = await fetchCart(token);
+      if (!data) {
+        clearCartToken();
+        setCart(null);
+        return;
       }
-    })();
+      setCart(data);
+    } catch (e) {
+      if (isCartGoneError(e)) {
+        clearCartToken();
+        setCart(null);
+      }
+    } finally {
+      setCartLoading(false);
+      setSummaryRefreshing(false);
+      initialLoadDone.current = true;
+    }
   }, []);
+
+  useEffect(() => {
+    setMounted(true);
+    void loadCartSummary();
+  }, [loadCartSummary]);
+
+  useEffect(() => {
+    function onCartEvent(e: Event) {
+      const detail = (e as CustomEvent<CartUpdatedDetail>).detail;
+      if (detail?.sync || detail?.reload) {
+        const token = getCartToken();
+        if (!token) {
+          setCart(null);
+          return;
+        }
+        void loadCartSummary(true);
+      }
+    }
+    window.addEventListener(MG_CART_UPDATED, onCartEvent);
+    return () => window.removeEventListener(MG_CART_UPDATED, onCartEvent);
+  }, [loadCartSummary]);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -327,7 +355,7 @@ export function MalvaGardenCheckoutDesktop() {
             </div>
           </form>
 
-          {cartLoading ? (
+          {cartLoading || summaryRefreshing ? (
             <div className="w-full shrink-0 lg:w-[320px]">
               <CheckoutSummarySkeleton />
             </div>
