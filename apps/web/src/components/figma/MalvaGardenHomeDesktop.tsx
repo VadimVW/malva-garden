@@ -37,10 +37,12 @@ const IMG = {
 
 
 export type HomeLeaderProduct = {
+  id: string;
   slug: string;
   name: string;
   subtitle: string;
   price: string;
+  stockQuantity: number;
   imageUrl?: string | null;
 };
 
@@ -53,11 +55,13 @@ function leaderCardsFromProps(
 ) {
   if (!leaderProducts?.length) return [];
   return leaderProducts.map((p) => ({
+    productId: p.id,
     slug: p.slug,
     title: p.name,
     subtitle: p.subtitle,
     price: p.price.includes("грн") ? p.price : `${p.price} грн`,
     imageUrl: p.imageUrl ?? null,
+    stockQuantity: p.stockQuantity,
   }));
 }
 
@@ -132,10 +136,12 @@ export default function MalvaGardenHomeDesktop({ leaderProducts }: HomeProps) {
                   {cards.map((c) => (
                     <FigmaProductCard
                       key={c.slug}
+                      productId={c.productId}
                       slug={c.slug}
                       title={c.title}
                       subtitle={c.subtitle}
                       price={c.price}
+                      stockQuantity={c.stockQuantity}
                       imageUrl={c.imageUrl}
                       titleAs="h3"
                     />

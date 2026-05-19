@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type MouseEvent, type ReactNode } from "react";
 import { addCartItem } from "@/lib/cart-api";
 import { cartItemCount } from "@/lib/cart-optimistic";
 import {
@@ -14,7 +14,9 @@ type Props = {
   /** Кількість позицій для додавання за один клік */
   quantity?: number;
   className?: string;
+  /** Підпис кнопки або aria-label, якщо передано children */
   label?: string;
+  children?: ReactNode;
 };
 
 export function AddToCartButton({
@@ -23,9 +25,11 @@ export function AddToCartButton({
   quantity = 1,
   className,
   label,
+  children,
 }: Props) {
   const [loading, setLoading] = useState(false);
   const qty = Math.max(1, Math.floor(quantity));
+  const ariaLabel = label ?? (children ? "Додати в кошик" : undefined);
 
   async function onAdd() {
     setLoading(true);
@@ -47,17 +51,28 @@ export function AddToCartButton({
     }
   }
 
+  function onClick(e: MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+    void onAdd();
+  }
+
   return (
     <button
       type="button"
-      onClick={() => void onAdd()}
+      onClick={onClick}
       disabled={disabled || loading}
+      aria-label={ariaLabel}
       className={
         className ??
         "mg-btn-primary rounded bg-emerald-800 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
       }
     >
-      {loading ? "Зачекайте…" : (label ?? "У кошик")}
+      {loading
+        ? children
+          ? "…"
+          : "Зачекайте…"
+        : (children ?? label ?? "У кошик")}
     </button>
   );
 }

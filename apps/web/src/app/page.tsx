@@ -8,6 +8,7 @@ import { homeMetadata } from "@/lib/seo/metadata";
 export const metadata: Metadata = homeMetadata;
 
 type ProductListItem = {
+  id: string;
   slug: string;
   name: string;
   price: string;
@@ -23,9 +24,11 @@ export default async function HomePage() {
   try {
     const data = await apiFetch<ProductList>("/products?limit=6");
     leaders = data.items.map((p) => ({
+      id: p.id,
       slug: p.slug,
       name: p.name,
       price: p.price,
+      stockQuantity: p.stockQuantity,
       subtitle: p.category?.name ?? "У каталозі",
       imageUrl:
         p.images?.find((i) => i.isMain)?.imageUrl ??

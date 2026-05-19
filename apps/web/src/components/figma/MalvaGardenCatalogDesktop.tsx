@@ -36,6 +36,7 @@ const IMG = {
 const CATALOG_HOME_BTN = "/images/figma/catalog/home-btn.svg";
 
 export type CatalogGridProduct = {
+  id: string;
   slug: string;
   name: string;
   price: string;
@@ -57,11 +58,13 @@ type CatalogDesktopProps = {
 };
 
 type CatalogCardModel = {
+  productId: string;
   slug: string | null;
   title: string;
   subtitle: string;
   price: string;
   imageUrl: string | null;
+  stockQuantity: number;
 };
 
 function catalogCardsFromProps(
@@ -69,11 +72,13 @@ function catalogCardsFromProps(
 ): CatalogCardModel[] {
   if (!gridProducts?.length) return [];
   return gridProducts.map((p) => ({
+    productId: p.id,
     slug: p.slug,
     title: p.name,
     subtitle: p.subtitle ?? "У каталозі",
     price: p.price.includes("грн") ? p.price : `${p.price} грн`,
     imageUrl: p.imageUrl ?? null,
+    stockQuantity: p.stockQuantity,
   }));
 }
 
@@ -200,10 +205,12 @@ export default function MalvaGardenCatalogDesktop({
                 {gridCards.map((c) => (
                   <FigmaProductCard
                     key={c.slug}
+                    productId={c.productId}
                     slug={c.slug!}
                     title={c.title}
                     subtitle={c.subtitle}
                     price={c.price}
+                    stockQuantity={c.stockQuantity}
                     imageUrl={c.imageUrl}
                     titleAs="h2"
                   />

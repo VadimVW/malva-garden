@@ -3,6 +3,7 @@ import type { CatalogPaginationMeta } from "@/lib/catalogPagination";
 import { apiFetch } from "@/lib/api";
 
 type ProductListItem = {
+  id: string;
   slug: string;
   name: string;
   price: string;
@@ -28,6 +29,7 @@ const DEFAULT_LIMIT = 24;
 
 function mapItem(p: ProductListItem): CatalogGridProduct {
   return {
+    id: p.id,
     slug: p.slug,
     name: p.name,
     price: p.price,
