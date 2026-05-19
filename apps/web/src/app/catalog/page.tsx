@@ -1,5 +1,13 @@
-import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+import MalvaGardenCatalogHubDesktop from "@/components/figma/MalvaGardenCatalogHubDesktop";
+import { catalogHubMetadata } from "@/lib/seo/metadata";
 
-export default function CatalogIndexRedirect() {
-  redirect("/catalog/kvity");
+export const metadata: Metadata = catalogHubMetadata;
+
+export default function CatalogHubPage() {
+  return (
+    <div className="min-h-screen w-full bg-[#F5F5F5]">
+      <MalvaGardenCatalogHubDesktop />
+    </div>
+  );
 }

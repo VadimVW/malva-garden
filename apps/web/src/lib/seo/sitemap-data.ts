@@ -55,6 +55,12 @@ export async function collectSitemapEntries(): Promise<SitemapEntry[]> {
   const now = new Date();
   const entries: SitemapEntry[] = [
     { url: absoluteUrl("/"), changeFrequency: "daily", priority: 1, lastModified: now },
+    {
+      url: absoluteUrl("/catalog"),
+      changeFrequency: "weekly",
+      priority: 0.95,
+      lastModified: now,
+    },
   ];
 
   const figmaPaths = new Set(FIGMA_CATALOG_PATHS.map((p) => p.path));

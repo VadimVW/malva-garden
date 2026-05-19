@@ -130,6 +130,13 @@ export const homeMetadata: Metadata = buildPageMetadata({
   path: "/",
 });
 
+export const catalogHubMetadata: Metadata = buildPageMetadata({
+  title: `Каталог | ${SITE_NAME}`,
+  description:
+    "Оберіть розділ каталогу: квіти, декоративні кущі та декоративні трави.",
+  path: "/catalog",
+});
+
 /** Каталогові хаби та підкатегорії з фіксованими маршрутами Figma. */
 export const FIGMA_CATALOG_PATHS: { path: string; categorySlug: string; fallbackTitle: string }[] =
   [

@@ -102,7 +102,7 @@ export default function MalvaGardenHomeDesktop({ leaderProducts }: HomeProps) {
                           </span>
                         </p>
                         <Link
-                          href="/catalog/kvity"
+                          href="/catalog"
                           className="mg-btn-light inline-flex w-fit items-center gap-2.5 rounded-lg bg-white py-2.5 pl-4 pr-5"
                         >
                           <span className="text-[20px] text-black">До каталогу</span>
@@ -147,9 +147,12 @@ export default function MalvaGardenHomeDesktop({ leaderProducts }: HomeProps) {
                     />
                   ))}
                 </div>
-                <div className="flex h-10 w-[225px] items-center justify-center rounded-lg bg-white px-2 py-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]">
-                  <span className="text-[14px] text-black">Показати більше</span>
-                </div>
+                <Link
+                  href="/catalog"
+                  className="flex h-10 w-[225px] items-center justify-center rounded-lg bg-white px-2 py-2 text-[14px] text-black shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] transition-shadow hover:shadow-[0px_6px_12px_rgba(0,0,0,0.18)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5C97A8] focus-visible:ring-offset-2"
+                >
+                  Показати більше
+                </Link>
               </div>
             </section>
           </main>

@@ -5,12 +5,40 @@ import type { FigmaStoreNavSection } from "@/lib/figmaStoreNavSection";
 export type { FigmaStoreNavSection } from "@/lib/figmaStoreNavSection";
 
 const navItemClass =
-  "relative z-10 flex h-full min-w-[130px] flex-1 items-center justify-center px-3 text-center text-[12px] font-bold leading-tight text-[#F7F4EF] transition-colors hover:bg-[#4C8094]/30 sm:flex-initial";
+  "relative z-10 inline-flex h-full min-w-[130px] flex-1 items-center justify-center gap-1 px-3 text-center text-[12px] font-bold leading-tight text-[#F7F4EF] transition-colors hover:bg-[#4C8094]/30 sm:flex-initial";
 
 const navItemActiveClass =
-  "relative z-10 flex h-full min-w-[130px] flex-1 items-center justify-center bg-[#4C8094]/45 px-3 text-center text-[12px] font-bold leading-tight text-[#F7F4EF] sm:flex-initial";
+  "relative z-10 inline-flex h-full min-w-[130px] flex-1 items-center justify-center gap-1 bg-[#4C8094]/45 px-3 text-center text-[12px] font-bold leading-tight text-[#F7F4EF] sm:flex-initial";
 
-const KVITY_SUBMENU = [
+function NavChevron() {
+  return (
+    <svg
+      className="size-3 shrink-0 opacity-90"
+      viewBox="0 0 12 12"
+      fill="none"
+      aria-hidden
+    >
+      <path
+        d="M3 4.5L6 7.5L9 4.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+type SubmenuItem = { href: string; label: string; icon: ReactNode };
+type HubLink = { href: string; label: string };
+
+const KVITY_HUB: HubLink = { href: "/catalog/kvity", label: "Усі квіти" };
+const SHRUB_HUB: HubLink = {
+  href: "/catalog/dekoratyvni-kushi",
+  label: "Усі декоративні кущі",
+};
+
+const KVITY_SUBMENU: SubmenuItem[] = [
   {
     href: "/catalog/kvity/odnorichni",
     label: "Однорічні",
@@ -56,9 +84,9 @@ const KVITY_SUBMENU = [
       </svg>
     ),
   },
-] as const;
+];
 
-const SHRUB_SUBMENU = [
+const SHRUB_SUBMENU: SubmenuItem[] = [
   {
     href: "/catalog/dekoratyvni-kushi/hortenzii",
     label: "Гортензії",
@@ -117,11 +145,20 @@ const SHRUB_SUBMENU = [
       </svg>
     ),
   },
-] as const;
+];
 
-function submenuPanel(items: readonly { href: string; label: string; icon: ReactNode }[]) {
+function submenuPanel(items: readonly SubmenuItem[], hubLink: HubLink) {
   return (
     <ul className="rounded-b-xl rounded-tr-xl bg-white py-2 shadow-[0px_10px_30px_rgba(0,0,0,0.12)] ring-1 ring-black/5">
+      <li role="none">
+        <Link
+          href={hubLink.href}
+          role="menuitem"
+          className="flex items-center gap-3 border-b border-[#E7F1F3] px-4 py-2.5 text-left text-[13px] font-bold text-[#5C97A8] transition-colors hover:bg-[#E7F1F3]"
+        >
+          {hubLink.label}
+        </Link>
+      </li>
       {items.map((item) => (
         <li key={item.href} role="none">
           <Link
@@ -135,6 +172,15 @@ function submenuPanel(items: readonly { href: string; label: string; icon: React
         </li>
       ))}
     </ul>
+  );
+}
+
+function NavLabelWithChevron({ children }: { children: ReactNode }) {
+  return (
+    <>
+      <span>{children}</span>
+      <NavChevron />
+    </>
   );
 }
 
@@ -152,47 +198,57 @@ export function MalvaGardenFigmaStoreNav({ activeSection }: MalvaGardenFigmaStor
       />
 
       <div className="relative z-10 mx-auto flex h-full w-full max-w-[1280px] items-stretch justify-center gap-0 px-4 sm:px-8 lg:px-12 xl:px-16">
-      <div className="group/shrub relative z-30 flex h-full min-w-[130px] flex-1 flex-col items-stretch sm:flex-initial">
-        {activeSection === "shrubs" ? (
-          <span className={navItemActiveClass}>Декоративні кущі</span>
+        <div
+          className="group/shrub relative z-30 flex h-full min-w-[130px] flex-1 flex-col items-stretch sm:flex-initial"
+          aria-haspopup="menu"
+        >
+          {activeSection === "shrubs" ? (
+            <span className={navItemActiveClass}>
+              <NavLabelWithChevron>Декоративні кущі</NavLabelWithChevron>
+            </span>
+          ) : (
+            <Link href="/catalog/dekoratyvni-kushi" className={navItemClass}>
+              <NavLabelWithChevron>Декоративні кущі</NavLabelWithChevron>
+            </Link>
+          )}
+          <div
+            className="pointer-events-none invisible absolute left-1/2 top-full z-50 w-[min(100vw-2rem,260px)] -translate-x-1/2 pt-1 opacity-0 transition-opacity duration-150 group-hover/shrub:pointer-events-auto group-hover/shrub:visible group-hover/shrub:opacity-100"
+            role="menu"
+            aria-label="Підкатегорії декоративних кущів"
+          >
+            {submenuPanel(SHRUB_SUBMENU, SHRUB_HUB)}
+          </div>
+        </div>
+
+        <div
+          className="group/kv relative z-30 flex h-full min-w-[130px] flex-1 flex-col items-stretch sm:flex-initial"
+          aria-haspopup="menu"
+        >
+          {activeSection === "flowers" ? (
+            <span className={navItemActiveClass}>
+              <NavLabelWithChevron>Квіти</NavLabelWithChevron>
+            </span>
+          ) : (
+            <Link href="/catalog/kvity" className={navItemClass}>
+              <NavLabelWithChevron>Квіти</NavLabelWithChevron>
+            </Link>
+          )}
+          <div
+            className="pointer-events-none invisible absolute left-1/2 top-full z-50 w-[min(100vw-2rem,260px)] -translate-x-1/2 pt-1 opacity-0 transition-opacity duration-150 group-hover/kv:pointer-events-auto group-hover/kv:visible group-hover/kv:opacity-100"
+            role="menu"
+            aria-label="Підкатегорії квітів"
+          >
+            {submenuPanel(KVITY_SUBMENU, KVITY_HUB)}
+          </div>
+        </div>
+
+        {activeSection === "herbs" ? (
+          <span className={navItemActiveClass}>Декоративні трави</span>
         ) : (
-          <Link href="/catalog/dekoratyvni-kushi" className={navItemClass}>
-            Декоративні кущі
+          <Link href="/catalog/dekoratyvni-travy" className={navItemClass}>
+            Декоративні трави
           </Link>
         )}
-        <div
-          className="pointer-events-none invisible absolute left-1/2 top-full z-50 w-[min(100vw-2rem,260px)] -translate-x-1/2 pt-1 opacity-0 transition-opacity duration-150 group-hover/shrub:pointer-events-auto group-hover/shrub:visible group-hover/shrub:opacity-100"
-          role="menu"
-          aria-label="Підкатегорії декоративних кущів"
-        >
-          {submenuPanel(SHRUB_SUBMENU)}
-        </div>
-      </div>
-
-      <div className="group/kv relative z-30 flex h-full min-w-[130px] flex-1 flex-col items-stretch sm:flex-initial">
-        {activeSection === "flowers" ? (
-          <span className={navItemActiveClass}>Квіти</span>
-        ) : (
-          <Link href="/catalog/kvity" className={navItemClass}>
-            Квіти
-          </Link>
-        )}
-        <div
-          className="pointer-events-none invisible absolute left-1/2 top-full z-50 w-[min(100vw-2rem,260px)] -translate-x-1/2 pt-1 opacity-0 transition-opacity duration-150 group-hover/kv:pointer-events-auto group-hover/kv:visible group-hover/kv:opacity-100"
-          role="menu"
-          aria-label="Підкатегорії квітів"
-        >
-          {submenuPanel(KVITY_SUBMENU)}
-        </div>
-      </div>
-
-      {activeSection === "herbs" ? (
-        <span className={navItemActiveClass}>Декоративні трави</span>
-      ) : (
-        <Link href="/catalog/dekoratyvni-travy" className={navItemClass}>
-          Декоративні трави
-        </Link>
-      )}
       </div>
     </nav>
   );
