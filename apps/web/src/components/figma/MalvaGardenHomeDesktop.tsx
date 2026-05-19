@@ -11,7 +11,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { FigmaStoreFooter } from "@/components/figma/FigmaStoreFooter";
 import { FigmaStoreHeader } from "@/components/figma/FigmaStoreHeader";
-import { FigmaProductCardDecor } from "@/components/figma/FigmaProductCardDecor";
+import { FigmaProductCard } from "@/components/figma/FigmaProductCard";
 import {
   Montserrat_Alternates,
   Playfair_Display,
@@ -33,8 +33,6 @@ const playfair = Playfair_Display({
 const IMG = {
   banner: "/images/figma/home/banner-bg.png",
   logoMark: "/images/figma/home/logo-mark.png",
-  productThumb: "/images/figma/home/product-thumb.png",
-  cartIcon: "/images/figma/home/cart.svg",
 } as const;
 
 
@@ -62,30 +60,6 @@ function leaderCardsFromProps(
     imageUrl: p.imageUrl ?? null,
   }));
 }
-
-function SocialSvgImg({
-  src,
-  width,
-  height,
-  className,
-}: {
-  src: string;
-  width: number;
-  height: number;
-  className?: string;
-}) {
-  return (
-    <Image
-      src={src}
-      alt=""
-      width={width}
-      height={height}
-      unoptimized
-      className={className}
-    />
-  );
-}
-
 
 export default function MalvaGardenHomeDesktop({ leaderProducts }: HomeProps) {
   const cards = leaderCardsFromProps(leaderProducts ?? null);
@@ -155,59 +129,17 @@ export default function MalvaGardenHomeDesktop({ leaderProducts }: HomeProps) {
                       Товари зʼявляться після підключення каталогу.
                     </p>
                   )}
-                  {cards.map((c) => {
-                    const thumbSrc = c.imageUrl || IMG.productThumb;
-                    const remote =
-                      thumbSrc.startsWith("http") || thumbSrc.startsWith("data:");
-                    const inner = (
-                      <>
-                        <div className="flex justify-center overflow-visible rounded-t-2xl pt-2">
-                          <div className="relative h-[190px] w-[190px]">
-                            <Image
-                              src={thumbSrc}
-                              alt=""
-                              width={190}
-                              height={190}
-                              className="h-full w-full rounded-lg object-cover"
-                              unoptimized={remote}
-                            />
-                          </div>
-                        </div>
-                        <div className="relative z-[10] flex min-h-0 flex-1 flex-row items-end justify-between gap-2 px-3 pb-4 pt-3">
-                          <div className="flex min-w-0 flex-1 flex-col gap-1">
-                            <h3 className="text-[25px] leading-none text-black">{c.title}</h3>
-                            <p className="text-[14px] text-[#9C9A9A]">{c.subtitle}</p>
-                            <p className="pt-1 text-[24px] font-semibold leading-none text-black">
-                              {c.price}
-                            </p>
-                          </div>
-                          <span
-                            className="relative z-[10] flex size-9 shrink-0 items-center justify-center rounded-full bg-[#5C97A8] text-white shadow-[0px_2px_6px_rgba(92,151,168,0.45)]"
-                            aria-hidden
-                          >
-                            <SocialSvgImg
-                              src={IMG.cartIcon}
-                              width={32}
-                              height={31}
-                              className="h-[18px] w-[18px] object-contain"
-                            />
-                          </span>
-                        </div>
-                        <FigmaProductCardDecor />
-                      </>
-                    );
-                    const shellClass =
-                      "mg-product-card relative flex h-[346px] w-[225px] flex-col overflow-visible rounded-2xl bg-white";
-                    return (
-                      <Link
-                        key={c.slug}
-                        href={`/product/${c.slug}`}
-                        className={`${shellClass} block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5C97A8] focus-visible:ring-offset-2`}
-                      >
-                        {inner}
-                      </Link>
-                    );
-                  })}
+                  {cards.map((c) => (
+                    <FigmaProductCard
+                      key={c.slug}
+                      slug={c.slug}
+                      title={c.title}
+                      subtitle={c.subtitle}
+                      price={c.price}
+                      imageUrl={c.imageUrl}
+                      titleAs="h3"
+                    />
+                  ))}
                 </div>
                 <div className="flex h-10 w-[225px] items-center justify-center rounded-lg bg-white px-2 py-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]">
                   <span className="text-[14px] text-black">Показати більше</span>

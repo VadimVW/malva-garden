@@ -1,15 +1,13 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import { FigmaCartIcon } from "@/components/figma/FigmaCartIcon";
 import { useCallback, useEffect, useState } from "react";
 import { fetchCart } from "@/lib/cart-api";
 import { isCartGoneError } from "@/lib/cart-errors";
 import { cartItemCount } from "@/lib/cart-optimistic";
 import { clearCartToken, getCartToken } from "@/lib/cart-token";
 import { MG_CART_UPDATED, type CartUpdatedDetail } from "@/lib/cart-ui-events";
-
-const CART_ICON = "/images/figma/home/cart.svg";
 
 export function FigmaCartLink() {
   const [count, setCount] = useState(0);
@@ -65,14 +63,7 @@ export function FigmaCartLink() {
       href="/cart"
       className={`relative z-10 flex h-12 w-[119px] shrink-0 items-center gap-3 overflow-visible rounded-[5px] px-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] ${pulse ? "mg-cart-pulse" : ""}`}
     >
-      <Image
-        src={CART_ICON}
-        alt=""
-        width={32}
-        height={31}
-        unoptimized
-        className="h-8 w-8 shrink-0 object-contain"
-      />
+      <FigmaCartIcon className="size-8 shrink-0 text-[#F5F5F5]" />
       <span className="text-[12px] font-bold text-[#F7F4EF]">Кошик</span>
       {count > 0 ? (
         <span

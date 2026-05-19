@@ -79,7 +79,20 @@ Vercel — лише для **вітрини** та **адмінки**. API і Б
    - Start: `npm run start:staging`
    - Env: `DATABASE_URL`, `JWT_SECRET`, `WEB_ORIGIN`, `ADMIN_ORIGIN`, `ADMIN_SEED_PASSWORD=admin123`
 
-## 2. Vercel: `NEXT_PUBLIC_API_URL`
+## 2. Vercel: змінні вітрини та адмінки
+
+### Де яка змінна
+
+| Змінна | Проєкт | Де задавати |
+|--------|--------|-------------|
+| `NEXT_PUBLIC_API_URL` | **web**, **admin** | Vercel |
+| `NEXT_PUBLIC_SITE_URL` | **web** лише | Vercel |
+| `WEB_ORIGIN`, `ADMIN_ORIGIN` | API | **Render** → malva-api-staging |
+| `DATABASE_URL`, `JWT_SECRET`, WayForPay, НП | API | Render |
+
+**Не плутати:** `NEXT_PUBLIC_SITE_URL` **не** додавати на Render. На API вже є `WEB_ORIGIN` з тим самим URL вітрини — для CORS і WayForPay, не для SEO.
+
+### `NEXT_PUBLIC_API_URL`
 
 Після появи URL API (локально, з кореня репо):
 
@@ -89,13 +102,23 @@ npm run staging:vercel-env -- https://malva-api-staging.onrender.com
 
 Скрипт прописує `NEXT_PUBLIC_API_URL` у **web** і **admin** і робить `vercel deploy --prod`.
 
-Вручну (Vercel Dashboard → Project → Settings → Environment Variables):
+Вручну (Vercel Dashboard → **web** / **admin** → Settings → Environment Variables → **Production**):
 
 ```
-NEXT_PUBLIC_API_URL=https://<your-api-host>/api/v1
+NEXT_PUBLIC_API_URL=https://malva-api-staging.onrender.com/api/v1
 ```
 
-Потім **Redeploy** обох проєктів.
+### `NEXT_PUBLIC_SITE_URL` (SEO вітрини)
+
+Лише проєкт **web** (не admin, не Render):
+
+```
+NEXT_PUBLIC_SITE_URL=https://web-black-nine-61.vercel.app
+```
+
+**Навіщо:** canonical-посилання, Open Graph / Twitter Card, абсолютні URL у `sitemap.xml`. Без змінної на Vercel часто підставляється `VERCEL_URL` (зазвичай ок для production-аліаса, але явне значення надійніше при зміні домену).
+
+Після додавання або зміни — **Redeploy** вітрини (змінні `NEXT_PUBLIC_*` потрапляють у збірку).
 
 ## 3. Перевірка flow
 
@@ -108,6 +131,10 @@ NEXT_PUBLIC_API_URL=https://<your-api-host>/api/v1
 | Адмінка | https://admin-swart-rho-88.vercel.app/login |
 | Логін | `admin@malva.local` / `admin123` (з seed) |
 | CRUD | категорії, товари, замовлення, сторінки, налаштування |
+| SEO robots | https://web-black-nine-61.vercel.app/robots.txt |
+| SEO sitemap | https://web-black-nine-61.vercel.app/sitemap.xml |
+| Canonical | View Source на `/product/<slug>` — `<link rel="canonical" href="https://web-black-nine-61.vercel.app/...">` |
+| JSON-LD | View Source на товарі — `<script type="application/ld+json">` з `@type":"Product"` |
 
 ## 4. Обмеження free tier
 
@@ -119,5 +146,5 @@ NEXT_PUBLIC_API_URL=https://<your-api-host>/api/v1
 Не прив’язуйтесь до Render/Vercel URL у контенті. Для релізу:
 
 1. Новий хост API + БД (експорт/імпорт Postgres).
-2. Оновити `NEXT_PUBLIC_API_URL`, `WEB_ORIGIN`, `ADMIN_ORIGIN`.
-3. Власні домени за потреби.
+2. Оновити `NEXT_PUBLIC_API_URL`, **`NEXT_PUBLIC_SITE_URL`** (Vercel web), `WEB_ORIGIN`, `ADMIN_ORIGIN` (Render).
+3. Власні домени за потреби; після зміни домену — redeploy вітрини з новим `NEXT_PUBLIC_SITE_URL`.

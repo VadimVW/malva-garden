@@ -11,12 +11,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import type { ReactNode } from "react";
 import { CatalogGridFade } from "@/components/figma/CatalogGridFade";
 import { CatalogPaginationNav } from "@/components/figma/CatalogPaginationNav";
 import { FigmaStoreFooter } from "@/components/figma/FigmaStoreFooter";
 import { FigmaStoreHeader } from "@/components/figma/FigmaStoreHeader";
-import { FigmaProductCardDecor } from "@/components/figma/FigmaProductCardDecor";
+import { FigmaProductCard } from "@/components/figma/FigmaProductCard";
 import type { CatalogPaginationMeta } from "@/lib/catalogPagination";
 import type { FigmaStoreNavSection } from "@/lib/figmaStoreNavSection";
 import { Montserrat_Alternates } from "next/font/google";
@@ -28,8 +27,6 @@ const montserratAlternates = Montserrat_Alternates({
 });
 
 const IMG = {
-  productThumb: "/images/figma/home/product-thumb.png",
-  cartIcon: "/images/figma/home/cart.svg",
   /** Повна сторінка зі скріну; object-position підганяє видиму зону космосів під банер */
   heroKvity: "/images/figma/catalog/hero-kvity.png",
 } as const;
@@ -79,32 +76,6 @@ function catalogCardsFromProps(
     imageUrl: p.imageUrl ?? null,
   }));
 }
-
-
-
-function SocialSvgImg({
-  src,
-  width,
-  height,
-  className,
-}: {
-  src: string;
-  width: number;
-  height: number;
-  className?: string;
-}) {
-  return (
-    <Image
-      src={src}
-      alt=""
-      width={width}
-      height={height}
-      unoptimized
-      className={className}
-    />
-  );
-}
-
 
 export default function MalvaGardenCatalogDesktop({
   gridProducts,
@@ -226,59 +197,17 @@ export default function MalvaGardenCatalogDesktop({
                     У цій категорії поки немає товарів.
                   </p>
                 )}
-                {gridCards.map((c) => {
-                  const thumbSrc = c.imageUrl || IMG.productThumb;
-                  const remote =
-                    thumbSrc.startsWith("http") || thumbSrc.startsWith("data:");
-                  const inner = (
-                    <>
-                      <div className="flex justify-center overflow-visible rounded-t-2xl pt-2">
-                        <div className="relative h-[190px] w-[190px]">
-                          <Image
-                            src={thumbSrc}
-                            alt=""
-                            width={190}
-                            height={190}
-                            className="h-full w-full rounded-lg object-cover"
-                            unoptimized={remote}
-                          />
-                        </div>
-                      </div>
-                      <div className="relative z-[10] flex min-h-0 flex-1 flex-row items-end justify-between gap-2 px-3 pb-4 pt-3">
-                        <div className="flex min-w-0 flex-1 flex-col gap-1">
-                          <h2 className="text-[25px] leading-none text-black">{c.title}</h2>
-                          <p className="text-[14px] text-[#9C9A9A]">{c.subtitle}</p>
-                          <p className="pt-1 text-[24px] font-semibold leading-none text-black">
-                            {c.price}
-                          </p>
-                        </div>
-                        <span
-                          className="relative z-[10] flex size-9 shrink-0 items-center justify-center rounded-full bg-[#5C97A8] text-white shadow-[0px_2px_6px_rgba(92,151,168,0.45)]"
-                          aria-hidden
-                        >
-                          <SocialSvgImg
-                            src={IMG.cartIcon}
-                            width={32}
-                            height={31}
-                            className="h-[18px] w-[18px] object-contain"
-                          />
-                        </span>
-                      </div>
-                      <FigmaProductCardDecor />
-                    </>
-                  );
-                  const shellClass =
-                    "mg-product-card relative flex h-[346px] w-[225px] flex-col overflow-visible rounded-2xl bg-white";
-                  return (
-                    <Link
-                      key={c.slug}
-                      href={`/product/${c.slug}`}
-                      className={`${shellClass} block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5C97A8] focus-visible:ring-offset-2`}
-                    >
-                      {inner}
-                    </Link>
-                  );
-                })}
+                {gridCards.map((c) => (
+                  <FigmaProductCard
+                    key={c.slug}
+                    slug={c.slug!}
+                    title={c.title}
+                    subtitle={c.subtitle}
+                    price={c.price}
+                    imageUrl={c.imageUrl}
+                    titleAs="h2"
+                  />
+                ))}
               </CatalogGridFade>
 
               {paginationBasePath && pagination && pagination.totalPages > 0 ? (
