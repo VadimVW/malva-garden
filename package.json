@@ -7,6 +7,7 @@
     "dev:web": "npm run dev -w web",
     "dev:api": "npm run dev -w api",
     "dev:admin": "npm run dev -w admin",
+    "build": "npm run build -w web",
     "build:web": "npm run build -w web",
     "build:api": "npm run build -w api",
     "build:admin": "npm run build -w admin",

@@ -81,6 +81,19 @@ Vercel — лише для **вітрини** та **адмінки**. API і Б
 
 ## 2. Vercel: змінні вітрини та адмінки
 
+### Налаштування проєкту web (обовʼязково)
+
+У [Vercel Dashboard](https://vercel.com) → проєкт **web** → **Settings** → **General**:
+
+| Поле | Значення |
+|------|----------|
+| **Root Directory** | `apps/web` |
+| **Framework Preset** | Next.js |
+
+Якщо Root Directory порожній, збірка з кореня репо падає з `Missing script: "build"` (скрипт `build` є в кореневому `package.json` і в `apps/web`).
+
+`apps/web/vercel.json`: install з кореня монорепо (`npm install -w web`), build — `next build` у `apps/web`.
+
 ### Де яка змінна
 
 | Змінна | Проєкт | Де задавати |
