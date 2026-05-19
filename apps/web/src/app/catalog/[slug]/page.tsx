@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { apiFetch } from "@/lib/api";
+import {
+  categoryPathFromSlug,
+  metadataForCategorySlug,
+} from "@/lib/seo/metadata";
 
 type CategoryResp = {
   category: { id: string; name: string; slug: string };
@@ -10,6 +15,15 @@ type CategoryResp = {
 type ProductList = {
   items: { slug: string; name: string; price: string; stockQuantity: number }[];
 };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  return metadataForCategorySlug(slug, slug, categoryPathFromSlug(slug));
+}
 
 export default async function CategoryPage({
   params,

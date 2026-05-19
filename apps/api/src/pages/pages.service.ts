@@ -7,6 +7,13 @@ import { UpdateContentPageDto } from "./dto/update-content-page.dto";
 export class PagesService {
   constructor(private readonly prisma: PrismaService) {}
 
+  findAllPublicIndex() {
+    return this.prisma.contentPage.findMany({
+      select: { slug: true, updatedAt: true },
+      orderBy: { slug: "asc" },
+    });
+  }
+
   async findPublicBySlug(slug: string) {
     const page = await this.prisma.contentPage.findUnique({ where: { slug } });
     if (!page) throw new NotFoundException("Сторінку не знайдено");

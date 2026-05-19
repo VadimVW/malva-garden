@@ -1,13 +1,29 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import MalvaGardenCatalogDesktop from "@/components/figma/MalvaGardenCatalogDesktop";
 import { apiFetch } from "@/lib/api";
 import { loadCatalogPage } from "@/lib/loadCatalogPage";
+import { metadataForCategorySlug } from "@/lib/seo/metadata";
 
 const VALID = new Set(["odnorichni", "bagatorichni", "hrizantemy"]);
 
 type CategoryMeta = {
   category: { id: string; name: string; slug: string };
 };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ subcategory: string }>;
+}): Promise<Metadata> {
+  const { subcategory } = await params;
+  if (!VALID.has(subcategory)) return { title: "Каталог" };
+  return metadataForCategorySlug(
+    subcategory,
+    subcategory,
+    `/catalog/kvity/${subcategory}`,
+  );
+}
 
 export default async function KvitySubcategoryPage({
   params,

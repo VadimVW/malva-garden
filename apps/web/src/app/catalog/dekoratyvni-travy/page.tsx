@@ -1,7 +1,18 @@
+import type { Metadata } from "next";
 import MalvaGardenCatalogDesktop from "@/components/figma/MalvaGardenCatalogDesktop";
 import { loadCatalogPage } from "@/lib/loadCatalogPage";
+import { metadataForCategorySlug } from "@/lib/seo/metadata";
+import { SITE_NAME } from "@/lib/seo/site";
 
 const BASE_PATH = "/catalog/dekoratyvni-travy";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return metadataForCategorySlug(
+    "dekoratyvni-travy",
+    `Декоративні трави | ${SITE_NAME}`,
+    BASE_PATH,
+  );
+}
 
 export default async function DekoratyvniTravyCatalogPage({
   searchParams,

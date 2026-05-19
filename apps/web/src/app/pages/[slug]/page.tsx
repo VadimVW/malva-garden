@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MalvaGardenContentPageDesktop } from "@/components/figma/MalvaGardenContentPageDesktop";
 import { apiFetch } from "@/lib/api";
+import { buildSeoTitleMetadata } from "@/lib/seo/metadata";
+import { SITE_NAME } from "@/lib/seo/site";
 
 type PageDto = {
   title: string;
@@ -19,10 +21,12 @@ export async function generateMetadata({
   const { slug } = await params;
   const page = await apiFetch<PageDto>(`/pages/${slug}`).catch(() => null);
   if (!page) return { title: "Сторінка" };
-  return {
-    title: page.seoTitle ?? `${page.title} | Malva Garden`,
+  return buildSeoTitleMetadata({
+    seoTitle: page.seoTitle,
+    fallbackTitle: `${page.title} | ${SITE_NAME}`,
     description: page.seoDescription ?? undefined,
-  };
+    path: `/pages/${slug}`,
+  });
 }
 
 export default async function ContentPage({

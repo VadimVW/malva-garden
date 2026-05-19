@@ -5,6 +5,11 @@ import { PagesService } from "./pages.service";
 export class PublicPagesController {
   constructor(private readonly pages: PagesService) {}
 
+  @Get()
+  index() {
+    return this.pages.findAllPublicIndex().then((items) => ({ items }));
+  }
+
   @Get(":slug")
   get(@Param("slug") slug: string) {
     return this.pages.findPublicBySlug(slug);

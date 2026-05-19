@@ -1,13 +1,25 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import MalvaGardenCatalogDesktop from "@/components/figma/MalvaGardenCatalogDesktop";
 import { apiFetch } from "@/lib/api";
 import { loadCatalogPage } from "@/lib/loadCatalogPage";
+import { metadataForCategorySlug } from "@/lib/seo/metadata";
 
 const VALID = new Set(["hortenzii", "barbaris", "trojanda", "klimatis"]);
 
 type CategoryMeta = {
   category: { id: string; name: string; slug: string };
 };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ sub: string }>;
+}): Promise<Metadata> {
+  const { sub } = await params;
+  if (!VALID.has(sub)) return { title: "Каталог" };
+  return metadataForCategorySlug(sub, sub, `/catalog/dekoratyvni-kushi/${sub}`);
+}
 
 export default async function DekoratyvniKushiSubPage({
   params,

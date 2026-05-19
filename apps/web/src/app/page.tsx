@@ -1,7 +1,11 @@
+import type { Metadata } from "next";
 import MalvaGardenHomeDesktop, {
   type HomeLeaderProduct,
 } from "@/components/figma/MalvaGardenHomeDesktop";
 import { apiFetch } from "@/lib/api";
+import { homeMetadata } from "@/lib/seo/metadata";
+
+export const metadata: Metadata = homeMetadata;
 
 type ProductListItem = {
   slug: string;
