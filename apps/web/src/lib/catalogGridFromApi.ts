@@ -1,5 +1,6 @@
 import type { CatalogGridProduct } from "@/components/figma/MalvaGardenCatalogDesktop";
 import type { CatalogPaginationMeta } from "@/lib/catalogPagination";
+import type { CatalogSort } from "@/lib/catalogSort";
 import { apiFetch } from "@/lib/api";
 
 type ProductListItem = {
@@ -47,6 +48,7 @@ export async function fetchCatalogGrid(options?: {
   page?: number;
   limit?: number;
   q?: string;
+  sort?: CatalogSort;
 }): Promise<CatalogGridResult> {
   const page = options?.page ?? 1;
   const limit = options?.limit ?? DEFAULT_LIMIT;
@@ -57,6 +59,7 @@ export async function fetchCatalogGrid(options?: {
   if (options?.categorySlug) qs.set("categorySlug", options.categorySlug);
   const searchQ = options?.q?.trim();
   if (searchQ) qs.set("q", searchQ);
+  if (options?.sort) qs.set("sort", options.sort);
 
   const empty: CatalogGridResult = {
     products: [],

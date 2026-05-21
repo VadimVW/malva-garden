@@ -13,10 +13,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { CatalogGridFade } from "@/components/figma/CatalogGridFade";
 import { CatalogPaginationNav } from "@/components/figma/CatalogPaginationNav";
+import { CatalogSortSelect } from "@/components/figma/CatalogSortSelect";
 import { FigmaStoreFooter } from "@/components/figma/FigmaStoreFooter";
 import { FigmaStoreHeader } from "@/components/figma/FigmaStoreHeader";
 import { FigmaProductCard } from "@/components/figma/FigmaProductCard";
-import type { CatalogPaginationMeta } from "@/lib/catalogPagination";
+import type {
+  CatalogPaginationMeta,
+  CatalogUrlQuery,
+} from "@/lib/catalogPagination";
 import type { FigmaStoreNavSection } from "@/lib/figmaStoreNavSection";
 import { Montserrat_Alternates } from "next/font/google";
 
@@ -55,7 +59,7 @@ type CatalogDesktopProps = {
   activeNavSection?: FigmaStoreNavSection;
   paginationBasePath?: string;
   pagination?: CatalogPaginationMeta | null;
-  paginationQuery?: { q?: string };
+  paginationQuery?: CatalogUrlQuery;
   showCategoryBanner?: boolean;
   emptyGridMessage?: string;
 };
@@ -185,20 +189,9 @@ export default function MalvaGardenCatalogDesktop({
                 >
                   {sectionTitle}
                 </h1>
-                <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-                  <span className="text-[14px] font-semibold text-black">Сортування:</span>
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-2 rounded-full bg-[#5C97A8] px-4 py-2 text-[12px] font-bold text-[#F7F4EF] shadow-[0px_2px_8px_rgba(92,151,168,0.35)]"
-                    aria-haspopup="listbox"
-                    aria-expanded="false"
-                  >
-                    Від дешевих до дорогих
-                    <svg className="size-3 shrink-0" viewBox="0 0 12 12" fill="none" aria-hidden>
-                      <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </button>
-                </div>
+                {paginationBasePath ? (
+                  <CatalogSortSelect basePath={paginationBasePath} />
+                ) : null}
               </div>
 
               <CatalogGridFade

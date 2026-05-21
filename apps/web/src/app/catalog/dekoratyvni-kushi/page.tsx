@@ -17,13 +17,14 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function DekoratyvniKushiCatalogPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; sort?: string }>;
 }) {
-  const { page: pageRaw } = await searchParams;
-  const { products, pagination } = await loadCatalogPage({
+  const { page: pageRaw, sort: sortRaw } = await searchParams;
+  const { products, pagination, urlQuery } = await loadCatalogPage({
     basePath: BASE_PATH,
     categorySlug: "dekoratyvni-kushi",
     pageRaw,
+    sortRaw,
   });
 
   return (
@@ -36,6 +37,7 @@ export default async function DekoratyvniKushiCatalogPage({
         activeNavSection="shrubs"
         paginationBasePath={BASE_PATH}
         pagination={pagination}
+        paginationQuery={urlQuery}
       />
     </div>
   );

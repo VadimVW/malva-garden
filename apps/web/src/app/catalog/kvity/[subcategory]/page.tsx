@@ -30,20 +30,21 @@ export default async function KvitySubcategoryPage({
   searchParams,
 }: {
   params: Promise<{ subcategory: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; sort?: string }>;
 }) {
   const { subcategory } = await params;
-  const { page: pageRaw } = await searchParams;
+  const { page: pageRaw, sort: sortRaw } = await searchParams;
   if (!VALID.has(subcategory)) notFound();
 
   const meta = await apiFetch<CategoryMeta>(`/categories/${subcategory}`).catch(() => null);
   if (!meta) notFound();
 
   const basePath = `/catalog/kvity/${subcategory}`;
-  const { products, pagination } = await loadCatalogPage({
+  const { products, pagination, urlQuery } = await loadCatalogPage({
     basePath,
     categorySlug: subcategory,
     pageRaw,
+    sortRaw,
   });
 
   return (
@@ -59,6 +60,7 @@ export default async function KvitySubcategoryPage({
         activeNavSection="flowers"
         paginationBasePath={basePath}
         pagination={pagination}
+        paginationQuery={urlQuery}
       />
     </div>
   );

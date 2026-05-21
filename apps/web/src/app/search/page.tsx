@@ -7,7 +7,7 @@ import { SITE_NAME } from "@/lib/seo/site";
 const BASE_PATH = "/search";
 
 type Props = {
-  searchParams: Promise<{ page?: string; q?: string }>;
+  searchParams: Promise<{ page?: string; q?: string; sort?: string }>;
 };
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
@@ -20,7 +20,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function SearchPage({ searchParams }: Props) {
-  const { page: pageRaw, q: qRaw } = await searchParams;
+  const { page: pageRaw, q: qRaw, sort: sortRaw } = await searchParams;
   const q = parseCatalogQuery(qRaw);
 
   if (!q) {
@@ -41,10 +41,11 @@ export default async function SearchPage({ searchParams }: Props) {
     );
   }
 
-  const { products, pagination } = await loadCatalogPage({
+  const { products, pagination, urlQuery } = await loadCatalogPage({
     basePath: BASE_PATH,
     pageRaw,
     qRaw: q,
+    sortRaw,
   });
 
   const totalLabel =
@@ -68,7 +69,7 @@ export default async function SearchPage({ searchParams }: Props) {
         emptyGridMessage="Нічого не знайдено. Спробуйте інший запит."
         paginationBasePath={BASE_PATH}
         pagination={pagination}
-        paginationQuery={{ q }}
+        paginationQuery={urlQuery}
       />
     </div>
   );

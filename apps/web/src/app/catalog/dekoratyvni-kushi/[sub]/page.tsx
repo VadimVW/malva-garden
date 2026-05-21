@@ -26,20 +26,21 @@ export default async function DekoratyvniKushiSubPage({
   searchParams,
 }: {
   params: Promise<{ sub: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; sort?: string }>;
 }) {
   const { sub } = await params;
-  const { page: pageRaw } = await searchParams;
+  const { page: pageRaw, sort: sortRaw } = await searchParams;
   if (!VALID.has(sub)) notFound();
 
   const meta = await apiFetch<CategoryMeta>(`/categories/${sub}`).catch(() => null);
   if (!meta) notFound();
 
   const basePath = `/catalog/dekoratyvni-kushi/${sub}`;
-  const { products, pagination } = await loadCatalogPage({
+  const { products, pagination, urlQuery } = await loadCatalogPage({
     basePath,
     categorySlug: sub,
     pageRaw,
+    sortRaw,
   });
 
   return (
@@ -55,6 +56,7 @@ export default async function DekoratyvniKushiSubPage({
         activeNavSection="shrubs"
         paginationBasePath={basePath}
         pagination={pagination}
+        paginationQuery={urlQuery}
       />
     </div>
   );

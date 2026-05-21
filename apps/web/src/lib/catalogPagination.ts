@@ -17,9 +17,28 @@ export function parseCatalogQuery(raw: string | string[] | undefined): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+import {
+  DEFAULT_CATALOG_SORT,
+  shouldIncludeSortInUrl,
+  type CatalogSort,
+} from "@/lib/catalogSort";
+
 export type CatalogUrlQuery = {
   q?: string;
+  sort?: CatalogSort;
 };
+
+export function buildCatalogUrlQuery(options: {
+  q?: string;
+  sort?: CatalogSort;
+}): CatalogUrlQuery | undefined {
+  const query: CatalogUrlQuery = {};
+  const trimmedQ = options.q?.trim();
+  if (trimmedQ) query.q = trimmedQ;
+  const sort = options.sort ?? DEFAULT_CATALOG_SORT;
+  if (shouldIncludeSortInUrl(sort)) query.sort = sort;
+  return Object.keys(query).length > 0 ? query : undefined;
+}
 
 export function getCatalogPageHref(
   basePath: string,
@@ -30,6 +49,9 @@ export function getCatalogPageHref(
   const params = new URLSearchParams();
   const q = query?.q?.trim();
   if (q) params.set("q", q);
+  if (query?.sort && shouldIncludeSortInUrl(query.sort)) {
+    params.set("sort", query.sort);
+  }
   if (page > 1) params.set("page", String(page));
   const qs = params.toString();
   return qs ? `${path}?${qs}` : path;
