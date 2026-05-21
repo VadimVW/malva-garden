@@ -16,8 +16,8 @@ async function bootstrap() {
     }),
   );
   const corsOrigins = [
-    process.env.WEB_ORIGIN ?? "http://localhost:3000",
-    process.env.ADMIN_ORIGIN ?? "http://localhost:3001",
+    process.env.WEB_ORIGIN ?? "http://localhost:3300",
+    process.env.ADMIN_ORIGIN ?? "http://localhost:3301",
   ]
     .flatMap((v) => v.split(","))
     .map((o) => o.trim())

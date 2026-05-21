@@ -57,7 +57,7 @@ export class WayforpayService {
   private returnUrl(): string {
     const explicit = this.config.get<string>("WAYFORPAY_RETURN_URL");
     if (explicit) return explicit;
-    const web = this.config.get<string>("WEB_ORIGIN") ?? "http://localhost:3000";
+    const web = this.config.get<string>("WEB_ORIGIN") ?? "http://localhost:3300";
     // WayForPay POSTs to returnUrl; use Route Handler, not App Router page.
     return `${web.replace(/\/$/, "")}/api/payment/wayforpay/return`;
   }
