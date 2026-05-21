@@ -12,10 +12,27 @@ export function parseCatalogPage(raw: string | string[] | undefined): number {
   return Math.floor(n);
 }
 
-export function getCatalogPageHref(basePath: string, page: number): string {
+export function parseCatalogQuery(raw: string | string[] | undefined): string {
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  return typeof value === "string" ? value.trim() : "";
+}
+
+export type CatalogUrlQuery = {
+  q?: string;
+};
+
+export function getCatalogPageHref(
+  basePath: string,
+  page: number,
+  query?: CatalogUrlQuery,
+): string {
   const path = basePath.replace(/\/$/, "") || "/";
-  if (page <= 1) return path;
-  return `${path}?page=${page}`;
+  const params = new URLSearchParams();
+  const q = query?.q?.trim();
+  if (q) params.set("q", q);
+  if (page > 1) params.set("page", String(page));
+  const qs = params.toString();
+  return qs ? `${path}?${qs}` : path;
 }
 
 /** Номери сторінок і «…» для навігації каталогу. */

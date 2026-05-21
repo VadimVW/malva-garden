@@ -3,22 +3,25 @@ import {
   buildPaginationItems,
   getCatalogPageHref,
   type CatalogPaginationMeta,
+  type CatalogUrlQuery,
 } from "@/lib/catalogPagination";
 
 export function CatalogPaginationNav({
   basePath,
   pagination,
+  query,
 }: {
   basePath: string;
   pagination: CatalogPaginationMeta;
+  query?: CatalogUrlQuery;
 }) {
   const { page, totalPages } = pagination;
   if (totalPages <= 1) return null;
 
   const items = buildPaginationItems(page, totalPages);
-  const prevHref = page > 1 ? getCatalogPageHref(basePath, page - 1) : null;
+  const prevHref = page > 1 ? getCatalogPageHref(basePath, page - 1, query) : null;
   const nextHref =
-    page < totalPages ? getCatalogPageHref(basePath, page + 1) : null;
+    page < totalPages ? getCatalogPageHref(basePath, page + 1, query) : null;
 
   const btnClass =
     "inline-flex size-9 items-center justify-center rounded-full text-[#5C97A8] transition-all duration-200 hover:bg-white/80 hover:scale-105";
@@ -53,7 +56,11 @@ export function CatalogPaginationNav({
             {item}
           </span>
         ) : (
-          <Link key={item} href={getCatalogPageHref(basePath, item)} className={btnClass}>
+          <Link
+            key={item}
+            href={getCatalogPageHref(basePath, item, query)}
+            className={btnClass}
+          >
             {item}
           </Link>
         ),

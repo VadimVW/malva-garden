@@ -46,6 +46,7 @@ export async function fetchCatalogGrid(options?: {
   categorySlug?: string;
   page?: number;
   limit?: number;
+  q?: string;
 }): Promise<CatalogGridResult> {
   const page = options?.page ?? 1;
   const limit = options?.limit ?? DEFAULT_LIMIT;
@@ -54,6 +55,8 @@ export async function fetchCatalogGrid(options?: {
     limit: String(limit),
   });
   if (options?.categorySlug) qs.set("categorySlug", options.categorySlug);
+  const searchQ = options?.q?.trim();
+  if (searchQ) qs.set("q", searchQ);
 
   const empty: CatalogGridResult = {
     products: [],

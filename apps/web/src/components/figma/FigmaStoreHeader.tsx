@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { Inter } from "next/font/google";
 import { FigmaCartLink } from "@/components/figma/FigmaCartLink";
+import { FigmaStoreSearch } from "@/components/figma/FigmaStoreSearch";
 import { FIGMA_STORE_IMG, FIGMA_SOCIAL_SVG } from "@/components/figma/figmaStoreAssets";
 import { MalvaGardenFigmaStoreNav } from "@/components/figma/MalvaGardenFigmaStoreNav";
 import type { FigmaStoreNavSection } from "@/lib/figmaStoreNavSection";
@@ -101,25 +102,7 @@ export function FigmaStoreHeader({ activeNavSection }: Props) {
               />
             </Link>
           </div>
-          <div
-            className="relative flex h-[34px] min-w-0 flex-1 items-center gap-2.5 rounded-full border border-[#F7F4EF] px-2"
-            style={{ paddingTop: 5, paddingBottom: 5 }}
-          >
-            <svg
-              className="size-5 shrink-0 text-[#F7F4EF]/50"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden
-            >
-              <circle cx="11" cy="11" r="7" />
-              <path d="M20 20l-3-3" strokeLinecap="round" />
-            </svg>
-            <span className="truncate text-[12px] leading-none text-[#F7F4EF]/50">
-              Пошук
-            </span>
-          </div>
+          <FigmaStoreSearch />
           <div className="relative flex shrink-0 items-center gap-4">
             <div className="flex gap-2.5">
               <NavIconButton label="WhatsApp" href="https://wa.me/380672589828">

@@ -20,6 +20,7 @@ function isFigmaChromePath(pathname: string | null): boolean {
   if (pathname === "/cart" || pathname === "/checkout") return true;
   if (pathname.startsWith("/pages/")) return true;
   if (pathname.startsWith("/order/")) return true;
+  if (pathname === "/search" || pathname.startsWith("/search/")) return true;
   return false;
 }
 

@@ -55,6 +55,9 @@ type CatalogDesktopProps = {
   activeNavSection?: FigmaStoreNavSection;
   paginationBasePath?: string;
   pagination?: CatalogPaginationMeta | null;
+  paginationQuery?: { q?: string };
+  showCategoryBanner?: boolean;
+  emptyGridMessage?: string;
 };
 
 type CatalogCardModel = {
@@ -90,6 +93,9 @@ export default function MalvaGardenCatalogDesktop({
   activeNavSection = "flowers",
   paginationBasePath,
   pagination,
+  paginationQuery,
+  showCategoryBanner = true,
+  emptyGridMessage = "У цій категорії поки немає товарів.",
 }: CatalogDesktopProps) {
   const gridCards = catalogCardsFromProps(gridProducts ?? null);
   const crumbTrail: CatalogBreadcrumbItem[] = breadcrumbs ?? [{ label: "Квіти" }];
@@ -146,28 +152,30 @@ export default function MalvaGardenCatalogDesktop({
               })}
             </nav>
 
-            <section className="mb-8 w-full" aria-label="Банер категорії">
-              <div className="relative min-h-[280px] w-full overflow-hidden rounded-2xl shadow-[0px_4px_16px_rgba(0,0,0,0.08)]">
-                <Image
-                  src={IMG.heroKvity}
-                  alt=""
-                  fill
-                  className="object-cover object-[center_22%]"
-                  sizes="(max-width: 1200px) 100vw, 1200px"
-                  priority
-                />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/[0.06] p-4">
-                  <div className="flex max-w-[min(100%,480px)] flex-col items-center rounded-2xl bg-white px-8 py-6 text-center shadow-[0px_8px_24px_rgba(0,0,0,0.1)]">
-                    <p className="text-[26px] font-bold leading-tight text-black">
-                      {sectionTitle}
-                    </p>
-                    <p className="mt-1 text-[14px] leading-snug text-black">
-                      {sectionDescription}
-                    </p>
+            {showCategoryBanner ? (
+              <section className="mb-8 w-full" aria-label="Банер категорії">
+                <div className="relative min-h-[280px] w-full overflow-hidden rounded-2xl shadow-[0px_4px_16px_rgba(0,0,0,0.08)]">
+                  <Image
+                    src={IMG.heroKvity}
+                    alt=""
+                    fill
+                    className="object-cover object-[center_22%]"
+                    sizes="(max-width: 1200px) 100vw, 1200px"
+                    priority
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/[0.06] p-4">
+                    <div className="flex max-w-[min(100%,480px)] flex-col items-center rounded-2xl bg-white px-8 py-6 text-center shadow-[0px_8px_24px_rgba(0,0,0,0.1)]">
+                      <p className="text-[26px] font-bold leading-tight text-black">
+                        {sectionTitle}
+                      </p>
+                      <p className="mt-1 text-[14px] leading-snug text-black">
+                        {sectionDescription}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </section>
+              </section>
+            ) : null}
 
             <main className="flex w-full flex-col" aria-labelledby="catalog-heading">
               <div className="mb-6 flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -199,7 +207,7 @@ export default function MalvaGardenCatalogDesktop({
               >
                 {gridCards.length === 0 && (
                   <p className="col-span-full py-16 text-center text-[16px] text-[#5C5C5C]">
-                    У цій категорії поки немає товарів.
+                    {emptyGridMessage}
                   </p>
                 )}
                 {gridCards.map((c) => (
@@ -221,6 +229,7 @@ export default function MalvaGardenCatalogDesktop({
                 <CatalogPaginationNav
                   basePath={paginationBasePath}
                   pagination={pagination}
+                  query={paginationQuery}
                 />
               ) : null}
             </main>
