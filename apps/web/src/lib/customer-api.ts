@@ -102,7 +102,7 @@ export async function mergeCartAfterLogin(guestCartToken: string | null) {
   const data = (await res.json()) as { token?: string };
   if (data.token) {
     setCartToken(data.token);
-    dispatchCartUpdated();
+    dispatchCartUpdated({ reload: true, sync: true });
   }
 }
 
