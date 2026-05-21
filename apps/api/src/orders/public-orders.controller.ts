@@ -1,4 +1,6 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Req, UseGuards } from "@nestjs/common";
+import { OptionalJwtCustomerAuthGuard } from "../customer/optional-jwt-customer.guard";
+import type { CurrentCustomer } from "../customer/customer.types";
 import { WayforpayService } from "../payments/wayforpay/wayforpay.service";
 import { CreateOrderDto } from "./dto/create-order.dto";
 import { OrdersService } from "./orders.service";
@@ -11,8 +13,12 @@ export class PublicOrdersController {
   ) {}
 
   @Post()
-  create(@Body() dto: CreateOrderDto) {
-    return this.orders.createFromCart(dto);
+  @UseGuards(OptionalJwtCustomerAuthGuard)
+  create(
+    @Body() dto: CreateOrderDto,
+    @Req() req: { user?: CurrentCustomer | null },
+  ) {
+    return this.orders.createFromCart(dto, req.user?.id);
   }
 
   @Post(":orderNumber/payment/wayforpay")

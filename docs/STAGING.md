@@ -70,6 +70,29 @@ Vercel — лише для **вітрини** та **адмінки**. API і Б
 
 Після деплою з новою міграцією — тест: checkout → «Онлайн (WayForPay)» → оплата → статус **Оплачено** в адмінці.
 
+### SMTP (підтвердження email в особистому кабінеті)
+
+Повна інструкція: [`EMAIL_SMTP.md`](EMAIL_SMTP.md).
+
+1. Обрати провайдера (напр. **Brevo** або **Resend**) і створити SMTP-облікові дані.
+2. **malva-api-staging** → **Environment** → додати:
+
+| Змінна | Приклад |
+|--------|---------|
+| `SMTP_ENABLED` | `true` |
+| `SMTP_HOST` | `smtp-relay.brevo.com` |
+| `SMTP_PORT` | `587` (вже в blueprint) |
+| `SMTP_SECURE` | `false` |
+| `SMTP_USER` | login / `resend` |
+| `SMTP_PASS` | SMTP key |
+| `MAIL_FROM` | `"Malva Garden" <noreply@yourdomain.com>` |
+| `EMAIL_VERIFICATION_DEV` | `false` |
+
+3. **Manual Deploy** API.
+4. Тест: реєстрація на вітрині → лист на пошту → перехід за посиланням → замовлення в кабінеті.
+
+`WEB_ORIGIN` має збігатися з URL вітрини Vercel (для посилання в листі).
+
 ### Альтернатива: Neon + Render
 
 1. [Neon](https://neon.tech) → новий проєкт → скопіювати `DATABASE_URL` (з `?sslmode=require`).

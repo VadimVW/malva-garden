@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ConditionalSiteShell } from "@/components/ConditionalSiteShell";
 import { MgCartToast } from "@/components/figma/MgCartToast";
+import { CustomerAuthProvider } from "@/providers/CustomerAuthProvider";
 import {
   absoluteUrl,
   DEFAULT_DESCRIPTION,
@@ -56,7 +57,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}
       >
-        <ConditionalSiteShell>{children}</ConditionalSiteShell>
+        <CustomerAuthProvider>
+          <ConditionalSiteShell>{children}</ConditionalSiteShell>
+        </CustomerAuthProvider>
         <MgCartToast />
       </body>
     </html>

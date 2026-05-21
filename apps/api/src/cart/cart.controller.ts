@@ -6,7 +6,11 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from "@nestjs/common";
+import { CurrentCustomer } from "../customer/decorators/current-customer.decorator";
+import { JwtCustomerAuthGuard } from "../customer/jwt-customer.guard";
+import type { CurrentCustomer as CurrentCustomerType } from "../customer/customer.types";
 import { CartToken } from "../common/decorators/cart-token.decorator";
 import { AddCartItemDto } from "./dto/add-cart-item.dto";
 import { UpdateCartItemDto } from "./dto/update-cart-item.dto";
@@ -46,5 +50,17 @@ export class CartController {
     @Param("productId") productId: string,
   ) {
     return this.cart.removeItem(token, productId);
+  }
+
+  @Post("merge")
+  @UseGuards(JwtCustomerAuthGuard)
+  merge(
+    @CartToken() guestToken: string | undefined,
+    @CurrentCustomer() customer: CurrentCustomerType,
+  ) {
+    if (!guestToken) {
+      return this.cart.getOrCreateForCustomer(customer.id);
+    }
+    return this.cart.mergeGuestIntoCustomer(guestToken, customer.id);
   }
 }

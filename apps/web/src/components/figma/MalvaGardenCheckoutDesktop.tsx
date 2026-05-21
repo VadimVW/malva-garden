@@ -92,6 +92,8 @@ export function MalvaGardenCheckoutDesktop() {
   const [npSelection, setNpSelection] = useState<NovaPoshtaSelection>({
     cityLabel: "",
     warehouseLabel: "",
+    cityRef: "",
+    warehouseRef: "",
     complete: false,
   });
 

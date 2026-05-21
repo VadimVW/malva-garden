@@ -21,6 +21,7 @@ function isFigmaChromePath(pathname: string | null): boolean {
   if (pathname.startsWith("/pages/")) return true;
   if (pathname.startsWith("/order/")) return true;
   if (pathname === "/search" || pathname.startsWith("/search/")) return true;
+  if (pathname === "/account" || pathname.startsWith("/account/")) return true;
   return false;
 }
 

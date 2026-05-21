@@ -22,6 +22,8 @@ function useDebouncedValue<T>(value: T, delayMs: number): T {
 export type NovaPoshtaSelection = {
   cityLabel: string;
   warehouseLabel: string;
+  cityRef: string;
+  warehouseRef: string;
   complete: boolean;
 };
 
@@ -66,6 +68,8 @@ export function NovaPoshtaCheckoutFields({
       onSelectionChange({
         cityLabel: city?.label ?? "",
         warehouseLabel: wh?.description ?? "",
+        cityRef: city?.deliveryCityRef ?? "",
+        warehouseRef: wh?.ref ?? "",
         complete: Boolean(city && wh),
       });
     },

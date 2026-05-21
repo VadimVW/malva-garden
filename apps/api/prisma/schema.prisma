@@ -88,9 +88,49 @@ model ProductImage {
   @@index([productId])
 }
 
+model Customer {
+  id                   String             @id @default(cuid())
+  email                String             @unique
+  passwordHash         String
+  fullName             String?
+  phone                String?
+  emailVerifiedAt      DateTime?
+  emailVerifyToken     String?            @unique
+  emailVerifyExpiresAt DateTime?
+  privacyAcceptedAt    DateTime
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  orders               Order[]
+  carts                Cart[]
+  addresses            CustomerAddress[]
+
+  @@index([phone])
+}
+
+model CustomerAddress {
+  id                     String   @id @default(cuid())
+  customerId             String
+  customer               Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  label                  String?
+  recipientName          String?
+  phone                  String?
+  deliveryMethod         String?  @default("nova_poshta")
+  deliveryCity           String
+  deliveryAddress        String
+  novaPoshtaCityRef      String?
+  novaPoshtaWarehouseRef String?
+  isDefault              Boolean  @default(false)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@index([customerId])
+}
+
 model Order {
   id              String        @id @default(cuid())
   orderNumber     String        @unique
+  customerId      String?
+  customer        Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
   customerName    String
   customerPhone   String
   customerEmail   String?
@@ -111,6 +151,9 @@ model Order {
 
   @@index([orderStatus])
   @@index([createdAt])
+  @@index([customerId])
+  @@index([customerEmail])
+  @@index([customerPhone])
 }
 
 model PaymentCallbackLog {
@@ -159,14 +202,17 @@ model SiteSetting {
 }
 
 model Cart {
-  id        String     @id @default(cuid())
-  token     String     @unique @default(uuid())
-  expiresAt DateTime
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  items     CartItem[]
+  id         String     @id @default(cuid())
+  token      String     @unique @default(uuid())
+  customerId String?
+  customer   Customer?  @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  expiresAt  DateTime
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  items      CartItem[]
 
   @@index([token])
+  @@index([customerId])
 }
 
 model CartItem {

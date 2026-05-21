@@ -162,4 +162,83 @@ export class CartService {
   async clearCart(cartId: string) {
     await this.prisma.cartItem.deleteMany({ where: { cartId } });
   }
+
+  async getOrCreateForCustomer(customerId: string) {
+    let cart = await this.prisma.cart.findFirst({
+      where: { customerId },
+      orderBy: { updatedAt: "desc" },
+    });
+    if (!cart) {
+      cart = await this.prisma.cart.create({
+        data: { customerId, expiresAt: this.futureExpiry() },
+      });
+    }
+    await this.prisma.cart.update({
+      where: { id: cart.id },
+      data: { expiresAt: this.futureExpiry() },
+    });
+    return this.serialize(cart.id);
+  }
+
+  /** Об’єднати гостьовий кошик із кошиком клієнта після входу. */
+  async mergeGuestIntoCustomer(guestToken: string, customerId: string) {
+    const guest = await this.prisma.cart.findUnique({
+      where: { token: guestToken },
+      include: { items: true },
+    });
+    if (!guest) {
+      throw new NotFoundException("Гостьовий кошик не знайдено");
+    }
+
+    let target = await this.prisma.cart.findFirst({
+      where: { customerId },
+      orderBy: { updatedAt: "desc" },
+      include: { items: true },
+    });
+
+    if (!target) {
+      target = await this.prisma.cart.create({
+        data: {
+          customerId,
+          expiresAt: this.futureExpiry(),
+        },
+        include: { items: true },
+      });
+    }
+
+    for (const line of guest.items) {
+      const product = await this.prisma.product.findFirst({
+        where: { id: line.productId, status: ProductStatus.ACTIVE },
+      });
+      if (!product) continue;
+
+      const existing = target.items.find((i) => i.productId === line.productId);
+      const nextQty = (existing?.quantity ?? 0) + line.quantity;
+      const capped = Math.min(nextQty, product.stockQuantity);
+      if (capped <= 0) continue;
+
+      await this.prisma.cartItem.upsert({
+        where: {
+          cartId_productId: {
+            cartId: target.id,
+            productId: line.productId,
+          },
+        },
+        create: {
+          cartId: target.id,
+          productId: line.productId,
+          quantity: capped,
+        },
+        update: { quantity: capped },
+      });
+    }
+
+    await this.prisma.cartItem.deleteMany({ where: { cartId: guest.id } });
+    await this.prisma.cart.update({
+      where: { id: target.id },
+      data: { expiresAt: this.futureExpiry() },
+    });
+
+    return this.serialize(target.id);
+  }
 }

@@ -9,6 +9,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { CartService } from "../cart/cart.service";
 import { moneyToString } from "../common/money";
 import { CreateOrderDto } from "./dto/create-order.dto";
+import { normalizePhoneUa } from "../customer/phone.util";
 
 function generateOrderNumber() {
   const t = Date.now().toString(36).toUpperCase();
@@ -23,7 +24,7 @@ export class OrdersService {
     private readonly cart: CartService,
   ) {}
 
-  async createFromCart(dto: CreateOrderDto) {
+  async createFromCart(dto: CreateOrderDto, customerId?: string) {
     const cart = await this.cart.loadCartForCheckout(dto.cartToken);
     if (!cart) throw new BadRequestException("Кошик не знайдено");
     if (cart.expiresAt < new Date()) {
@@ -51,12 +52,16 @@ export class OrdersService {
 
       const orderNumber = generateOrderNumber();
 
+      const normalizedPhone =
+        normalizePhoneUa(dto.customerPhone) ?? dto.customerPhone.trim();
+
       const order = await tx.order.create({
         data: {
           orderNumber,
+          customerId: customerId ?? null,
           customerName: dto.customerName,
-          customerPhone: dto.customerPhone,
-          customerEmail: dto.customerEmail,
+          customerPhone: normalizedPhone,
+          customerEmail: dto.customerEmail?.trim().toLowerCase() ?? null,
           deliveryMethod: dto.deliveryMethod,
           deliveryCity: dto.deliveryCity,
           deliveryAddress: dto.deliveryAddress,

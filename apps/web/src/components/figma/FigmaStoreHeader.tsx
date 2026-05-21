@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { Inter } from "next/font/google";
 import { FigmaCartLink } from "@/components/figma/FigmaCartLink";
+import { FigmaStoreProfileLink } from "@/components/figma/FigmaStoreProfileLink";
 import { FigmaStoreSearch } from "@/components/figma/FigmaStoreSearch";
 import { FIGMA_STORE_IMG, FIGMA_SOCIAL_SVG } from "@/components/figma/figmaStoreAssets";
 import { MalvaGardenFigmaStoreNav } from "@/components/figma/MalvaGardenFigmaStoreNav";
@@ -128,25 +129,7 @@ export function FigmaStoreHeader({ activeNavSection }: Props) {
               +380 67 258 98 28
             </p>
           </div>
-          <a
-            href="#"
-            className="mg-header-profile relative inline-flex size-12 shrink-0 items-center justify-center rounded-full border border-white/30 bg-white/5 text-[#F7F4EF] transition-colors hover:bg-white/15"
-            aria-label="Профіль"
-          >
-            <svg
-              className="size-6"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden
-            >
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-          </a>
+          <FigmaStoreProfileLink />
           <FigmaCartLink />
         </div>
         <MalvaGardenFigmaStoreNav activeSection={activeNavSection} />
