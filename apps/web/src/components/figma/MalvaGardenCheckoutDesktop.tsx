@@ -16,6 +16,7 @@ import {
 import { FigmaSelect } from "@/components/figma/checkout/FigmaSelect";
 import {
   NovaPoshtaCheckoutFields,
+  type NovaPoshtaPrefill,
   type NovaPoshtaSelection,
 } from "@/components/figma/checkout/NovaPoshtaCheckoutFields";
 import { getApiBaseUrl } from "@/lib/api";
@@ -23,6 +24,13 @@ import { fetchCart } from "@/lib/cart-api";
 import { isCartGoneError } from "@/lib/cart-errors";
 import type { CartResponse } from "@/lib/cart-types";
 import { clearCartToken, getCartToken } from "@/lib/cart-token";
+import {
+  customerAddressToNpPrefill,
+  pickDefaultNovaPoshtaAddress,
+} from "@/lib/customer-checkout-prefill";
+import { customerFetch, type CustomerAddress } from "@/lib/customer-api";
+import { getCustomerToken } from "@/lib/customer-auth";
+import { useCustomerAuth } from "@/providers/CustomerAuthProvider";
 import {
   dispatchCartUpdated,
   MG_CART_UPDATED,
@@ -81,6 +89,7 @@ function OrderSummary({ cart }: { cart: CartResponse }) {
 
 export function MalvaGardenCheckoutDesktop() {
   const router = useRouter();
+  const { customer, isLoading: authLoading } = useCustomerAuth();
   const [mounted, setMounted] = useState(false);
   const [cartLoading, setCartLoading] = useState(true);
   const [summaryRefreshing, setSummaryRefreshing] = useState(false);
@@ -89,6 +98,12 @@ export function MalvaGardenCheckoutDesktop() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [deliveryMethod, setDeliveryMethod] = useState("nova_poshta");
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [npPrefill, setNpPrefill] = useState<NovaPoshtaPrefill | null>(null);
+  const [npFieldsKey, setNpFieldsKey] = useState("guest");
+  const [checkoutPrefilled, setCheckoutPrefilled] = useState(false);
   const [npSelection, setNpSelection] = useState<NovaPoshtaSelection>({
     cityLabel: "",
     warehouseLabel: "",
@@ -100,6 +115,45 @@ export function MalvaGardenCheckoutDesktop() {
   const onNpSelectionChange = useCallback((selection: NovaPoshtaSelection) => {
     setNpSelection(selection);
   }, []);
+
+  useEffect(() => {
+    if (authLoading || !customer || checkoutPrefilled) return;
+
+    setCustomerName(customer.fullName ?? "");
+    setCustomerPhone(customer.phone ?? "");
+    setCustomerEmail(customer.email);
+
+    let cancelled = false;
+    void (async () => {
+      try {
+        const { items } = await customerFetch<{ items: CustomerAddress[] }>(
+          "/customer/me/addresses",
+        );
+        if (cancelled) return;
+        const defaultAddr = pickDefaultNovaPoshtaAddress(items);
+        if (defaultAddr) {
+          const prefill = customerAddressToNpPrefill(defaultAddr);
+          setNpPrefill(prefill);
+          setNpFieldsKey(`prefill-${defaultAddr.id}`);
+          setNpSelection({
+            cityLabel: prefill.city.label,
+            warehouseLabel: prefill.warehouse.description,
+            cityRef: prefill.city.deliveryCityRef,
+            warehouseRef: prefill.warehouse.ref,
+            complete: true,
+          });
+        }
+      } catch {
+        /* profile fields still applied */
+      } finally {
+        if (!cancelled) setCheckoutPrefilled(true);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authLoading, customer, checkoutPrefilled]);
 
   const loadCartSummary = useCallback(async (background = false) => {
     const token = getCartToken();
@@ -188,9 +242,17 @@ export function MalvaGardenCheckoutDesktop() {
     };
     setLoading(true);
     try {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      const customerToken = getCustomerToken();
+      if (customerToken) {
+        headers.Authorization = `Bearer ${customerToken}`;
+      }
+
       const res = await fetch(`${getApiBaseUrl()}/orders`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error(await res.text());
@@ -258,6 +320,11 @@ export function MalvaGardenCheckoutDesktop() {
 
             <fieldset className="space-y-4">
               <legend className="text-[16px] font-bold text-black">Контакти</legend>
+              {customer && checkoutPrefilled ? (
+                <p className="text-[13px] text-[#5a5a5a]">
+                  Дані заповнено з вашого профілю. Можете змінити перед підтвердженням.
+                </p>
+              ) : null}
               <label className="block space-y-1.5">
                 <span className={labelClass()}>Ім’я та прізвище *</span>
                 <input
@@ -266,6 +333,8 @@ export function MalvaGardenCheckoutDesktop() {
                   autoComplete="name"
                   className={figmaInputClass}
                   placeholder="Олена Коваленко"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
                 />
               </label>
               <label className="block space-y-1.5">
@@ -277,6 +346,8 @@ export function MalvaGardenCheckoutDesktop() {
                   autoComplete="tel"
                   className={figmaInputClass}
                   placeholder="+380 XX XXX XX XX"
+                  value={customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value)}
                 />
               </label>
               <label className="block space-y-1.5">
@@ -287,6 +358,8 @@ export function MalvaGardenCheckoutDesktop() {
                   autoComplete="email"
                   className={figmaInputClass}
                   placeholder="email@example.com"
+                  value={customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
                 />
               </label>
             </fieldset>
@@ -306,6 +379,8 @@ export function MalvaGardenCheckoutDesktop() {
 
               {isNovaPoshta ? (
                 <NovaPoshtaCheckoutFields
+                  key={npFieldsKey}
+                  initialPrefill={npPrefill}
                   onSelectionChange={onNpSelectionChange}
                 />
               ) : (

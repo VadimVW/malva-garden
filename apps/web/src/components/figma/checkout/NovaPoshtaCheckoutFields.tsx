@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FigmaSearchSelect } from "@/components/figma/checkout/FigmaSearchSelect";
 import { FigmaSelect } from "@/components/figma/checkout/FigmaSelect";
 import {
@@ -27,30 +27,62 @@ export type NovaPoshtaSelection = {
   complete: boolean;
 };
 
+export type NovaPoshtaPrefill = {
+  pointType?: "warehouse" | "postomat";
+  city: { deliveryCityRef: string; label: string };
+  warehouse: { ref: string; description: string };
+};
+
+function settlementFromPrefill(
+  prefill: NovaPoshtaPrefill,
+): NpSettlementOption {
+  return {
+    ref: prefill.city.deliveryCityRef,
+    deliveryCityRef: prefill.city.deliveryCityRef,
+    label: prefill.city.label,
+    mainDescription: prefill.city.label,
+  };
+}
+
+function warehouseFromPrefill(prefill: NovaPoshtaPrefill): NpWarehouseOption {
+  return {
+    ref: prefill.warehouse.ref,
+    description: prefill.warehouse.description,
+    number: "",
+    shortAddress: "",
+  };
+}
+
 type NovaPoshtaCheckoutFieldsProps = {
   onSelectionChange: (selection: NovaPoshtaSelection) => void;
+  initialPrefill?: NovaPoshtaPrefill | null;
 };
 
 export function NovaPoshtaCheckoutFields({
   onSelectionChange,
+  initialPrefill,
 }: NovaPoshtaCheckoutFieldsProps) {
   const [pointType, setPointType] = useState<"warehouse" | "postomat">(
-    "warehouse",
+    () => initialPrefill?.pointType ?? "warehouse",
   );
 
-  const [cityInput, setCityInput] = useState("");
+  const [cityInput, setCityInput] = useState(
+    () => initialPrefill?.city.label ?? "",
+  );
   const [cityOpen, setCityOpen] = useState(false);
   const [cityOptions, setCityOptions] = useState<NpSettlementOption[]>([]);
   const [cityLoading, setCityLoading] = useState(false);
   const [cityError, setCityError] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState<NpSettlementOption | null>(
-    null,
+    () => (initialPrefill ? settlementFromPrefill(initialPrefill) : null),
   );
 
-  const [warehouseInput, setWarehouseInput] = useState("");
+  const [warehouseInput, setWarehouseInput] = useState(
+    () => initialPrefill?.warehouse.description ?? "",
+  );
   const [warehouseOpen, setWarehouseOpen] = useState(false);
   const [warehouseOptions, setWarehouseOptions] = useState<NpWarehouseOption[]>(
-    [],
+    () => (initialPrefill ? [warehouseFromPrefill(initialPrefill)] : []),
   );
   const [warehousePage, setWarehousePage] = useState(1);
   const [warehouseHasMore, setWarehouseHasMore] = useState(false);
@@ -58,7 +90,12 @@ export function NovaPoshtaCheckoutFields({
   const [warehouseLoadingMore, setWarehouseLoadingMore] = useState(false);
   const [warehouseError, setWarehouseError] = useState<string | null>(null);
   const [selectedWarehouse, setSelectedWarehouse] =
-    useState<NpWarehouseOption | null>(null);
+    useState<NpWarehouseOption | null>(() =>
+      initialPrefill ? warehouseFromPrefill(initialPrefill) : null,
+    );
+
+  const prevCityRef = useRef<string | null>(null);
+  const prevPointTypeRef = useRef(pointType);
 
   const debouncedCityQuery = useDebouncedValue(cityInput, 350);
   const debouncedWarehouseFind = useDebouncedValue(warehouseInput, 350);
@@ -100,6 +137,16 @@ export function NovaPoshtaCheckoutFields({
   }, [debouncedCityQuery]);
 
   useEffect(() => {
+    const cityKey = selectedCity?.deliveryCityRef ?? null;
+    const cityChanged =
+      prevCityRef.current !== null && prevCityRef.current !== cityKey;
+    const pointTypeChanged = prevPointTypeRef.current !== pointType;
+    prevCityRef.current = cityKey;
+    prevPointTypeRef.current = pointType;
+
+    if (!cityChanged && !pointTypeChanged) return;
+    if (!selectedCity) return;
+
     setWarehouseOptions([]);
     setWarehousePage(1);
     setWarehouseHasMore(false);
@@ -107,6 +154,13 @@ export function NovaPoshtaCheckoutFields({
     setWarehouseInput("");
     notifyParent(selectedCity, null);
   }, [selectedCity, pointType, notifyParent]);
+
+  useEffect(() => {
+    if (!initialPrefill) return;
+    const city = settlementFromPrefill(initialPrefill);
+    const wh = warehouseFromPrefill(initialPrefill);
+    notifyParent(city, wh);
+  }, [initialPrefill, notifyParent]);
 
   useEffect(() => {
     if (!selectedCity) return;
