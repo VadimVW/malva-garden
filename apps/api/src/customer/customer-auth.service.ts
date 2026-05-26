@@ -2,21 +2,28 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
-import { randomUUID } from "crypto";
+import { createHash, randomUUID } from "crypto";
+import { OAuth2Client } from "google-auth-library";
 import { MailService } from "../mail/mail.service";
 import { PrismaService } from "../prisma/prisma.service";
 import type { CustomerJwtPayload } from "./customer.types";
 import { CustomerLoginDto } from "./dto/customer-login.dto";
 import { CustomerRegisterDto } from "./dto/customer-register.dto";
+import { ForgotPasswordDto } from "./dto/forgot-password.dto";
+import { GoogleAuthDto } from "./dto/google-auth.dto";
+import { ResetPasswordDto } from "./dto/reset-password.dto";
 import { UpdateCustomerProfileDto } from "./dto/update-customer-profile.dto";
 import { normalizePhoneUa } from "./phone.util";
 
 const VERIFY_TTL_HOURS = 48;
+const PASSWORD_RESET_TTL_MINUTES = 60;
+const PASSWORD_RESET_COOLDOWN_MINUTES = 5;
 const BCRYPT_ROUNDS = 10;
 
 @Injectable()
@@ -44,6 +51,18 @@ export class CustomerAuthService {
       .trim()
       .replace(/\/$/, "");
     return `${origin}/account/verify-email?token=${encodeURIComponent(token)}`;
+  }
+
+  private passwordResetUrl(token: string) {
+    const origin = (this.config.get<string>("WEB_ORIGIN") ?? "http://localhost:3000")
+      .split(",")[0]
+      .trim()
+      .replace(/\/$/, "");
+    return `${origin}/account/reset-password?token=${encodeURIComponent(token)}`;
+  }
+
+  private tokenHash(token: string) {
+    return createHash("sha256").update(token).digest("hex");
   }
 
   private async issueEmailVerification(customerId: string) {
@@ -123,6 +142,11 @@ export class CustomerAuthService {
     if (!customer) {
       throw new UnauthorizedException("Невірний email або пароль");
     }
+    if (!customer.passwordHash) {
+      throw new UnauthorizedException(
+        "Увійдіть через Google або відновіть пароль",
+      );
+    }
     const ok = await bcrypt.compare(dto.password, customer.passwordHash);
     if (!ok) {
       throw new UnauthorizedException("Невірний email або пароль");
@@ -130,6 +154,149 @@ export class CustomerAuthService {
     return {
       ...(await this.signToken(customer)),
       customer: this.serializeCustomer(customer),
+    };
+  }
+
+  async google(dto: GoogleAuthDto) {
+    const clientId = this.config.get<string>("GOOGLE_CLIENT_ID");
+    if (!clientId?.trim()) {
+      throw new InternalServerErrorException("Google auth is not configured");
+    }
+
+    const ticket = await new OAuth2Client(clientId)
+      .verifyIdToken({
+        idToken: dto.credential,
+        audience: clientId,
+      })
+      .catch(() => {
+        throw new UnauthorizedException("Не вдалося підтвердити Google акаунт");
+      });
+    const payload = ticket.getPayload();
+    const googleId = payload?.sub;
+    const email = payload?.email?.trim().toLowerCase();
+
+    if (!googleId || !email || payload.email_verified !== true) {
+      throw new UnauthorizedException("Не вдалося підтвердити Google акаунт");
+    }
+
+    const byGoogleId = await this.prisma.customer.findUnique({
+      where: { googleId },
+    });
+    if (byGoogleId) {
+      return {
+        ...(await this.signToken(byGoogleId)),
+        customer: this.serializeCustomer(byGoogleId),
+      };
+    }
+
+    const byEmail = await this.prisma.customer.findUnique({ where: { email } });
+    if (byEmail) {
+      if (byEmail.googleId && byEmail.googleId !== googleId) {
+        throw new ConflictException("Цей email вже прив'язаний до іншого Google акаунта");
+      }
+      const updated = await this.prisma.customer.update({
+        where: { id: byEmail.id },
+        data: {
+          googleId,
+          emailVerifiedAt: byEmail.emailVerifiedAt ?? new Date(),
+          emailVerifyToken: null,
+          emailVerifyExpiresAt: null,
+        },
+      });
+      return {
+        ...(await this.signToken(updated)),
+        customer: this.serializeCustomer(updated),
+      };
+    }
+
+    if (dto.acceptPrivacy !== true) {
+      throw new BadRequestException("Потрібна згода з політикою конфіденційності");
+    }
+
+    const customer = await this.prisma.customer.create({
+      data: {
+        email,
+        passwordHash: null,
+        googleId,
+        fullName: payload.name?.trim() || null,
+        emailVerifiedAt: new Date(),
+        privacyAcceptedAt: new Date(),
+      },
+    });
+
+    return {
+      ...(await this.signToken(customer)),
+      customer: this.serializeCustomer(customer),
+    };
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const email = dto.email.trim().toLowerCase();
+    const response = {
+      message:
+        "Якщо email зареєстрований, ми надіслали посилання для відновлення пароля.",
+    };
+
+    const customer = await this.prisma.customer.findUnique({ where: { email } });
+    if (!customer) return response;
+
+    const requestedAt = customer.passwordResetRequestedAt?.getTime() ?? 0;
+    const cooldownMs = PASSWORD_RESET_COOLDOWN_MINUTES * 60 * 1000;
+    if (Date.now() - requestedAt < cooldownMs) return response;
+
+    const token = randomUUID().replace(/-/g, "") + randomUUID().replace(/-/g, "");
+    const expires = new Date();
+    expires.setMinutes(expires.getMinutes() + PASSWORD_RESET_TTL_MINUTES);
+    await this.prisma.customer.update({
+      where: { id: customer.id },
+      data: {
+        passwordResetTokenHash: this.tokenHash(token),
+        passwordResetExpiresAt: expires,
+        passwordResetRequestedAt: new Date(),
+      },
+    });
+
+    const resetUrl = this.passwordResetUrl(token);
+    const mailResult = await this.mail.sendCustomerPasswordResetEmail(
+      customer.email,
+      resetUrl,
+    );
+
+    return {
+      ...response,
+      ...(this.shouldExposeDevVerificationLink() && !mailResult.sent
+        ? { resetUrl }
+        : {}),
+    };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const customer = await this.prisma.customer.findFirst({
+      where: {
+        passwordResetTokenHash: this.tokenHash(dto.token),
+        passwordResetExpiresAt: { gt: new Date() },
+      },
+    });
+    if (!customer) {
+      throw new BadRequestException("Посилання недійсне або прострочене");
+    }
+
+    const passwordHash = await bcrypt.hash(dto.password, BCRYPT_ROUNDS);
+    const updated = await this.prisma.customer.update({
+      where: { id: customer.id },
+      data: {
+        passwordHash,
+        emailVerifiedAt: customer.emailVerifiedAt ?? new Date(),
+        passwordResetTokenHash: null,
+        passwordResetExpiresAt: null,
+        passwordResetRequestedAt: null,
+      },
+    });
+
+    return {
+      ...(await this.signToken(updated)),
+      customer: this.serializeCustomer(updated),
+      message: "Пароль оновлено",
     };
   }
 

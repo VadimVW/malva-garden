@@ -81,7 +81,7 @@ Vercel — лише для **вітрини** та **адмінки**. API і Б
 |--------|---------|
 | `SMTP_ENABLED` | `true` |
 | `SMTP_HOST` | `smtp-relay.brevo.com` |
-| `SMTP_PORT` | `587` (вже в blueprint) |
+| `SMTP_PORT` | `2525` для Brevo на Render (`587` може давати timeout) |
 | `SMTP_SECURE` | `false` |
 | `SMTP_USER` | login / `resend` |
 | `SMTP_PASS` | SMTP key |
@@ -89,9 +89,24 @@ Vercel — лише для **вітрини** та **адмінки**. API і Б
 | `EMAIL_VERIFICATION_DEV` | `false` |
 
 3. **Manual Deploy** API.
-4. Тест: реєстрація на вітрині → лист на пошту → перехід за посиланням → замовлення в кабінеті.
+4. Тест: реєстрація на вітрині → лист на пошту → перехід за посиланням → замовлення в кабінеті; відновлення пароля → лист → `/account/reset-password`.
 
 `WEB_ORIGIN` має збігатися з URL вітрини Vercel (для посилання в листі).
+
+### Google Sign-In (особистий кабінет)
+
+1. Google Cloud Console → OAuth client type **Web application**.
+2. Authorized JavaScript origins:
+   - `https://web-black-nine-61.vercel.app`
+   - локально за потреби: `http://localhost:3300`
+3. Env:
+
+| Компонент | Змінна |
+|-----------|--------|
+| Render API | `GOOGLE_CLIENT_ID` |
+| Vercel web | `NEXT_PUBLIC_GOOGLE_CLIENT_ID` |
+
+4. Після зміни env — redeploy API і web.
 
 ### Альтернатива: Neon + Render
 

@@ -89,20 +89,24 @@ model ProductImage {
 }
 
 model Customer {
-  id                   String             @id @default(cuid())
-  email                String             @unique
-  passwordHash         String
-  fullName             String?
-  phone                String?
-  emailVerifiedAt      DateTime?
-  emailVerifyToken     String?            @unique
-  emailVerifyExpiresAt DateTime?
-  privacyAcceptedAt    DateTime
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
-  orders               Order[]
-  carts                Cart[]
-  addresses            CustomerAddress[]
+  id                       String            @id @default(cuid())
+  email                    String            @unique
+  passwordHash             String?
+  googleId                 String?           @unique
+  fullName                 String?
+  phone                    String?
+  emailVerifiedAt          DateTime?
+  emailVerifyToken         String?           @unique
+  emailVerifyExpiresAt     DateTime?
+  passwordResetTokenHash   String?           @unique
+  passwordResetExpiresAt   DateTime?
+  passwordResetRequestedAt DateTime?
+  privacyAcceptedAt        DateTime
+  createdAt                DateTime          @default(now())
+  updatedAt                DateTime          @updatedAt
+  orders                   Order[]
+  carts                    Cart[]
+  addresses                CustomerAddress[]
 
   @@index([phone])
 }
@@ -127,10 +131,10 @@ model CustomerAddress {
 }
 
 model Order {
-  id              String        @id @default(cuid())
-  orderNumber     String        @unique
+  id              String               @id @default(cuid())
+  orderNumber     String               @unique
   customerId      String?
-  customer        Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customer        Customer?            @relation(fields: [customerId], references: [id], onDelete: SetNull)
   customerName    String
   customerPhone   String
   customerEmail   String?
@@ -138,14 +142,14 @@ model Order {
   deliveryCity    String?
   deliveryAddress String?
   paymentMethod   String?
-  paymentStatus   PaymentStatus @default(PENDING)
+  paymentStatus   PaymentStatus        @default(PENDING)
   paidAt          DateTime?
-  orderStatus     OrderStatus   @default(NEW)
-  totalAmount     Decimal       @db.Decimal(10, 2)
+  orderStatus     OrderStatus          @default(NEW)
+  totalAmount     Decimal              @db.Decimal(10, 2)
   comment         String?
   managerComment  String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
   items           OrderItem[]
   paymentLogs     PaymentCallbackLog[]
 

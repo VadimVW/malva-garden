@@ -154,6 +154,58 @@ export async function customerRegister(input: {
   return data;
 }
 
+export async function customerGoogleLogin(credential: string) {
+  const guestToken =
+    typeof window !== "undefined"
+      ? window.localStorage.getItem(CART_TOKEN_KEY)
+      : null;
+
+  const data = await customerFetch<{
+    access_token: string;
+    customer: CustomerProfile;
+  }>("/customer/auth/google", {
+    method: "POST",
+    body: JSON.stringify({ credential, acceptPrivacy: true }),
+    skipAuth: true,
+  });
+
+  setCustomerToken(data.access_token);
+  await mergeCartAfterLogin(guestToken);
+  return data.customer;
+}
+
+export async function customerForgotPassword(email: string) {
+  return customerFetch<{ message: string; resetUrl?: string }>(
+    "/customer/auth/forgot-password",
+    {
+      method: "POST",
+      body: JSON.stringify({ email }),
+      skipAuth: true,
+    },
+  );
+}
+
+export async function customerResetPassword(token: string, password: string) {
+  const guestToken =
+    typeof window !== "undefined"
+      ? window.localStorage.getItem(CART_TOKEN_KEY)
+      : null;
+
+  const data = await customerFetch<{
+    access_token: string;
+    customer: CustomerProfile;
+    message?: string;
+  }>("/customer/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ token, password }),
+    skipAuth: true,
+  });
+
+  setCustomerToken(data.access_token);
+  await mergeCartAfterLogin(guestToken);
+  return data;
+}
+
 export function customerLogout() {
   clearCustomerToken();
 }

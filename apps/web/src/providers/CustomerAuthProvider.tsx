@@ -11,6 +11,7 @@ import {
 } from "react";
 import {
   customerFetch,
+  customerGoogleLogin,
   customerLogin,
   customerLogout,
   customerRegister,
@@ -23,6 +24,7 @@ type CustomerAuthContextValue = {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<CustomerProfile>;
+  loginWithGoogle: (credential: string) => Promise<CustomerProfile>;
   register: (input: {
     email: string;
     password: string;
@@ -66,6 +68,11 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: Boolean(customer),
       login: async (email, password) => {
         const profile = await customerLogin(email, password);
+        setCustomer(profile);
+        return profile;
+      },
+      loginWithGoogle: async (credential) => {
+        const profile = await customerGoogleLogin(credential);
         setCustomer(profile);
         return profile;
       },

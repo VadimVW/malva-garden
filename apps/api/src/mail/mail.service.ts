@@ -122,6 +122,58 @@ export class MailService implements OnModuleInit {
     }
   }
 
+  async sendCustomerPasswordResetEmail(
+    to: string,
+    resetUrl: string,
+  ): Promise<SendMailResult> {
+    const transport = this.getTransporter();
+    if (!transport) {
+      return { sent: false, reason: "disabled" };
+    }
+
+    const subject = "Відновлення пароля — Malva Garden";
+    const text = [
+      "Ви запросили відновлення пароля в Malva Garden.",
+      "",
+      "Щоб створити новий пароль, перейдіть за посиланням:",
+      resetUrl,
+      "",
+      "Посилання дійсне 1 годину.",
+      "",
+      "Якщо ви не запитували відновлення пароля — проігноруйте цей лист.",
+    ].join("\n");
+
+    const html = `
+      <div style="font-family:system-ui,sans-serif;line-height:1.5;color:#222;max-width:480px">
+        <h1 style="font-size:20px;color:#5C97A8">Malva Garden</h1>
+        <p>Ви запросили відновлення пароля для особистого кабінету.</p>
+        <p style="margin:24px 0">
+          <a href="${resetUrl}" style="display:inline-block;background:#2f6f4e;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600">
+            Створити новий пароль
+          </a>
+        </p>
+        <p style="font-size:13px;color:#666">Або скопіюйте посилання:<br><a href="${resetUrl}">${resetUrl}</a></p>
+        <p style="font-size:12px;color:#999">Посилання дійсне 1 годину. Якщо ви не запитували відновлення — просто проігноруйте цей лист.</p>
+      </div>
+    `.trim();
+
+    try {
+      await transport.sendMail({
+        from: this.fromAddress(),
+        to,
+        subject,
+        text,
+        html,
+      });
+      this.logger.log(`Password reset email sent to ${to}`);
+      return { sent: true };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error(`SMTP reset send failed for ${to}: ${message}`);
+      return { sent: false, reason: "failed", error: message };
+    }
+  }
+
   /** Перевірка з’єднання (опційно для health/debug). */
   async verifyConnection(): Promise<boolean> {
     const transport = this.getTransporter();
