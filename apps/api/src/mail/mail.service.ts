@@ -125,7 +125,9 @@ export class MailService implements OnModuleInit {
     try {
       await transport.verify();
       return true;
-    } catch {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.warn(`SMTP connection verify failed: ${message}`);
       return false;
     }
   }
