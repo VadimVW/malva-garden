@@ -13,19 +13,20 @@ export class MailService implements OnModuleInit {
 
   constructor(private readonly config: ConfigService) {}
 
-  async onModuleInit() {
+  onModuleInit() {
     if (!this.isEnabled()) {
       this.logger.log("SMTP disabled (SMTP_ENABLED != true)");
       return;
     }
-    const ok = await this.verifyConnection();
-    if (ok) {
-      this.logger.log("SMTP connection verified");
-    } else {
-      this.logger.warn(
-        "SMTP enabled but connection verify failed — check SMTP_HOST/USER/PASS",
-      );
-    }
+    void this.verifyConnection().then((ok) => {
+      if (ok) {
+        this.logger.log("SMTP connection verified");
+      } else {
+        this.logger.warn(
+          "SMTP enabled but connection verify failed — check SMTP_HOST/USER/PASS",
+        );
+      }
+    });
   }
 
   isEnabled(): boolean {
@@ -52,6 +53,9 @@ export class MailService implements OnModuleInit {
       port,
       secure,
       auth: user && pass ? { user, pass } : undefined,
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 10_000,
     });
 
     return this.transporter;
