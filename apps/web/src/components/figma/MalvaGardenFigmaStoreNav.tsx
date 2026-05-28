@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { NavSubmenuPanel } from "@/components/figma/NavSubmenuPanel";
 import type { FigmaStoreNavSection } from "@/lib/figmaStoreNavSection";
 
 export type { FigmaStoreNavSection } from "@/lib/figmaStoreNavSection";
@@ -29,151 +30,26 @@ function NavChevron() {
   );
 }
 
-type SubmenuItem = { href: string; label: string; icon: ReactNode };
-type HubLink = { href: string; label: string };
+type SubmenuItem = { href: string; label: string };
 
-const KVITY_HUB: HubLink = { href: "/catalog/kvity", label: "Усі квіти" };
-const SHRUB_HUB: HubLink = {
+const KVITY_HUB = { href: "/catalog/kvity", label: "Усі квіти" };
+const SHRUB_HUB = {
   href: "/catalog/dekoratyvni-kushi",
   label: "Усі декоративні кущі",
 };
 
 const KVITY_SUBMENU: SubmenuItem[] = [
-  {
-    href: "/catalog/kvity/odnorichni",
-    label: "Однорічні",
-    icon: (
-      <svg className="size-4 shrink-0 text-[#5C97A8]" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <path
-          d="M12 22V12M12 12c-2-3-6-3-6-8a6 6 0 0112 0c0 5-4 5-6 8z"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    href: "/catalog/kvity/bagatorichni",
-    label: "Багаторічні",
-    icon: (
-      <svg className="size-4 shrink-0 text-[#5C97A8]" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <path
-          d="M12 8a3 3 0 100-6 3 3 0 000 6zm0 0c-4 2-6 5-6 10h12c0-5-2-8-6-10z"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    href: "/catalog/kvity/hrizantemy",
-    label: "Хризантеми",
-    icon: (
-      <svg className="size-4 shrink-0 text-[#5C97A8]" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <circle cx="12" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.5" />
-        <path
-          d="M12 12.5v3M8 10l-2-1M16 10l2-1M9.5 7.5L8 5.5M14.5 7.5L16 5.5"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-      </svg>
-    ),
-  },
+  { href: "/catalog/kvity/odnorichni", label: "Однорічні" },
+  { href: "/catalog/kvity/bagatorichni", label: "Багаторічні" },
+  { href: "/catalog/kvity/hrizantemy", label: "Хризантеми" },
 ];
 
 const SHRUB_SUBMENU: SubmenuItem[] = [
-  {
-    href: "/catalog/dekoratyvni-kushi/hortenzii",
-    label: "Гортензії",
-    icon: (
-      <svg className="size-4 shrink-0 text-[#5C97A8]" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <path
-          d="M12 3v4M12 17v4M5 12H1M23 12h-4M6.34 6.34L3.51 3.51M20.49 20.49l-2.83-2.83M6.34 17.66l-2.83 2.83M20.49 3.51l-2.83 2.83"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-        <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5" />
-      </svg>
-    ),
-  },
-  {
-    href: "/catalog/dekoratyvni-kushi/barbaris",
-    label: "Барбарис",
-    icon: (
-      <svg className="size-4 shrink-0 text-[#5C97A8]" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <path
-          d="M12 22c-4-6-8-8-8-14a8 8 0 0116 0c0 6-4 8-8 14z"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    href: "/catalog/dekoratyvni-kushi/trojanda",
-    label: "Троянда",
-    icon: (
-      <svg className="size-4 shrink-0 text-[#5C97A8]" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <path
-          d="M12 8c-2 0-4 2-4 4 0 3 4 6 4 6s4-3 4-6c0-2-2-4-4-4z"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-        <path d="M12 18v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    href: "/catalog/dekoratyvni-kushi/klimatis",
-    label: "Кліматіс",
-    icon: (
-      <svg className="size-4 shrink-0 text-[#5C97A8]" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <path
-          d="M12 2v6M12 16v6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M16 12h6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-      </svg>
-    ),
-  },
+  { href: "/catalog/dekoratyvni-kushi/hortenzii", label: "Гортензії" },
+  { href: "/catalog/dekoratyvni-kushi/barbaris", label: "Барбарис" },
+  { href: "/catalog/dekoratyvni-kushi/trojanda", label: "Троянда" },
+  { href: "/catalog/dekoratyvni-kushi/klimatis", label: "Кліматіс" },
 ];
-
-function submenuPanel(items: readonly SubmenuItem[], hubLink: HubLink) {
-  return (
-    <ul className="rounded-b-xl rounded-tr-xl bg-white py-2 shadow-[0px_10px_30px_rgba(0,0,0,0.12)] ring-1 ring-black/5">
-      <li role="none">
-        <Link
-          href={hubLink.href}
-          role="menuitem"
-          className="flex items-center gap-3 border-b border-[#E7F1F3] px-4 py-2.5 text-left text-[13px] font-bold text-[#5C97A8] transition-colors hover:bg-[#E7F1F3]"
-        >
-          {hubLink.label}
-        </Link>
-      </li>
-      {items.map((item) => (
-        <li key={item.href} role="none">
-          <Link
-            href={item.href}
-            role="menuitem"
-            className="flex items-center gap-3 px-4 py-2.5 text-left text-[13px] font-semibold text-[#5C97A8] transition-colors hover:bg-[#E7F1F3]"
-          >
-            {item.icon}
-            {item.label}
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
-}
 
 function NavLabelWithChevron({ children }: { children: ReactNode }) {
   return (
@@ -216,7 +92,7 @@ export function MalvaGardenFigmaStoreNav({ activeSection }: MalvaGardenFigmaStor
             role="menu"
             aria-label="Підкатегорії декоративних кущів"
           >
-            {submenuPanel(SHRUB_SUBMENU, SHRUB_HUB)}
+            <NavSubmenuPanel items={SHRUB_SUBMENU} hubLink={SHRUB_HUB} />
           </div>
         </div>
 
@@ -238,7 +114,7 @@ export function MalvaGardenFigmaStoreNav({ activeSection }: MalvaGardenFigmaStor
             role="menu"
             aria-label="Підкатегорії квітів"
           >
-            {submenuPanel(KVITY_SUBMENU, KVITY_HUB)}
+            <NavSubmenuPanel items={KVITY_SUBMENU} hubLink={KVITY_HUB} />
           </div>
         </div>
 
