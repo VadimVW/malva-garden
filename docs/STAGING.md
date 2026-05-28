@@ -89,7 +89,7 @@ Vercel — лише для **вітрини** та **адмінки**. API і Б
 | `EMAIL_VERIFICATION_DEV` | `false` |
 
 3. **Manual Deploy** API.
-4. Тест: реєстрація на вітрині → лист на пошту → перехід за посиланням → замовлення в кабінеті; відновлення пароля → лист → `/account/reset-password`.
+4. Тест ✓: реєстрація на вітрині → лист на пошту → перехід за посиланням → замовлення в кабінеті; відновлення пароля → лист → `/account/reset-password`.
 
 `WEB_ORIGIN` має збігатися з URL вітрини Vercel (для посилання в листі).
 
@@ -106,7 +106,7 @@ Vercel — лише для **вітрини** та **адмінки**. API і Б
 | Render API | `GOOGLE_CLIENT_ID` |
 | Vercel web | `NEXT_PUBLIC_GOOGLE_CLIENT_ID` |
 
-4. Після зміни env — redeploy API і web.
+4. Після зміни env — redeploy API і web. Staging Google Sign-In перевірено ✓.
 
 ### Альтернатива: Neon + Render
 

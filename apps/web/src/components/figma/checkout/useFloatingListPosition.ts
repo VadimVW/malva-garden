@@ -14,13 +14,11 @@ export type FloatingListPosition = {
   width: number;
 };
 
-function applyPositionToList(
-  list: HTMLElement,
-  position: FloatingListPosition,
-) {
-  list.style.top = `${position.top}px`;
-  list.style.left = `${position.left}px`;
-  list.style.width = `${position.width}px`;
+function positionsEqual(
+  a: FloatingListPosition,
+  b: FloatingListPosition,
+): boolean {
+  return a.top === b.top && a.left === b.left && a.width === b.width;
 }
 
 export function useFloatingListPosition(
@@ -32,6 +30,7 @@ export function useFloatingListPosition(
   const [position, setPosition] = useState<FloatingListPosition | null>(null);
   const onDismissRef = useRef(onDismiss);
   onDismissRef.current = onDismiss;
+  const positionRef = useRef<FloatingListPosition | null>(null);
 
   const measure = useCallback((): FloatingListPosition | null => {
     const anchor = anchorRef.current;
@@ -47,8 +46,25 @@ export function useFloatingListPosition(
     };
   }, [anchorRef]);
 
+  const commitPosition = useCallback((next: FloatingListPosition | null) => {
+    if (!next) {
+      positionRef.current = null;
+      setPosition(null);
+      return;
+    }
+    if (
+      positionRef.current &&
+      positionsEqual(positionRef.current, next)
+    ) {
+      return;
+    }
+    positionRef.current = next;
+    setPosition(next);
+  }, []);
+
   useLayoutEffect(() => {
     if (!open) {
+      positionRef.current = null;
       setPosition(null);
       return;
     }
@@ -58,18 +74,18 @@ export function useFloatingListPosition(
       onDismissRef.current();
       return;
     }
-    setPosition(initial);
+    commitPosition(initial);
 
-    let raf = 0;
+    let scrollRaf = 0;
+    let trackRaf = 0;
+
     const syncPosition = () => {
       const next = measure();
       if (!next) {
         onDismissRef.current();
         return;
       }
-      if (listRef.current) {
-        applyPositionToList(listRef.current, next);
-      }
+      commitPosition(next);
     };
 
     const onScroll = (e: Event) => {
@@ -81,33 +97,45 @@ export function useFloatingListPosition(
       ) {
         return;
       }
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(syncPosition);
+      cancelAnimationFrame(scrollRaf);
+      scrollRaf = requestAnimationFrame(syncPosition);
     };
 
     const onResize = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const next = measure();
-        if (!next) {
-          onDismissRef.current();
-          return;
-        }
-        setPosition(next);
-        if (listRef.current) {
-          applyPositionToList(listRef.current, next);
-        }
-      });
+      cancelAnimationFrame(scrollRaf);
+      scrollRaf = requestAnimationFrame(syncPosition);
     };
+
+    const trackWhileOpen = () => {
+      syncPosition();
+      trackRaf = requestAnimationFrame(trackWhileOpen);
+    };
+    trackRaf = requestAnimationFrame(trackWhileOpen);
+
+    const anchor = anchorRef.current;
+    const resizeObserver =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => {
+            cancelAnimationFrame(scrollRaf);
+            scrollRaf = requestAnimationFrame(syncPosition);
+          })
+        : null;
+    if (anchor) {
+      resizeObserver?.observe(anchor);
+      const header = anchor.closest(".mg-figma-header");
+      if (header) resizeObserver?.observe(header);
+    }
 
     window.addEventListener("scroll", onScroll, true);
     window.addEventListener("resize", onResize);
     return () => {
-      cancelAnimationFrame(raf);
+      cancelAnimationFrame(scrollRaf);
+      cancelAnimationFrame(trackRaf);
+      resizeObserver?.disconnect();
       window.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("resize", onResize);
     };
-  }, [open, measure, listRef]);
+  }, [open, measure, listRef, anchorRef, commitPosition]);
 
   return position;
 }
