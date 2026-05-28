@@ -196,7 +196,7 @@ export default function MalvaGardenCatalogDesktop({
 
               <CatalogGridFade
                 page={pagination?.page ?? 1}
-                className="grid w-full grid-cols-1 justify-items-center gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3"
+                className="grid w-full grid-cols-[repeat(auto-fill,225px)] justify-center gap-x-8 gap-y-10"
               >
                 {gridCards.length === 0 && (
                   <p className="col-span-full py-16 text-center text-[16px] text-[#5C5C5C]">
