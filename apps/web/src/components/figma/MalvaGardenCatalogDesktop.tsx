@@ -35,6 +35,12 @@ const IMG = {
   heroKvity: "/images/figma/catalog/hero-kvity.png",
 } as const;
 
+const HERO_FALLBACK_BY_SECTION: Record<FigmaStoreNavSection, string> = {
+  flowers: IMG.heroKvity,
+  shrubs: IMG.heroKvity,
+  herbs: IMG.heroKvity,
+};
+
 
 /** Іконка з `public/images/figma/catalog/home-btn.svg` (не з MCP JSON). */
 const CATALOG_HOME_BTN = "/images/figma/catalog/home-btn.svg";
@@ -55,6 +61,11 @@ type CatalogDesktopProps = {
   gridProducts?: CatalogGridProduct[] | null;
   sectionTitle?: string;
   sectionDescription?: string;
+  /** URL банера з API (`Category.bannerImageUrl`); fallback — статичний hero */
+  bannerImageUrl?: string | null;
+  /** Текст на банері (необовʼязково). Без `bannerTitle` і `bannerSubtitle` — лише зображення */
+  bannerTitle?: string | null;
+  bannerSubtitle?: string | null;
   breadcrumbs?: CatalogBreadcrumbItem[];
   activeNavSection?: FigmaStoreNavSection;
   paginationBasePath?: string;
@@ -63,6 +74,32 @@ type CatalogDesktopProps = {
   showCategoryBanner?: boolean;
   emptyGridMessage?: string;
 };
+
+function resolveBannerOverlay(
+  bannerTitle: string | null | undefined,
+  bannerSubtitle: string | null | undefined,
+  sectionTitle: string,
+  sectionDescription: string,
+): { show: boolean; title: string; subtitle: string } {
+  const hasExplicitBannerFields =
+    bannerTitle !== undefined || bannerSubtitle !== undefined;
+
+  if (hasExplicitBannerFields) {
+    const title = bannerTitle?.trim() ?? "";
+    const subtitle = bannerSubtitle?.trim() ?? "";
+    return {
+      show: Boolean(title || subtitle),
+      title,
+      subtitle,
+    };
+  }
+
+  return {
+    show: true,
+    title: sectionTitle,
+    subtitle: sectionDescription,
+  };
+}
 
 type CatalogCardModel = {
   productId: string;
@@ -93,6 +130,9 @@ export default function MalvaGardenCatalogDesktop({
   gridProducts,
   sectionTitle = "Квіти",
   sectionDescription = "Відбірні товари для вашого саду та дому",
+  bannerImageUrl,
+  bannerTitle,
+  bannerSubtitle,
   breadcrumbs,
   activeNavSection = "flowers",
   paginationBasePath,
@@ -103,6 +143,16 @@ export default function MalvaGardenCatalogDesktop({
 }: CatalogDesktopProps) {
   const gridCards = catalogCardsFromProps(gridProducts ?? null);
   const crumbTrail: CatalogBreadcrumbItem[] = breadcrumbs ?? [{ label: "Квіти" }];
+  const bannerOverlay = resolveBannerOverlay(
+    bannerTitle,
+    bannerSubtitle,
+    sectionTitle,
+    sectionDescription,
+  );
+  const bannerSrc =
+    bannerImageUrl?.trim() || HERO_FALLBACK_BY_SECTION[activeNavSection];
+  const bannerRemote =
+    bannerSrc.startsWith("http") || bannerSrc.startsWith("data:");
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-visible bg-[#F5F5F5]">
       <FigmaStoreHeader activeNavSection={activeNavSection} />
@@ -160,23 +210,34 @@ export default function MalvaGardenCatalogDesktop({
               <section className="mb-8 w-full" aria-label="Банер категорії">
                 <div className="relative min-h-[280px] w-full overflow-hidden rounded-2xl shadow-[0px_4px_16px_rgba(0,0,0,0.08)]">
                   <Image
-                    src={IMG.heroKvity}
-                    alt=""
+                    src={bannerSrc}
+                    alt={bannerOverlay.title || sectionTitle}
                     fill
                     className="object-cover object-[center_22%]"
                     sizes="(max-width: 1200px) 100vw, 1200px"
                     priority
+                    unoptimized={bannerRemote}
                   />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/[0.06] p-4">
-                    <div className="flex max-w-[min(100%,480px)] flex-col items-center rounded-2xl bg-white px-8 py-6 text-center shadow-[0px_8px_24px_rgba(0,0,0,0.1)]">
-                      <p className="text-[26px] font-bold leading-tight text-black">
-                        {sectionTitle}
-                      </p>
-                      <p className="mt-1 text-[14px] leading-snug text-black">
-                        {sectionDescription}
-                      </p>
+                  {bannerOverlay.show ? (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/[0.06] p-4">
+                      <div className="flex max-w-[min(100%,480px)] flex-col items-center rounded-2xl bg-white px-8 py-6 text-center shadow-[0px_8px_24px_rgba(0,0,0,0.1)]">
+                        {bannerOverlay.title ? (
+                          <p className="text-[26px] font-bold leading-tight text-black">
+                            {bannerOverlay.title}
+                          </p>
+                        ) : null}
+                        {bannerOverlay.subtitle ? (
+                          <p
+                            className={`text-[14px] leading-snug text-black ${
+                              bannerOverlay.title ? "mt-1" : ""
+                            }`}
+                          >
+                            {bannerOverlay.subtitle}
+                          </p>
+                        ) : null}
+                      </div>
                     </div>
-                  </div>
+                  ) : null}
                 </div>
               </section>
             ) : null}

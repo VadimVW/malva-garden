@@ -9,6 +9,29 @@ import { ProductsQueryDto } from "../products/dto/products-query.dto";
 import { CreateCategoryDto } from "./dto/create-category.dto";
 import { UpdateCategoryDto } from "./dto/update-category.dto";
 
+function trimOrNull(value: string | null | undefined): string | null | undefined {
+  if (value === undefined) return undefined;
+  const t = value?.trim() ?? "";
+  return t.length > 0 ? t : null;
+}
+
+function withNormalizedBannerFields<T extends CreateCategoryDto | UpdateCategoryDto>(
+  dto: T,
+): T {
+  return {
+    ...dto,
+    ...(dto.bannerImageUrl !== undefined
+      ? { bannerImageUrl: trimOrNull(dto.bannerImageUrl) }
+      : {}),
+    ...(dto.bannerTitle !== undefined
+      ? { bannerTitle: trimOrNull(dto.bannerTitle) }
+      : {}),
+    ...(dto.bannerSubtitle !== undefined
+      ? { bannerSubtitle: trimOrNull(dto.bannerSubtitle) }
+      : {}),
+  };
+}
+
 type CategoryRow = {
   id: string;
   parentId: string | null;
@@ -104,7 +127,9 @@ export class CategoriesService {
       });
       if (!parent) throw new BadRequestException("Батьківська категорія не знайдена");
     }
-    return this.prisma.category.create({ data: dto });
+    return this.prisma.category.create({
+      data: withNormalizedBannerFields(dto),
+    });
   }
 
   async update(id: string, dto: UpdateCategoryDto) {
@@ -128,7 +153,10 @@ export class CategoriesService {
         throw new BadRequestException("Некоректний батьківський зв'язок (цикл у дереві)");
       }
     }
-    return this.prisma.category.update({ where: { id }, data: dto });
+    return this.prisma.category.update({
+      where: { id },
+      data: withNormalizedBannerFields(dto),
+    });
   }
 
   private async wouldCreateCategoryCycle(

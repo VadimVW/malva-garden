@@ -1,15 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import MalvaGardenCatalogDesktop from "@/components/figma/MalvaGardenCatalogDesktop";
-import { apiFetch } from "@/lib/api";
+import { catalogDesktopPropsFromCategoryMeta } from "@/lib/catalogCategory";
 import { loadCatalogPage } from "@/lib/loadCatalogPage";
 import { metadataForCategorySlug } from "@/lib/seo/metadata";
 
 const VALID = new Set(["odnorichni", "bagatorichni", "hrizantemy"]);
-
-type CategoryMeta = {
-  category: { id: string; name: string; slug: string };
-};
 
 export async function generateMetadata({
   params,
@@ -36,28 +32,21 @@ export default async function KvitySubcategoryPage({
   const { page: pageRaw, sort: sortRaw } = await searchParams;
   if (!VALID.has(subcategory)) notFound();
 
-  const meta = await apiFetch<CategoryMeta>(`/categories/${subcategory}`).catch(() => null);
-  if (!meta) notFound();
-
   const basePath = `/catalog/kvity/${subcategory}`;
-  const { products, pagination, urlQuery } = await loadCatalogPage({
+  const { products, pagination, urlQuery, categoryMeta } = await loadCatalogPage({
     basePath,
     categorySlug: subcategory,
     pageRaw,
     sortRaw,
   });
 
+  if (!categoryMeta) notFound();
+
   return (
     <div className="min-h-screen w-full bg-[#F5F5F5]">
       <MalvaGardenCatalogDesktop
         gridProducts={products}
-        sectionTitle={meta.category.name}
-        sectionDescription="Товари цієї підкатегорії"
-        breadcrumbs={[
-          { label: "Квіти", href: "/catalog/kvity" },
-          { label: meta.category.name },
-        ]}
-        activeNavSection="flowers"
+        {...catalogDesktopPropsFromCategoryMeta(categoryMeta)}
         paginationBasePath={basePath}
         pagination={pagination}
         paginationQuery={urlQuery}

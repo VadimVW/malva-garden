@@ -43,6 +43,9 @@ model Category {
   slug           String     @unique
   description    String?
   imageUrl       String?
+  bannerImageUrl String?
+  bannerTitle    String?
+  bannerSubtitle String?
   seoTitle       String?
   seoDescription String?
   sortOrder      Int        @default(0)

@@ -4,7 +4,10 @@ import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { adminFetch, ApiError } from "@/lib/api";
 import type { Category } from "@/lib/types";
-import { CategoryForm, type CategoryFormValues } from "@/components/CategoryForm";
+import {
+  CategoryForm,
+  type CategoryFormSubmitValues,
+} from "@/components/CategoryForm";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/providers/ToastProvider";
 
@@ -17,7 +20,7 @@ export default function NewCategoryPage() {
   });
 
   const create = useMutation({
-    mutationFn: (body: CategoryFormValues) =>
+    mutationFn: (body: CategoryFormSubmitValues) =>
       adminFetch<Category>("/admin/categories", {
         method: "POST",
         body: JSON.stringify(body),

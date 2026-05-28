@@ -14,6 +14,9 @@ export type Category = {
   slug: string;
   description: string | null;
   imageUrl: string | null;
+  bannerImageUrl: string | null;
+  bannerTitle: string | null;
+  bannerSubtitle: string | null;
   seoTitle: string | null;
   seoDescription: string | null;
   sortOrder: number;

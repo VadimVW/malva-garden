@@ -5,7 +5,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { adminFetch, ApiError } from "@/lib/api";
 import type { Category } from "@/lib/types";
-import { CategoryForm, type CategoryFormValues } from "@/components/CategoryForm";
+import {
+  CategoryForm,
+  type CategoryFormSubmitValues,
+} from "@/components/CategoryForm";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/providers/ToastProvider";
@@ -25,7 +28,7 @@ export default function EditCategoryPage() {
   const category = categories.find((c) => c.id === id);
 
   const update = useMutation({
-    mutationFn: (body: CategoryFormValues) =>
+    mutationFn: (body: CategoryFormSubmitValues) =>
       adminFetch<Category>(`/admin/categories/${id}`, {
         method: "PATCH",
         body: JSON.stringify(body),
@@ -71,6 +74,9 @@ export default function EditCategoryPage() {
           slug: category.slug,
           description: category.description ?? "",
           imageUrl: category.imageUrl ?? "",
+          bannerImageUrl: category.bannerImageUrl ?? "",
+          bannerTitle: category.bannerTitle ?? "",
+          bannerSubtitle: category.bannerSubtitle ?? "",
           seoTitle: category.seoTitle ?? "",
           seoDescription: category.seoDescription ?? "",
           sortOrder: category.sortOrder,

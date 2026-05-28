@@ -1,15 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import MalvaGardenCatalogDesktop from "@/components/figma/MalvaGardenCatalogDesktop";
-import { apiFetch } from "@/lib/api";
+import { catalogDesktopPropsFromCategoryMeta } from "@/lib/catalogCategory";
 import { loadCatalogPage } from "@/lib/loadCatalogPage";
 import { metadataForCategorySlug } from "@/lib/seo/metadata";
 
 const VALID = new Set(["hortenzii", "barbaris", "trojanda", "klimatis"]);
-
-type CategoryMeta = {
-  category: { id: string; name: string; slug: string };
-};
 
 export async function generateMetadata({
   params,
@@ -32,27 +28,21 @@ export default async function DekoratyvniKushiSubPage({
   const { page: pageRaw, sort: sortRaw } = await searchParams;
   if (!VALID.has(sub)) notFound();
 
-  const meta = await apiFetch<CategoryMeta>(`/categories/${sub}`).catch(() => null);
-  if (!meta) notFound();
-
   const basePath = `/catalog/dekoratyvni-kushi/${sub}`;
-  const { products, pagination, urlQuery } = await loadCatalogPage({
+  const { products, pagination, urlQuery, categoryMeta } = await loadCatalogPage({
     basePath,
     categorySlug: sub,
     pageRaw,
     sortRaw,
   });
 
+  if (!categoryMeta) notFound();
+
   return (
     <div className="min-h-screen w-full bg-[#F5F5F5]">
       <MalvaGardenCatalogDesktop
         gridProducts={products}
-        sectionTitle={meta.category.name}
-        sectionDescription="Товари цієї підкатегорії"
-        breadcrumbs={[
-          { label: "Декоративні кущі", href: "/catalog/dekoratyvni-kushi" },
-          { label: meta.category.name },
-        ]}
+        {...catalogDesktopPropsFromCategoryMeta(categoryMeta)}
         activeNavSection="shrubs"
         paginationBasePath={basePath}
         pagination={pagination}

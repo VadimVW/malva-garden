@@ -13,8 +13,9 @@
 | Метод | Шлях | Опис |
 |--------|------|------|
 | GET | `/categories/tree` | Публічно: дерево для меню |
+| GET | `/categories/:slug` | Публічно: категорія + крихти; поля банера: `bannerImageUrl`, `bannerTitle`, `bannerSubtitle` (тексти необовʼязкові) |
 | GET | `/admin/categories` | Список (плоский) |
-| POST | `/admin/categories` | Створити: `parentId?`, `name`, `slug`, `description?`, `imageUrl?`, `seoTitle?`, `seoDescription?`, `sortOrder?` |
+| POST | `/admin/categories` | Створити: `parentId?`, `name`, `slug`, `description?`, `imageUrl?`, `bannerImageUrl?`, `bannerTitle?`, `bannerSubtitle?`, `seoTitle?`, `seoDescription?`, `sortOrder?` |
 | PATCH | `/admin/categories/:id` | Часткове оновлення; перевірка циклу в дереві |
 | DELETE | `/admin/categories/:id` | Видалити (якщо немає дітей і товарів у цій категорії) |
 

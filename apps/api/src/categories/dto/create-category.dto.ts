@@ -24,6 +24,18 @@ export class CreateCategoryDto {
 
   @IsOptional()
   @IsString()
+  bannerImageUrl?: string | null;
+
+  @IsOptional()
+  @IsString()
+  bannerTitle?: string | null;
+
+  @IsOptional()
+  @IsString()
+  bannerSubtitle?: string | null;
+
+  @IsOptional()
+  @IsString()
   seoTitle?: string;
 
   @IsOptional()

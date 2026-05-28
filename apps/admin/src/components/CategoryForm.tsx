@@ -17,12 +17,25 @@ const schema = z.object({
   slug: z.string().min(2, "Мінімум 2 символи"),
   description: z.string().optional(),
   imageUrl: z.string().optional(),
+  bannerImageUrl: z.string().optional(),
+  bannerTitle: z.string().optional(),
+  bannerSubtitle: z.string().optional(),
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
   sortOrder: z.coerce.number().int().min(0),
 });
 
 export type CategoryFormValues = z.infer<typeof schema>;
+
+/** Тіло для API: порожні банер-поля → `null` (очистити в БД). */
+export type CategoryFormSubmitValues = Omit<
+  CategoryFormValues,
+  "bannerImageUrl" | "bannerTitle" | "bannerSubtitle"
+> & {
+  bannerImageUrl?: string | null;
+  bannerTitle?: string | null;
+  bannerSubtitle?: string | null;
+};
 
 export function CategoryForm({
   categories,
@@ -35,7 +48,7 @@ export function CategoryForm({
   categories: Category[];
   defaultValues?: Partial<CategoryFormValues>;
   excludeId?: string;
-  onSubmit: (values: CategoryFormValues) => Promise<void>;
+  onSubmit: (values: CategoryFormSubmitValues) => Promise<void>;
   onDelete?: () => void;
   submitting?: boolean;
 }) {
@@ -60,6 +73,9 @@ export function CategoryForm({
           parentId: values.parentId || undefined,
           description: values.description || undefined,
           imageUrl: values.imageUrl || undefined,
+          bannerImageUrl: values.bannerImageUrl?.trim() || null,
+          bannerTitle: values.bannerTitle?.trim() || null,
+          bannerSubtitle: values.bannerSubtitle?.trim() || null,
           seoTitle: values.seoTitle || undefined,
           seoDescription: values.seoDescription || undefined,
         });
@@ -88,6 +104,30 @@ export function CategoryForm({
         />
         <Textarea label="Опис" rows={3} {...register("description")} />
         <Input label="URL зображення" {...register("imageUrl")} />
+      </Card>
+
+      <Card className="space-y-4 p-6">
+        <h2 className="text-sm font-semibold text-gray-900">Банер каталогу</h2>
+        <p className="text-xs text-gray-500">
+          Зображення та тексти на сторінці категорії на вітрині. Заголовок і
+          підзаголовок необовʼязкові — якщо обидва порожні, на банері буде лише
+          картинка (назва категорії лишається під банером).
+        </p>
+        <Input
+          label="URL зображення банера"
+          hint="Повний https://… або шлях, доступний з вітрини"
+          {...register("bannerImageUrl")}
+        />
+        <Input
+          label="Заголовок на банері"
+          hint="Необовʼязково"
+          {...register("bannerTitle")}
+        />
+        <Input
+          label="Підзаголовок на банері"
+          hint="Необовʼязково"
+          {...register("bannerSubtitle")}
+        />
       </Card>
 
       <Card className="space-y-4 p-6">
