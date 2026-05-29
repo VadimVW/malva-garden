@@ -1,7 +1,6 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ConditionalSiteShell } from "@/components/ConditionalSiteShell";
-import { MgCartToast } from "@/components/figma/MgCartToast";
+import { MgCartToast } from "@/components/ui/MgCartToast";
 import { CustomerAuthProvider } from "@/providers/CustomerAuthProvider";
 import { CatalogNavProvider } from "@/providers/CatalogNavProvider";
 import { StoreHeaderSettingsProvider } from "@/providers/StoreHeaderSettingsProvider";
@@ -68,9 +67,7 @@ export default async function RootLayout({
       >
         <StoreHeaderSettingsProvider value={headerSettings}>
           <CatalogNavProvider sections={catalogNavSections}>
-            <CustomerAuthProvider>
-              <ConditionalSiteShell>{children}</ConditionalSiteShell>
-            </CustomerAuthProvider>
+            <CustomerAuthProvider>{children}</CustomerAuthProvider>
           </CatalogNavProvider>
         </StoreHeaderSettingsProvider>
         <MgCartToast />

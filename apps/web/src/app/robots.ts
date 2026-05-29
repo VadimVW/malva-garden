@@ -12,7 +12,6 @@ export default function robots(): MetadataRoute.Robots {
         "/order/",
         "/search",
         "/account/",
-        "/figma-preview/",
       ],
     },
     sitemap: absoluteUrl("/sitemap.xml"),

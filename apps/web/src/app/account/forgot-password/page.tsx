@@ -1,5 +1,5 @@
-import { AccountForgotPasswordForm } from "@/components/figma/account/AccountAuthForm";
-import { MalvaGardenFigmaPageShell } from "@/components/figma/MalvaGardenFigmaPageShell";
+﻿import { AccountForgotPasswordForm } from "@/components/account/AccountAuthForm";
+import { MalvaGardenFigmaPageShell } from "@/components/store/MalvaGardenFigmaPageShell";
 
 export default function AccountForgotPasswordPage() {
   return (

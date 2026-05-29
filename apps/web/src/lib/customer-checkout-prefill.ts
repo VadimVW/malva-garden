@@ -1,4 +1,4 @@
-import type { NovaPoshtaPrefill } from "@/components/figma/checkout/NovaPoshtaCheckoutFields";
+﻿import type { NovaPoshtaPrefill } from "@/components/checkout/NovaPoshtaCheckoutFields";
 import type { CustomerAddress } from "@/lib/customer-api";
 
 export function pickDefaultNovaPoshtaAddress(

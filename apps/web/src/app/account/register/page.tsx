@@ -1,6 +1,6 @@
-import { Suspense } from "react";
-import { AccountRegisterForm } from "@/components/figma/account/AccountAuthForm";
-import { MalvaGardenFigmaPageShell } from "@/components/figma/MalvaGardenFigmaPageShell";
+﻿import { Suspense } from "react";
+import { AccountRegisterForm } from "@/components/account/AccountAuthForm";
+import { MalvaGardenFigmaPageShell } from "@/components/store/MalvaGardenFigmaPageShell";
 
 export default function AccountRegisterPage() {
   return (

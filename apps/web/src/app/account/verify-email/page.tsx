@@ -1,6 +1,6 @@
-import { Suspense } from "react";
-import { VerifyEmailClient } from "@/components/figma/account/VerifyEmailClient";
-import { MalvaGardenFigmaPageShell } from "@/components/figma/MalvaGardenFigmaPageShell";
+﻿import { Suspense } from "react";
+import { VerifyEmailClient } from "@/components/account/VerifyEmailClient";
+import { MalvaGardenFigmaPageShell } from "@/components/store/MalvaGardenFigmaPageShell";
 
 export default function VerifyEmailPage() {
   return (

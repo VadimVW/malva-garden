@@ -1,3 +1,4 @@
+import { cache } from "react";
 import {
   fetchSiteSettings,
   getSiteSetting,
@@ -46,7 +47,7 @@ export function buildStoreHeaderSettings(
   };
 }
 
-export async function loadStoreHeaderSettings(): Promise<StoreHeaderSettings> {
+async function loadStoreHeaderSettingsUncached(): Promise<StoreHeaderSettings> {
   try {
     const rows = await fetchSiteSettings();
     return buildStoreHeaderSettings(rows);
@@ -54,6 +55,9 @@ export async function loadStoreHeaderSettings(): Promise<StoreHeaderSettings> {
     return STORE_HEADER_DEFAULTS;
   }
 }
+
+/** Дедуплікація в межах одного SSR-запиту; дані з ISR fetch у `fetchSiteSettings`. */
+export const loadStoreHeaderSettings = cache(loadStoreHeaderSettingsUncached);
 
 export function phoneToTelHref(phone: string): string {
   const digits = phone.replace(/\D/g, "");

@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { AccountAuthGuard } from "@/components/account/AccountAuthGuard";
-import { MalvaGardenAccountOrderDetailDesktop } from "@/components/figma/account/MalvaGardenAccountOrderDetailDesktop";
-import { MalvaGardenFigmaPageShell } from "@/components/figma/MalvaGardenFigmaPageShell";
+import { MalvaGardenAccountOrderDetailDesktop } from "@/components/account/MalvaGardenAccountOrderDetailDesktop";
+import { MalvaGardenFigmaPageShell } from "@/components/store/MalvaGardenFigmaPageShell";
 
 type Props = {
   params: Promise<{ orderNumber: string }>;

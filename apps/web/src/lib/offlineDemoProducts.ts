@@ -1,4 +1,4 @@
-import type { MalvaGardenProductPayload } from "@/components/figma/MalvaGardenProductDesktop";
+﻿import type { MalvaGardenProductPayload } from "@/components/store/MalvaGardenProductDesktop";
 
 /** Мінімальний офлайн-фолбек (перший товар каталогу з seed), якщо API недоступний. */
 const OFFLINE_BY_SLUG: Record<string, MalvaGardenProductPayload> = {

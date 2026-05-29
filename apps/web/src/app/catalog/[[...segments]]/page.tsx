@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import MalvaGardenCatalogDesktop from "@/components/figma/MalvaGardenCatalogDesktop";
+import MalvaGardenCatalogDesktop from "@/components/store/MalvaGardenCatalogDesktop";
 import {
   catalogDesktopPropsFromCategoryMeta,
   fetchCategoryBySlug,

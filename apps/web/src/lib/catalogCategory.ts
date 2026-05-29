@@ -1,4 +1,4 @@
-import type { CatalogBreadcrumbItem } from "@/components/figma/MalvaGardenCatalogDesktop";
+﻿import type { CatalogBreadcrumbItem } from "@/components/store/MalvaGardenCatalogDesktop";
 import { apiFetch } from "@/lib/api";
 import { catalogCategoryHref } from "@/lib/figmaCatalogLinks";
 

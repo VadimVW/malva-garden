@@ -1,4 +1,4 @@
-import type { CatalogGridProduct } from "@/components/figma/MalvaGardenCatalogDesktop";
+﻿import type { CatalogGridProduct } from "@/components/store/MalvaGardenCatalogDesktop";
 import type { CatalogPaginationMeta } from "@/lib/catalogPagination";
 import type { CatalogSort } from "@/lib/catalogSort";
 import { apiFetch } from "@/lib/api";

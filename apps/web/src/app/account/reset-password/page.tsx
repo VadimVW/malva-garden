@@ -1,6 +1,6 @@
-import { Suspense } from "react";
-import { AccountResetPasswordForm } from "@/components/figma/account/AccountAuthForm";
-import { MalvaGardenFigmaPageShell } from "@/components/figma/MalvaGardenFigmaPageShell";
+﻿import { Suspense } from "react";
+import { AccountResetPasswordForm } from "@/components/account/AccountAuthForm";
+import { MalvaGardenFigmaPageShell } from "@/components/store/MalvaGardenFigmaPageShell";
 
 export default function AccountResetPasswordPage() {
   return (

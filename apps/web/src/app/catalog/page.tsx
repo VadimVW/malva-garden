@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import MalvaGardenCatalogHubDesktop from "@/components/figma/MalvaGardenCatalogHubDesktop";
+﻿import type { Metadata } from "next";
+import MalvaGardenCatalogHubDesktop from "@/components/store/MalvaGardenCatalogHubDesktop";
 import { loadCatalogHubContent } from "@/lib/catalogHubSettings";
 import { catalogHubMetadata } from "@/lib/seo/metadata";
 

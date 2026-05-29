@@ -4,7 +4,7 @@
 
 ## Структура
 
-- `apps/web` — Next.js (App Router), порт **3300**, `lang="uk"`: Figma-вітрина (`/`, `/catalog`, товар, кошик, checkout, інфо-сторінки) + MVP-каталог `/catalog/[slug]` на `SiteShell`
+- `apps/web` — Next.js (App Router), порт **3300**, `lang="uk"`: (`/`, hub `/catalog`, `/catalog/[[...segments]]`, товар, кошик, checkout, ЛК, інфо-сторінки). UI: `src/components/{store,ui,checkout,account}/`
 - `apps/admin` — Next.js адмін-панель (порт **3301**): категорії, товари, замовлення, сторінки, налаштування
 - `apps/api` — NestJS, префікс `/api/v1` (товари, категорії, кошик, замовлення, контент, адмін JWT)
 - `docker-compose.yml` — PostgreSQL 16 для локальної розробки

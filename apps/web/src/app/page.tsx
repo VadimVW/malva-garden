@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import MalvaGardenHomeDesktop, {
   type HomeLeaderProduct,
-} from "@/components/figma/MalvaGardenHomeDesktop";
+} from "@/components/store/MalvaGardenHomeDesktop";
 import { apiFetch } from "@/lib/api";
 import { homeMetadata } from "@/lib/seo/metadata";
 

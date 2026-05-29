@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import { MalvaGardenCheckoutDesktop } from "@/components/figma/MalvaGardenCheckoutDesktop";
+﻿import type { Metadata } from "next";
+import { MalvaGardenCheckoutDesktop } from "@/components/store/MalvaGardenCheckoutDesktop";
 import { buildPageMetadata, NOINDEX_ROBOTS } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = {

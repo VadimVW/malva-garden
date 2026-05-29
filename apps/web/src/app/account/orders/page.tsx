@@ -1,7 +1,7 @@
-import { Suspense } from "react";
+﻿import { Suspense } from "react";
 import { AccountAuthGuard } from "@/components/account/AccountAuthGuard";
-import { MalvaGardenAccountOrdersDesktop } from "@/components/figma/account/MalvaGardenAccountOrdersDesktop";
-import { MalvaGardenFigmaPageShell } from "@/components/figma/MalvaGardenFigmaPageShell";
+import { MalvaGardenAccountOrdersDesktop } from "@/components/account/MalvaGardenAccountOrdersDesktop";
+import { MalvaGardenFigmaPageShell } from "@/components/store/MalvaGardenFigmaPageShell";
 
 export default function AccountOrdersPage() {
   return (

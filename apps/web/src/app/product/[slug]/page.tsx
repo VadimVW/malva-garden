@@ -7,7 +7,7 @@ import { getOfflineProductPayload } from "@/lib/offlineDemoProducts";
 import { buildSeoTitleMetadata } from "@/lib/seo/metadata";
 import MalvaGardenProductDesktop, {
   type MalvaGardenProductPayload,
-} from "@/components/figma/MalvaGardenProductDesktop";
+} from "@/components/store/MalvaGardenProductDesktop";
 
 type Product = {
   id: string;

@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import MalvaGardenCatalogDesktop from "@/components/figma/MalvaGardenCatalogDesktop";
+﻿import type { Metadata } from "next";
+import MalvaGardenCatalogDesktop from "@/components/store/MalvaGardenCatalogDesktop";
 import { loadCatalogPage } from "@/lib/loadCatalogPage";
 import { parseCatalogQuery } from "@/lib/catalogPagination";
 import { SITE_NAME } from "@/lib/seo/site";

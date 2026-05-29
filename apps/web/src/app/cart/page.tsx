@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import { MalvaGardenCartDesktop } from "@/components/figma/MalvaGardenCartDesktop";
+﻿import type { Metadata } from "next";
+import { MalvaGardenCartDesktop } from "@/components/store/MalvaGardenCartDesktop";
 import { buildPageMetadata, NOINDEX_ROBOTS } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = {

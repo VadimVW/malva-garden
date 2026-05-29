@@ -40,8 +40,22 @@ export class OrdersService {
         if (!p || p.status !== ProductStatus.ACTIVE) {
           throw new BadRequestException(`Товар ${line.productId} недоступний`);
         }
-        if (p.stockQuantity < line.quantity) {
-          throw new BadRequestException(`Недостатньо залишку для ${p.name}`);
+      }
+
+      for (const line of cart.items) {
+        const decremented = await tx.product.updateMany({
+          where: {
+            id: line.productId,
+            status: ProductStatus.ACTIVE,
+            stockQuantity: { gte: line.quantity },
+          },
+          data: { stockQuantity: { decrement: line.quantity } },
+        });
+        if (decremented.count !== 1) {
+          const name =
+            cart.items.find((i) => i.productId === line.productId)?.product
+              .name ?? line.productId;
+          throw new BadRequestException(`Недостатньо залишку для ${name}`);
         }
       }
 
@@ -85,13 +99,6 @@ export class OrdersService {
         },
         include: { items: true },
       });
-
-      for (const line of cart.items) {
-        await tx.product.update({
-          where: { id: line.productId },
-          data: { stockQuantity: { decrement: line.quantity } },
-        });
-      }
 
       await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
 

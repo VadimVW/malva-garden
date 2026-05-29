@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { MalvaGardenContentPageDesktop } from "@/components/figma/MalvaGardenContentPageDesktop";
+import { MalvaGardenContentPageDesktop } from "@/components/store/MalvaGardenContentPageDesktop";
 import { apiFetch } from "@/lib/api";
 import { buildSeoTitleMetadata } from "@/lib/seo/metadata";
 import { SITE_NAME } from "@/lib/seo/site";

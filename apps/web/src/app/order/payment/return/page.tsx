@@ -1,5 +1,5 @@
-import { Suspense } from "react";
-import { MalvaGardenOrderPaymentReturnDesktop } from "@/components/figma/MalvaGardenOrderPaymentReturnDesktop";
+﻿import { Suspense } from "react";
+import { MalvaGardenOrderPaymentReturnDesktop } from "@/components/store/MalvaGardenOrderPaymentReturnDesktop";
 
 export default function OrderPaymentReturnPage() {
   return (

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import {
   buildStoreNavSections,
   fetchCategoryTree,
@@ -34,7 +35,7 @@ const FALLBACK_NAV: StoreNavSection[] = [
   },
 ];
 
-export async function loadStoreNavSections(): Promise<StoreNavSection[]> {
+async function loadStoreNavSectionsUncached(): Promise<StoreNavSection[]> {
   try {
     const roots = await fetchCategoryTree();
     if (roots.length === 0) return FALLBACK_NAV;
@@ -43,3 +44,6 @@ export async function loadStoreNavSections(): Promise<StoreNavSection[]> {
     return FALLBACK_NAV;
   }
 }
+
+/** Дедуплікація в межах одного SSR-запиту; дані з ISR fetch у `fetchCategoryTree`. */
+export const loadStoreNavSections = cache(loadStoreNavSectionsUncached);

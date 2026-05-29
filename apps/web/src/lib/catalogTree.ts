@@ -130,8 +130,12 @@ export function pathsMatchSegments(
   return expected.every((s, i) => s === segments[i]);
 }
 
+const PUBLIC_CATEGORIES_REVALIDATE = 300;
+
 export async function fetchCategoryTree(): Promise<CategoryTreeNode[]> {
-  const data = await apiFetch<{ items: CategoryTreeNode[] }>("/categories");
+  const data = await apiFetch<{ items: CategoryTreeNode[] }>("/categories", {
+    revalidateSeconds: PUBLIC_CATEGORIES_REVALIDATE,
+  });
   return data.items;
 }
 

@@ -4,18 +4,34 @@ export function getApiBaseUrl() {
   return base.replace(/\/$/, "");
 }
 
+export type ApiFetchOptions = RequestInit & {
+  /** ISR для публічних GET (секунди). Без значення — `no-store`. */
+  revalidateSeconds?: number;
+};
+
 export async function apiFetch<T>(
   path: string,
-  init?: RequestInit,
+  init?: ApiFetchOptions,
 ): Promise<T> {
+  const { revalidateSeconds, ...fetchInit } = init ?? {};
   const url = `${getApiBaseUrl()}${path.startsWith("/") ? path : `/${path}`}`;
+
+  const nextInit =
+    revalidateSeconds !== undefined
+      ? { next: { revalidate: revalidateSeconds } }
+      : undefined;
+
   const res = await fetch(url, {
-    ...init,
+    ...fetchInit,
+    ...(nextInit ?? {}),
     headers: {
       "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
+      ...(fetchInit.headers ?? {}),
     },
-    cache: init?.cache ?? "no-store",
+    cache:
+      nextInit !== undefined
+        ? undefined
+        : (fetchInit.cache ?? "no-store"),
   });
   if (!res.ok) {
     const text = await res.text();

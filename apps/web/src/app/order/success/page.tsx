@@ -1,4 +1,4 @@
-import { MalvaGardenOrderSuccessDesktop } from "@/components/figma/MalvaGardenOrderSuccessDesktop";
+﻿import { MalvaGardenOrderSuccessDesktop } from "@/components/store/MalvaGardenOrderSuccessDesktop";
 
 type Props = {
   searchParams: Promise<{ orderNumber?: string; paid?: string }>;
