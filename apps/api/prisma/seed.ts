@@ -82,11 +82,13 @@ async function main() {
     },
     "dekoratyvni-kushi": {
       hubSubtitle: "Гортензії, троянди, клематиси та інші кущі для ландшафту",
-      hubImageUrl: "/images/figma/home/banner-bg.png",
+      hubImageUrl:
+        "https://svitroslyn.ua/upload/medialibrary/012/01286d729cbc86f33ba7f6a4595fabec.jpg",
     },
     "dekoratyvni-travy": {
       hubSubtitle: "Трави та злаки для клумб, бордюрів і природних композицій",
-      hubImageUrl: "/images/figma/home/banner-bg.png",
+      hubImageUrl:
+        "https://svitroslyn.ua/upload/medialibrary/72c/72cbc797c9e729c37b808c7f1681a001.jpg",
     },
   };
 
