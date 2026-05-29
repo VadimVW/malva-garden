@@ -60,11 +60,61 @@ async function main() {
     });
   }
 
-  await prisma.siteSetting.upsert({
-    where: { key: "hero_title" },
-    update: { value: "Весна в саду" },
-    create: { key: "hero_title", value: "Весна в саду" },
-  });
+  const catalogHubSettings: { key: string; value: string }[] = [
+    {
+      key: "catalog_hub_title",
+      value: "Оберіть розділ каталогу",
+    },
+    {
+      key: "catalog_hub_subtitle",
+      value: "Оберіть категорію, щоб переглянути товари.",
+    },
+    {
+      key: "catalog_section_kvity_title",
+      value: "Квіти",
+    },
+    {
+      key: "catalog_section_kvity_subtitle",
+      value:
+        "Однорічні, багаторічні, хризантеми та інші культури для саду й балкону",
+    },
+    {
+      key: "catalog_section_kvity_image",
+      value: "/images/figma/catalog/hero-kvity.png",
+    },
+    {
+      key: "catalog_section_kushi_title",
+      value: "Декоративні кущі",
+    },
+    {
+      key: "catalog_section_kushi_subtitle",
+      value: "Гортензії, троянди, клематиси та інші кущі для ландшафту",
+    },
+    {
+      key: "catalog_section_kushi_image",
+      value: "/images/figma/home/banner-bg.png",
+    },
+    {
+      key: "catalog_section_travy_title",
+      value: "Декоративні трави",
+    },
+    {
+      key: "catalog_section_travy_subtitle",
+      value: "Трави та злаки для клумб, бордюрів і природних композицій",
+    },
+    {
+      key: "catalog_section_travy_image",
+      value: "/images/figma/home/banner-bg.png",
+    },
+  ];
+
+  for (const row of catalogHubSettings) {
+    await prisma.siteSetting.upsert({
+      where: { key: row.key },
+      update: { value: row.value },
+      create: row,
+    });
+  }
 }
 
 main()

@@ -1,12 +1,12 @@
 /**
- * Hub каталогу: вибір одного з трьох розділів магазину (§7.13.4).
- * Маршрут: `/catalog` (підключення в `app/catalog/page.tsx` — крок 4.2).
+ * Hub каталогу: вибір одного з трьох розділів магазину (§7.13.4, контент §7.16).
  */
 
 import Image from "next/image";
 import Link from "next/link";
 import { FigmaStoreFooter } from "@/components/figma/FigmaStoreFooter";
 import { FigmaStoreHeader } from "@/components/figma/FigmaStoreHeader";
+import type { CatalogHubContent } from "@/lib/catalogHubSettings";
 import { Montserrat_Alternates } from "next/font/google";
 
 const montserratAlternates = Montserrat_Alternates({
@@ -18,37 +18,16 @@ const montserratAlternates = Montserrat_Alternates({
 const CATALOG_HOME_BTN = "/images/figma/catalog/home-btn.svg";
 const ARROW_RIGHT = "/images/figma/catalog/arrow-right-btn.svg";
 
-export const CATALOG_HUB_SECTIONS = [
-  {
-    href: "/catalog/kvity",
-    title: "Квіти",
-    description: "Однорічні, багаторічні, хризантеми та інші культури для саду й балкону",
-    imageSrc: "/images/figma/catalog/hero-kvity.png",
-    imageClassName: "object-cover object-[center_22%]",
-  },
-  {
-    href: "/catalog/dekoratyvni-kushi",
-    title: "Декоративні кущі",
-    description: "Гортензії, троянди, клематиси та інші кущі для ландшафту",
-    imageSrc: "/images/figma/home/banner-bg.png",
-    imageClassName: "object-cover object-center",
-  },
-  {
-    href: "/catalog/dekoratyvni-travy",
-    title: "Декоративні трави",
-    description: "Трави та злаки для клумб, бордюрів і природних композицій",
-    imageSrc: "/images/figma/home/banner-bg.png",
-    imageClassName: "object-cover object-[center_60%]",
-  },
-] as const;
-
 function CatalogHubSectionCard({
   href,
   title,
   description,
   imageSrc,
   imageClassName,
-}: (typeof CATALOG_HUB_SECTIONS)[number]) {
+}: CatalogHubContent["sections"][number]) {
+  const remote =
+    imageSrc.startsWith("http") || imageSrc.startsWith("data:");
+
   return (
     <Link
       href={href}
@@ -61,12 +40,18 @@ function CatalogHubSectionCard({
           fill
           className={imageClassName}
           sizes="(max-width: 1200px) 100vw, 380px"
+          unoptimized={remote}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent" aria-hidden />
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent"
+          aria-hidden
+        />
       </div>
       <div className="flex flex-1 flex-col gap-2 p-5">
         <div className="flex items-start justify-between gap-3">
-          <h2 className="text-[22px] font-bold leading-tight text-black">{title}</h2>
+          <h2 className="text-[22px] font-bold leading-tight text-black">
+            {title}
+          </h2>
           <Image
             src={ARROW_RIGHT}
             alt=""
@@ -83,7 +68,13 @@ function CatalogHubSectionCard({
   );
 }
 
-export default function MalvaGardenCatalogHubDesktop() {
+type MalvaGardenCatalogHubDesktopProps = CatalogHubContent;
+
+export default function MalvaGardenCatalogHubDesktop({
+  title,
+  subtitle,
+  sections,
+}: MalvaGardenCatalogHubDesktopProps) {
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-visible bg-[#F5F5F5]">
       <FigmaStoreHeader />
@@ -121,16 +112,17 @@ export default function MalvaGardenCatalogHubDesktop() {
 
             <header className="mb-8 text-center sm:text-left">
               <h1 className="text-[28px] font-bold leading-tight text-black sm:text-[32px]">
-                Оберіть розділ каталогу
+                {title}
               </h1>
-              <p className="mt-2 max-w-[640px] text-[15px] leading-snug text-[#5C5C5C]">
-                Оберіть категорію, щоб
-                переглянути товари.
-              </p>
+              {subtitle ? (
+                <p className="mt-2 max-w-[640px] text-[15px] leading-snug text-[#5C5C5C]">
+                  {subtitle}
+                </p>
+              ) : null}
             </header>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3" role="list">
-              {CATALOG_HUB_SECTIONS.map((section) => (
+              {sections.map((section) => (
                 <div key={section.href} role="listitem">
                   <CatalogHubSectionCard {...section} />
                 </div>

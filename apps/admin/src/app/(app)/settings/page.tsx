@@ -74,6 +74,21 @@ export default function SettingsPage() {
         description="Пари key/value для публічного GET /site-settings"
       />
 
+      <Card className="mb-6 space-y-3 p-6">
+        <h2 className="text-sm font-semibold text-gray-900">Hub каталогу `/catalog`</h2>
+        <p className="text-xs text-gray-500">
+          Зміни застосовуються на вітрині без redeploy. Для зображень — повний https://
+          або шлях на вітрині (напр. <code className="font-mono">/images/figma/catalog/hero-kvity.png</code>
+          ).
+        </p>
+        <ul className="list-inside list-disc space-y-1 font-mono text-xs text-gray-700">
+          <li>catalog_hub_title, catalog_hub_subtitle</li>
+          <li>catalog_section_kvity_title / _subtitle / _image</li>
+          <li>catalog_section_kushi_title / _subtitle / _image</li>
+          <li>catalog_section_travy_title / _subtitle / _image</li>
+        </ul>
+      </Card>
+
       <Card className="mb-6 space-y-4 p-6">
         <h2 className="text-sm font-semibold">Новий ключ</h2>
         <div className="grid gap-3 sm:grid-cols-2">
