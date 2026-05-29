@@ -108,7 +108,13 @@ async function main() {
     },
   ];
 
-  for (const row of catalogHubSettings) {
+  const headerSettings: { key: string; value: string }[] = [
+    { key: "header_phone", value: "+380 67 258 98 28" },
+    { key: "header_whatsapp_url", value: "https://wa.me/380672589828" },
+    { key: "header_telegram_url", value: "https://t.me/malvagarden" },
+  ];
+
+  for (const row of [...catalogHubSettings, ...headerSettings]) {
     await prisma.siteSetting.upsert({
       where: { key: row.key },
       update: { value: row.value },

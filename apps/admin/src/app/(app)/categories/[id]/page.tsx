@@ -73,7 +73,6 @@ export default function EditCategoryPage() {
           name: category.name,
           slug: category.slug,
           description: category.description ?? "",
-          imageUrl: category.imageUrl ?? "",
           bannerImageUrl: category.bannerImageUrl ?? "",
           bannerTitle: category.bannerTitle ?? "",
           bannerSubtitle: category.bannerSubtitle ?? "",

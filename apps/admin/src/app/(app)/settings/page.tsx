@@ -89,6 +89,15 @@ export default function SettingsPage() {
         </ul>
       </Card>
 
+      <Card className="mb-6 space-y-3 p-6">
+        <h2 className="text-sm font-semibold text-gray-900">Шапка сайту</h2>
+        <ul className="list-inside list-disc space-y-1 font-mono text-xs text-gray-700">
+          <li>header_phone — телефон (відображення в шапці)</li>
+          <li>header_whatsapp_url — посилання WhatsApp</li>
+          <li>header_telegram_url — посилання Telegram</li>
+        </ul>
+      </Card>
+
       <Card className="mb-6 space-y-4 p-6">
         <h2 className="text-sm font-semibold">Новий ключ</h2>
         <div className="grid gap-3 sm:grid-cols-2">

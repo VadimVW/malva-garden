@@ -16,7 +16,6 @@ const schema = z.object({
   name: z.string().min(2, "Мінімум 2 символи"),
   slug: z.string().min(2, "Мінімум 2 символи"),
   description: z.string().optional(),
-  imageUrl: z.string().optional(),
   bannerImageUrl: z.string().optional(),
   bannerTitle: z.string().optional(),
   bannerSubtitle: z.string().optional(),
@@ -72,7 +71,6 @@ export function CategoryForm({
           ...values,
           parentId: values.parentId || undefined,
           description: values.description || undefined,
-          imageUrl: values.imageUrl || undefined,
           bannerImageUrl: values.bannerImageUrl?.trim() || null,
           bannerTitle: values.bannerTitle?.trim() || null,
           bannerSubtitle: values.bannerSubtitle?.trim() || null,
@@ -103,7 +101,6 @@ export function CategoryForm({
           error={errors.sortOrder?.message}
         />
         <Textarea label="Опис" rows={3} {...register("description")} />
-        <Input label="URL зображення" {...register("imageUrl")} />
       </Card>
 
       <Card className="space-y-4 p-6">

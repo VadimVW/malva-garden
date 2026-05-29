@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ConditionalSiteShell } from "@/components/ConditionalSiteShell";
 import { MgCartToast } from "@/components/figma/MgCartToast";
 import { CustomerAuthProvider } from "@/providers/CustomerAuthProvider";
+import { StoreHeaderSettingsProvider } from "@/providers/StoreHeaderSettingsProvider";
+import { loadStoreHeaderSettings } from "@/lib/storeHeaderSettings";
 import {
   absoluteUrl,
   DEFAULT_DESCRIPTION,
@@ -47,19 +49,23 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headerSettings = await loadStoreHeaderSettings();
+
   return (
     <html lang="uk">
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}
       >
-        <CustomerAuthProvider>
-          <ConditionalSiteShell>{children}</ConditionalSiteShell>
-        </CustomerAuthProvider>
+        <StoreHeaderSettingsProvider value={headerSettings}>
+          <CustomerAuthProvider>
+            <ConditionalSiteShell>{children}</ConditionalSiteShell>
+          </CustomerAuthProvider>
+        </StoreHeaderSettingsProvider>
         <MgCartToast />
       </body>
     </html>
