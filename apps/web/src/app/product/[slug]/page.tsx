@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProductJsonLd } from "@/components/seo/ProductJsonLd";
+import { fetchCategoryBySlug } from "@/lib/catalogCategory";
 import { apiFetch } from "@/lib/api";
 import { getOfflineProductPayload } from "@/lib/offlineDemoProducts";
 import { buildSeoTitleMetadata } from "@/lib/seo/metadata";
@@ -104,6 +105,10 @@ export default async function ProductPage({
 
   const imageUrls = payload.images.map((i) => i.imageUrl);
 
+  const categoryMeta = payload.category?.slug
+    ? await fetchCategoryBySlug(payload.category.slug).catch(() => null)
+    : null;
+
   return (
     <div className="min-h-screen w-full bg-[#F5F5F5]">
       {!preview && seoSource ? (
@@ -116,7 +121,12 @@ export default async function ProductPage({
           imageUrls={imageUrls}
         />
       ) : null}
-      <MalvaGardenProductDesktop product={payload} preview={preview} />
+      <MalvaGardenProductDesktop
+        product={payload}
+        preview={preview}
+        categoryBreadcrumbs={categoryMeta?.breadcrumbs}
+        activeRootSlug={categoryMeta?.breadcrumbs[0]?.slug}
+      />
     </div>
   );
 }

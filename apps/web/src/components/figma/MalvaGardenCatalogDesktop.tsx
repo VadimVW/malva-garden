@@ -21,7 +21,6 @@ import type {
   CatalogPaginationMeta,
   CatalogUrlQuery,
 } from "@/lib/catalogPagination";
-import type { FigmaStoreNavSection } from "@/lib/figmaStoreNavSection";
 import { Montserrat_Alternates } from "next/font/google";
 
 const montserratAlternates = Montserrat_Alternates({
@@ -35,11 +34,7 @@ const IMG = {
   heroKvity: "/images/figma/catalog/hero-kvity.png",
 } as const;
 
-const HERO_FALLBACK_BY_SECTION: Record<FigmaStoreNavSection, string> = {
-  flowers: IMG.heroKvity,
-  shrubs: IMG.heroKvity,
-  herbs: IMG.heroKvity,
-};
+const HERO_FALLBACK = IMG.heroKvity;
 
 
 /** Іконка з `public/images/figma/catalog/home-btn.svg` (не з MCP JSON). */
@@ -67,7 +62,7 @@ type CatalogDesktopProps = {
   bannerTitle?: string | null;
   bannerSubtitle?: string | null;
   breadcrumbs?: CatalogBreadcrumbItem[];
-  activeNavSection?: FigmaStoreNavSection;
+  activeRootSlug?: string;
   paginationBasePath?: string;
   pagination?: CatalogPaginationMeta | null;
   paginationQuery?: CatalogUrlQuery;
@@ -134,7 +129,7 @@ export default function MalvaGardenCatalogDesktop({
   bannerTitle,
   bannerSubtitle,
   breadcrumbs,
-  activeNavSection = "flowers",
+  activeRootSlug,
   paginationBasePath,
   pagination,
   paginationQuery,
@@ -149,13 +144,12 @@ export default function MalvaGardenCatalogDesktop({
     sectionTitle,
     sectionDescription,
   );
-  const bannerSrc =
-    bannerImageUrl?.trim() || HERO_FALLBACK_BY_SECTION[activeNavSection];
+  const bannerSrc = bannerImageUrl?.trim() || HERO_FALLBACK;
   const bannerRemote =
     bannerSrc.startsWith("http") || bannerSrc.startsWith("data:");
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-visible bg-[#F5F5F5]">
-      <FigmaStoreHeader activeNavSection={activeNavSection} />
+      <FigmaStoreHeader activeRootSlug={activeRootSlug} />
 
 
       <div

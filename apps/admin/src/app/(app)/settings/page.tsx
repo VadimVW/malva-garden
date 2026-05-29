@@ -83,10 +83,11 @@ export default function SettingsPage() {
         </p>
         <ul className="list-inside list-disc space-y-1 font-mono text-xs text-gray-700">
           <li>catalog_hub_title, catalog_hub_subtitle</li>
-          <li>catalog_section_kvity_title / _subtitle / _image</li>
-          <li>catalog_section_kushi_title / _subtitle / _image</li>
-          <li>catalog_section_travy_title / _subtitle / _image</li>
         </ul>
+        <p className="text-xs text-gray-500">
+          Плитки розділів (картинка, підзаголовок) — у формі категорії в розділі
+          «Категорії» (поля hub).
+        </p>
       </Card>
 
       <Card className="mb-6 space-y-3 p-6">

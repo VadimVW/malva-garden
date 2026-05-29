@@ -19,6 +19,8 @@ const schema = z.object({
   bannerImageUrl: z.string().optional(),
   bannerTitle: z.string().optional(),
   bannerSubtitle: z.string().optional(),
+  hubImageUrl: z.string().optional(),
+  hubSubtitle: z.string().optional(),
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
   sortOrder: z.coerce.number().int().min(0),
@@ -29,11 +31,13 @@ export type CategoryFormValues = z.infer<typeof schema>;
 /** Тіло для API: порожні банер-поля → `null` (очистити в БД). */
 export type CategoryFormSubmitValues = Omit<
   CategoryFormValues,
-  "bannerImageUrl" | "bannerTitle" | "bannerSubtitle"
+  "bannerImageUrl" | "bannerTitle" | "bannerSubtitle" | "hubImageUrl" | "hubSubtitle"
 > & {
   bannerImageUrl?: string | null;
   bannerTitle?: string | null;
   bannerSubtitle?: string | null;
+  hubImageUrl?: string | null;
+  hubSubtitle?: string | null;
 };
 
 export function CategoryForm({
@@ -74,6 +78,8 @@ export function CategoryForm({
           bannerImageUrl: values.bannerImageUrl?.trim() || null,
           bannerTitle: values.bannerTitle?.trim() || null,
           bannerSubtitle: values.bannerSubtitle?.trim() || null,
+          hubImageUrl: values.hubImageUrl?.trim() || null,
+          hubSubtitle: values.hubSubtitle?.trim() || null,
           seoTitle: values.seoTitle || undefined,
           seoDescription: values.seoDescription || undefined,
         });
@@ -95,12 +101,31 @@ export function CategoryForm({
           error={errors.slug?.message}
         />
         <Input
-          label="Порядок сортування"
+          label="Порядок у навігації та на /catalog"
           type="number"
+          hint="Менше число — вище в меню та на сторінці вибору розділу (лише для кореневих категорій)"
           {...register("sortOrder")}
           error={errors.sortOrder?.message}
         />
         <Textarea label="Опис" rows={3} {...register("description")} />
+      </Card>
+
+      <Card className="space-y-4 p-6">
+        <h2 className="text-sm font-semibold text-gray-900">Плитка на /catalog</h2>
+        <p className="text-xs text-gray-500">
+          Для кореневих категорій (без батьківської): картинка та підзаголовок на
+          сторінці вибору розділу. Назва плитки — поле «Назва».
+        </p>
+        <Input
+          label="URL зображення плитки"
+          hint="Повний https://… або шлях з вітрини"
+          {...register("hubImageUrl")}
+        />
+        <Input
+          label="Підзаголовок на плитці"
+          hint="Необовʼязково; інакше використовується «Опис»"
+          {...register("hubSubtitle")}
+        />
       </Card>
 
       <Card className="space-y-4 p-6">

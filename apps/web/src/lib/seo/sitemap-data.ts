@@ -1,12 +1,9 @@
-import { catalogCategoryHref } from "@/lib/figmaCatalogLinks";
-import { FIGMA_CATALOG_PATHS } from "@/lib/seo/metadata";
+import {
+  flattenCategoryPaths,
+  type CategoryTreeNode,
+} from "@/lib/catalogTree";
 import { seoApiFetch } from "@/lib/seo/api";
 import { absoluteUrl } from "@/lib/seo/site";
-
-type CategoryTreeNode = {
-  slug: string;
-  children?: CategoryTreeNode[];
-};
 
 type ProductList = {
   items: { slug: string }[];
@@ -17,17 +14,6 @@ type ProductList = {
 type PageIndex = {
   items: { slug: string; updatedAt: string }[];
 };
-
-function flattenCategorySlugs(nodes: CategoryTreeNode[]): string[] {
-  const out: string[] = [];
-  for (const node of nodes) {
-    out.push(node.slug);
-    if (node.children?.length) {
-      out.push(...flattenCategorySlugs(node.children));
-    }
-  }
-  return out;
-}
 
 async function fetchAllProductSlugs(): Promise<string[]> {
   const slugs: string[] = [];
@@ -63,30 +49,18 @@ export async function collectSitemapEntries(): Promise<SitemapEntry[]> {
     },
   ];
 
-  const figmaPaths = new Set(FIGMA_CATALOG_PATHS.map((p) => p.path));
-  for (const { path } of FIGMA_CATALOG_PATHS) {
-    entries.push({
-      url: absoluteUrl(path),
-      changeFrequency: "daily",
-      priority: path.split("/").length > 3 ? 0.75 : 0.9,
-      lastModified: now,
-    });
-  }
-
   try {
     const tree = await seoApiFetch<{ items: CategoryTreeNode[] }>("/categories");
-    for (const slug of flattenCategorySlugs(tree.items)) {
-      const path = catalogCategoryHref(slug);
-      if (figmaPaths.has(path)) continue;
+    for (const { path } of flattenCategoryPaths(tree.items)) {
       entries.push({
         url: absoluteUrl(path),
-        changeFrequency: "weekly",
-        priority: 0.7,
+        changeFrequency: "daily",
+        priority: path.split("/").length > 3 ? 0.75 : 0.9,
         lastModified: now,
       });
     }
   } catch {
-    /* API недоступний — лишаємо статичні маршрути */
+    /* API недоступний */
   }
 
   try {

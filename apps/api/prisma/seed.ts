@@ -69,44 +69,33 @@ async function main() {
       key: "catalog_hub_subtitle",
       value: "Оберіть категорію, щоб переглянути товари.",
     },
-    {
-      key: "catalog_section_kvity_title",
-      value: "Квіти",
-    },
-    {
-      key: "catalog_section_kvity_subtitle",
-      value:
-        "Однорічні, багаторічні, хризантеми та інші культури для саду й балкону",
-    },
-    {
-      key: "catalog_section_kvity_image",
-      value: "/images/figma/catalog/hero-kvity.png",
-    },
-    {
-      key: "catalog_section_kushi_title",
-      value: "Декоративні кущі",
-    },
-    {
-      key: "catalog_section_kushi_subtitle",
-      value: "Гортензії, троянди, клематиси та інші кущі для ландшафту",
-    },
-    {
-      key: "catalog_section_kushi_image",
-      value: "/images/figma/home/banner-bg.png",
-    },
-    {
-      key: "catalog_section_travy_title",
-      value: "Декоративні трави",
-    },
-    {
-      key: "catalog_section_travy_subtitle",
-      value: "Трави та злаки для клумб, бордюрів і природних композицій",
-    },
-    {
-      key: "catalog_section_travy_image",
-      value: "/images/figma/home/banner-bg.png",
-    },
   ];
+
+  const hubByCategorySlug: Record<
+    string,
+    { hubSubtitle: string; hubImageUrl: string }
+  > = {
+    kvity: {
+      hubSubtitle:
+        "Однорічні, багаторічні, хризантеми та інші культури для саду й балкону",
+      hubImageUrl: "/images/figma/catalog/hero-kvity.png",
+    },
+    "dekoratyvni-kushi": {
+      hubSubtitle: "Гортензії, троянди, клематиси та інші кущі для ландшафту",
+      hubImageUrl: "/images/figma/home/banner-bg.png",
+    },
+    "dekoratyvni-travy": {
+      hubSubtitle: "Трави та злаки для клумб, бордюрів і природних композицій",
+      hubImageUrl: "/images/figma/home/banner-bg.png",
+    },
+  };
+
+  for (const [slug, hub] of Object.entries(hubByCategorySlug)) {
+    await prisma.category.updateMany({
+      where: { slug },
+      data: hub,
+    });
+  }
 
   const headerSettings: { key: string; value: string }[] = [
     { key: "header_phone", value: "+380 67 258 98 28" },

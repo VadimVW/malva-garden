@@ -15,7 +15,7 @@ function trimOrNull(value: string | null | undefined): string | null | undefined
   return t.length > 0 ? t : null;
 }
 
-function withNormalizedBannerFields<T extends CreateCategoryDto | UpdateCategoryDto>(
+function withNormalizedCatalogFields<T extends CreateCategoryDto | UpdateCategoryDto>(
   dto: T,
 ): T {
   return {
@@ -29,6 +29,12 @@ function withNormalizedBannerFields<T extends CreateCategoryDto | UpdateCategory
     ...(dto.bannerSubtitle !== undefined
       ? { bannerSubtitle: trimOrNull(dto.bannerSubtitle) }
       : {}),
+    ...(dto.hubImageUrl !== undefined
+      ? { hubImageUrl: trimOrNull(dto.hubImageUrl) }
+      : {}),
+    ...(dto.hubSubtitle !== undefined
+      ? { hubSubtitle: trimOrNull(dto.hubSubtitle) }
+      : {}),
   };
 }
 
@@ -39,6 +45,11 @@ type CategoryRow = {
   slug: string;
   description: string | null;
   imageUrl: string | null;
+  bannerImageUrl: string | null;
+  bannerTitle: string | null;
+  bannerSubtitle: string | null;
+  hubImageUrl: string | null;
+  hubSubtitle: string | null;
   seoTitle: string | null;
   seoDescription: string | null;
   sortOrder: number;
@@ -73,6 +84,12 @@ export class CategoriesService {
         slug: c.slug,
         description: c.description,
         imageUrl: c.imageUrl,
+        bannerImageUrl: c.bannerImageUrl,
+        bannerTitle: c.bannerTitle,
+        bannerSubtitle: c.bannerSubtitle,
+        hubImageUrl: c.hubImageUrl,
+        hubSubtitle: c.hubSubtitle,
+        sortOrder: c.sortOrder,
         children: walk(c.id),
       }));
     };
@@ -128,7 +145,7 @@ export class CategoriesService {
       if (!parent) throw new BadRequestException("Батьківська категорія не знайдена");
     }
     return this.prisma.category.create({
-      data: withNormalizedBannerFields(dto),
+      data: withNormalizedCatalogFields(dto),
     });
   }
 
@@ -155,7 +172,7 @@ export class CategoriesService {
     }
     return this.prisma.category.update({
       where: { id },
-      data: withNormalizedBannerFields(dto),
+      data: withNormalizedCatalogFields(dto),
     });
   }
 

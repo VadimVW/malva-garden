@@ -37,5 +37,6 @@ coverage/
 # Agent
 AGENT_CONTEXT.md
 
-# Plan
+# Docs
 docs/FRONTEND_VISUAL_PLAN.md
+docs/DYNAMIC_CATALOG_NAV_PLAN.md

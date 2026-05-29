@@ -36,6 +36,14 @@ export class CreateCategoryDto {
 
   @IsOptional()
   @IsString()
+  hubImageUrl?: string | null;
+
+  @IsOptional()
+  @IsString()
+  hubSubtitle?: string | null;
+
+  @IsOptional()
+  @IsString()
   seoTitle?: string;
 
   @IsOptional()

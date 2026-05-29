@@ -76,6 +76,8 @@ export default function EditCategoryPage() {
           bannerImageUrl: category.bannerImageUrl ?? "",
           bannerTitle: category.bannerTitle ?? "",
           bannerSubtitle: category.bannerSubtitle ?? "",
+          hubImageUrl: category.hubImageUrl ?? "",
+          hubSubtitle: category.hubSubtitle ?? "",
           seoTitle: category.seoTitle ?? "",
           seoDescription: category.seoDescription ?? "",
           sortOrder: category.sortOrder,

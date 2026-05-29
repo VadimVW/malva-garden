@@ -1,10 +1,6 @@
 import type { CatalogBreadcrumbItem } from "@/components/figma/MalvaGardenCatalogDesktop";
 import { apiFetch } from "@/lib/api";
 import { catalogCategoryHref } from "@/lib/figmaCatalogLinks";
-import {
-  figmaNavSectionFromCategorySlug,
-  type FigmaStoreNavSection,
-} from "@/lib/figmaStoreNavSection";
 
 export type PublicCategory = {
   id: string;
@@ -15,6 +11,8 @@ export type PublicCategory = {
   bannerImageUrl: string | null;
   bannerTitle: string | null;
   bannerSubtitle: string | null;
+  hubImageUrl: string | null;
+  hubSubtitle: string | null;
   seoTitle: string | null;
   seoDescription: string | null;
 };
@@ -36,15 +34,14 @@ export function breadcrumbsFromCategoryApi(
   return breadcrumbs.map((b, i) => ({
     label: b.name,
     href:
-      i < breadcrumbs.length - 1 ? catalogCategoryHref(b.slug) : undefined,
+      i < breadcrumbs.length - 1
+        ? catalogCategoryHref(b.slug, breadcrumbs.slice(0, i + 1))
+        : undefined,
   }));
 }
 
-const SECTION_DESCRIPTION_FALLBACK: Record<FigmaStoreNavSection, string> = {
-  flowers: "Відбірні товари для вашого саду та дому",
-  shrubs: "Гортензії, троянди та інші декоративні кущі для саду",
-  herbs: "Багаторічні та однорічні декоративні трави",
-};
+const DEFAULT_SECTION_DESCRIPTION =
+  "Відбірні товари для вашого саду та дому";
 
 export function catalogDesktopPropsFromCategoryMeta(
   meta: CategoryBySlugResponse,
@@ -55,21 +52,19 @@ export function catalogDesktopPropsFromCategoryMeta(
   bannerTitle: string | null;
   bannerSubtitle: string | null;
   breadcrumbs: CatalogBreadcrumbItem[];
-  activeNavSection: FigmaStoreNavSection;
+  activeRootSlug: string;
 } {
   const { category, breadcrumbs } = meta;
-  const activeNavSection =
-    figmaNavSectionFromCategorySlug(category.slug) ?? "flowers";
+  const activeRootSlug = breadcrumbs[0]?.slug ?? category.slug;
 
   return {
     sectionTitle: category.name,
     sectionDescription:
-      category.description?.trim() ||
-      SECTION_DESCRIPTION_FALLBACK[activeNavSection],
+      category.description?.trim() || DEFAULT_SECTION_DESCRIPTION,
     bannerImageUrl: category.bannerImageUrl,
     bannerTitle: category.bannerTitle,
     bannerSubtitle: category.bannerSubtitle,
     breadcrumbs: breadcrumbsFromCategoryApi(breadcrumbs),
-    activeNavSection,
+    activeRootSlug,
   };
 }

@@ -14,10 +14,9 @@ import { FigmaStoreFooter } from "@/components/figma/FigmaStoreFooter";
 import { FigmaStoreHeader } from "@/components/figma/FigmaStoreHeader";
 import {
   catalogCategoryHref,
-  catalogHubCrumb,
+  catalogHubCrumbFromBreadcrumbs,
   categorySlugMatchesHub,
 } from "@/lib/figmaCatalogLinks";
-import { figmaNavSectionFromCategorySlug } from "@/lib/figmaStoreNavSection";
 import { ProductFigmaBuyBlock } from "@/components/figma/product/ProductFigmaBuyBlock";
 import type { GalleryImage } from "@/components/figma/product/ProductFigmaGallery";
 import { ProductFigmaGallery } from "@/components/figma/product/ProductFigmaGallery";
@@ -97,22 +96,26 @@ function SocialSvgImg({
 export default function MalvaGardenProductDesktop({
   product = DEMO_PRODUCT,
   preview = false,
+  categoryBreadcrumbs,
+  activeRootSlug,
 }: {
   product?: MalvaGardenProductPayload;
   preview?: boolean;
+  categoryBreadcrumbs?: { name: string; slug: string }[];
+  activeRootSlug?: string;
 }) {
   const p = product;
   const priceLabel = p.price.includes("грн") ? p.price : `${p.price} грн`;
   const inStock = p.stockQuantity > 0;
-  const hub = catalogHubCrumb(p.category?.slug);
+  const hub = categoryBreadcrumbs?.length
+    ? catalogHubCrumbFromBreadcrumbs(categoryBreadcrumbs)
+    : { label: "Каталог", href: "/catalog" };
   const showCategoryCrumb =
-    Boolean(p.category) && !categorySlugMatchesHub(p.category?.slug);
+    Boolean(p.category) && !categorySlugMatchesHub(categoryBreadcrumbs);
 
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-visible bg-[#F5F5F5]">
-      <FigmaStoreHeader
-        activeNavSection={figmaNavSectionFromCategorySlug(p.category?.slug)}
-      />
+      <FigmaStoreHeader activeRootSlug={activeRootSlug} />
 
 
       <div
@@ -142,7 +145,10 @@ export default function MalvaGardenProductDesktop({
                 <>
                   <span className="text-[#9C9A9A]">/</span>
                   <Link
-                    href={catalogCategoryHref(p.category.slug)}
+                    href={catalogCategoryHref(
+                      p.category.slug,
+                      categoryBreadcrumbs,
+                    )}
                     className="hover:underline"
                   >
                     {p.category.name}

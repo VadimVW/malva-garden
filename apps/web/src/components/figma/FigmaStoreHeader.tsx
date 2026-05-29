@@ -10,7 +10,6 @@ import { FigmaStoreProfileLink } from "@/components/figma/FigmaStoreProfileLink"
 import { FigmaStoreSearch } from "@/components/figma/FigmaStoreSearch";
 import { FIGMA_STORE_IMG, FIGMA_SOCIAL_SVG } from "@/components/figma/figmaStoreAssets";
 import { MalvaGardenFigmaStoreNav } from "@/components/figma/MalvaGardenFigmaStoreNav";
-import type { FigmaStoreNavSection } from "@/lib/figmaStoreNavSection";
 import { phoneToTelHref } from "@/lib/storeHeaderSettings";
 import { useStoreHeaderSettings } from "@/providers/StoreHeaderSettingsProvider";
 
@@ -65,10 +64,10 @@ function SocialSvgImg({
 }
 
 type Props = {
-  activeNavSection?: FigmaStoreNavSection;
+  activeRootSlug?: string;
 };
 
-export function FigmaStoreHeader({ activeNavSection }: Props) {
+export function FigmaStoreHeader({ activeRootSlug }: Props) {
   const { phone, whatsappUrl, telegramUrl } = useStoreHeaderSettings();
   const telHref = phoneToTelHref(phone);
   const [scrolled, setScrolled] = useState(false);
@@ -145,7 +144,7 @@ export function FigmaStoreHeader({ activeNavSection }: Props) {
           <FigmaStoreProfileLink />
           <FigmaCartLink />
         </div>
-        <MalvaGardenFigmaStoreNav activeSection={activeNavSection} />
+        <MalvaGardenFigmaStoreNav activeRootSlug={activeRootSlug} />
       </div>
     </header>
   );

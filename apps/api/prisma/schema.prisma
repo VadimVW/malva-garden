@@ -46,6 +46,8 @@ model Category {
   bannerImageUrl String?
   bannerTitle    String?
   bannerSubtitle String?
+  hubImageUrl    String?
+  hubSubtitle    String?
   seoTitle       String?
   seoDescription String?
   sortOrder      Int        @default(0)

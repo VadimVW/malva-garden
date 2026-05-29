@@ -5,7 +5,6 @@ import { Montserrat_Alternates } from "next/font/google";
 import { FigmaStoreFooter } from "@/components/figma/FigmaStoreFooter";
 import { FigmaStoreHeader } from "@/components/figma/FigmaStoreHeader";
 import type { FigmaBreadcrumbItem } from "@/components/figma/figmaPageTypes";
-import type { FigmaStoreNavSection } from "@/lib/figmaStoreNavSection";
 
 const montserratAlternates = Montserrat_Alternates({
   weight: ["400", "600", "700"],
@@ -99,7 +98,7 @@ type MalvaGardenFigmaPageShellProps = {
   breadcrumbs: FigmaBreadcrumbItem[];
   title: string;
   subtitle?: string;
-  activeNavSection?: FigmaStoreNavSection;
+  activeRootSlug?: string;
   children: ReactNode;
 };
 
@@ -107,12 +106,12 @@ export function MalvaGardenFigmaPageShell({
   breadcrumbs,
   title,
   subtitle,
-  activeNavSection,
+  activeRootSlug,
   children,
 }: MalvaGardenFigmaPageShellProps) {
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-visible bg-[#F5F5F5]">
-      <FigmaStoreHeader activeNavSection={activeNavSection} />
+      <FigmaStoreHeader activeRootSlug={activeRootSlug} />
 
 
       <div

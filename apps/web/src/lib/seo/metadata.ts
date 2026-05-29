@@ -137,33 +137,6 @@ export const catalogHubMetadata: Metadata = buildPageMetadata({
   path: "/catalog",
 });
 
-/** Каталогові хаби та підкатегорії з фіксованими маршрутами Figma. */
-export const FIGMA_CATALOG_PATHS: { path: string; categorySlug: string; fallbackTitle: string }[] =
-  [
-    {
-      path: "/catalog/kvity",
-      categorySlug: "kvity",
-      fallbackTitle: `Квіти | ${SITE_NAME}`,
-    },
-    {
-      path: "/catalog/dekoratyvni-kushi",
-      categorySlug: "dekoratyvni-kushi",
-      fallbackTitle: `Декоративні кущі | ${SITE_NAME}`,
-    },
-    {
-      path: "/catalog/dekoratyvni-travy",
-      categorySlug: "dekoratyvni-travy",
-      fallbackTitle: `Декоративні трави | ${SITE_NAME}`,
-    },
-    { path: "/catalog/kvity/odnorichni", categorySlug: "odnorichni", fallbackTitle: "" },
-    { path: "/catalog/kvity/bagatorichni", categorySlug: "bagatorichni", fallbackTitle: "" },
-    { path: "/catalog/kvity/hrizantemy", categorySlug: "hrizantemy", fallbackTitle: "" },
-    { path: "/catalog/dekoratyvni-kushi/hortenzii", categorySlug: "hortenzii", fallbackTitle: "" },
-    { path: "/catalog/dekoratyvni-kushi/barbaris", categorySlug: "barbaris", fallbackTitle: "" },
-    { path: "/catalog/dekoratyvni-kushi/trojanda", categorySlug: "trojanda", fallbackTitle: "" },
-    { path: "/catalog/dekoratyvni-kushi/klimatis", categorySlug: "klimatis", fallbackTitle: "" },
-  ];
-
 export function categoryPathFromSlug(slug: string): string {
   return catalogCategoryHref(slug);
 }

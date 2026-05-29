@@ -17,6 +17,8 @@ export type Category = {
   bannerImageUrl: string | null;
   bannerTitle: string | null;
   bannerSubtitle: string | null;
+  hubImageUrl: string | null;
+  hubSubtitle: string | null;
   seoTitle: string | null;
   seoDescription: string | null;
   sortOrder: number;
