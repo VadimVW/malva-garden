@@ -11,6 +11,11 @@ import { CreateProductDto } from "./dto/create-product.dto";
 import { ProductsQueryDto } from "./dto/products-query.dto";
 import { UpdateProductImageDto } from "./dto/update-product-image.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
+import {
+  normalizeProductSearchQuery,
+  SEARCH_FUZZY_MIN_QUERY_LENGTH,
+  SEARCH_TRGM_SIMILARITY_THRESHOLD,
+} from "./product-search.constants";
 
 @Injectable()
 export class ProductsService {
@@ -66,10 +71,100 @@ export class ProductsService {
     return [...ids];
   }
 
+  private buildPublicListBaseAnd(
+    query: ProductsQueryDto,
+    categoryIds: string[] | null,
+  ): Prisma.ProductWhereInput[] {
+    return [
+      query.minPrice !== undefined
+        ? { price: { gte: query.minPrice } }
+        : {},
+      query.maxPrice !== undefined
+        ? { price: { lte: query.maxPrice } }
+        : {},
+      query.inStock === true ? { stockQuantity: { gt: 0 } } : {},
+      categoryIds ? { category: { id: { in: categoryIds } } } : {},
+    ].filter((x) => Object.keys(x).length > 0);
+  }
+
+  /** pg_trgm fallback, якщо підрядковий пошук нічого не знайшов (§7.18). */
+  private async findFuzzyProductIdsByName(
+    q: string,
+    query: ProductsQueryDto,
+    categoryIds: string[] | null,
+    limit: number,
+    skip: number,
+  ): Promise<{ ids: string[]; total: number }> {
+    const parts: Prisma.Sql[] = [
+      Prisma.sql`p.status = CAST(${ProductStatus.ACTIVE} AS "ProductStatus")`,
+      Prisma.sql`similarity(p.name, ${q}) > ${SEARCH_TRGM_SIMILARITY_THRESHOLD}`,
+    ];
+    if (categoryIds?.length) {
+      parts.push(
+        Prisma.sql`p."categoryId" IN (${Prisma.join(
+          categoryIds.map((id) => Prisma.sql`${id}`),
+        )})`,
+      );
+    }
+    if (query.minPrice !== undefined) {
+      parts.push(Prisma.sql`p.price >= ${query.minPrice}`);
+    }
+    if (query.maxPrice !== undefined) {
+      parts.push(Prisma.sql`p.price <= ${query.maxPrice}`);
+    }
+    if (query.inStock === true) {
+      parts.push(Prisma.sql`p."stockQuantity" > 0`);
+    }
+
+    const whereSql = Prisma.join(parts, " AND ");
+
+    let orderSql: Prisma.Sql;
+    if (query.sort === "price_asc") {
+      orderSql = Prisma.sql`similarity(p.name, ${q}) DESC, p.price ASC`;
+    } else if (query.sort === "price_desc") {
+      orderSql = Prisma.sql`similarity(p.name, ${q}) DESC, p.price DESC`;
+    } else {
+      orderSql = Prisma.sql`similarity(p.name, ${q}) DESC, p."createdAt" DESC`;
+    }
+
+    const [countRows, idRows] = await Promise.all([
+      this.prisma.$queryRaw<[{ count: bigint }]>`
+        SELECT COUNT(*)::bigint AS count
+        FROM "Product" p
+        WHERE ${whereSql}
+      `,
+      this.prisma.$queryRaw<[{ id: string }]>`
+        SELECT p.id
+        FROM "Product" p
+        WHERE ${whereSql}
+        ORDER BY ${orderSql}
+        LIMIT ${limit} OFFSET ${skip}
+      `,
+    ]);
+
+    return {
+      total: Number(countRows[0]?.count ?? 0),
+      ids: idRows.map((r) => r.id),
+    };
+  }
+
+  private async loadPublicProductsByIds(ids: string[]) {
+    if (!ids.length) return [];
+    const rows = await this.prisma.product.findMany({
+      where: { id: { in: ids } },
+      include: { images: true, category: true },
+    });
+    const byId = new Map(rows.map((p) => [p.id, p]));
+    return ids
+      .map((id) => byId.get(id))
+      .filter((p): p is NonNullable<typeof p> => Boolean(p));
+  }
+
   async findManyPublic(query: ProductsQueryDto) {
     const page = query.page ?? 1;
     const limit = Math.min(query.limit ?? 24, 48);
     const skip = (page - 1) * limit;
+    const searchQ = query.q ? normalizeProductSearchQuery(query.q) : "";
 
     let categoryIds: string[] | null = null;
     if (query.categorySlug) {
@@ -85,25 +180,64 @@ export class ProductsService {
       }
     }
 
+    const baseAnd = this.buildPublicListBaseAnd(query, categoryIds);
+
+    if (searchQ) {
+      const substringWhere: Prisma.ProductWhereInput = {
+        status: ProductStatus.ACTIVE,
+        AND: [
+          ...baseAnd,
+          {
+            name: {
+              contains: searchQ,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+        ],
+      };
+
+      let orderBy: Prisma.ProductOrderByWithRelationInput = {
+        createdAt: "desc",
+      };
+      if (query.sort === "price_asc") orderBy = { price: "asc" };
+      if (query.sort === "price_desc") orderBy = { price: "desc" };
+
+      let total = await this.prisma.product.count({ where: substringWhere });
+      let items = await this.prisma.product.findMany({
+        where: substringWhere,
+        orderBy,
+        skip,
+        take: limit,
+        include: { images: true, category: true },
+      });
+
+      if (
+        total === 0 &&
+        searchQ.length >= SEARCH_FUZZY_MIN_QUERY_LENGTH
+      ) {
+        const fuzzy = await this.findFuzzyProductIdsByName(
+          searchQ,
+          query,
+          categoryIds,
+          limit,
+          skip,
+        );
+        total = fuzzy.total;
+        items = await this.loadPublicProductsByIds(fuzzy.ids);
+      }
+
+      return {
+        items: items.map((p) => this.mapPublicProduct(p)),
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit) || 0,
+      };
+    }
+
     const where: Prisma.ProductWhereInput = {
       status: ProductStatus.ACTIVE,
-      category: categoryIds
-        ? { id: { in: categoryIds } }
-        : undefined,
-      AND: [
-        query.minPrice !== undefined
-          ? { price: { gte: query.minPrice } }
-          : {},
-        query.maxPrice !== undefined
-          ? { price: { lte: query.maxPrice } }
-          : {},
-        query.inStock === true ? { stockQuantity: { gt: 0 } } : {},
-        query.q
-          ? {
-              name: { contains: query.q, mode: Prisma.QueryMode.insensitive },
-            }
-          : {},
-      ].filter((x) => Object.keys(x).length > 0),
+      AND: baseAnd.length ? baseAnd : undefined,
     };
 
     let orderBy: Prisma.ProductOrderByWithRelationInput = {
@@ -128,7 +262,7 @@ export class ProductsService {
       page,
       limit,
       total,
-      totalPages: Math.ceil(total / limit),
+      totalPages: Math.ceil(total / limit) || 0,
     };
   }
 
