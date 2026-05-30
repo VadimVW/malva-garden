@@ -156,8 +156,8 @@ export default function MalvaGardenCatalogDesktop({
       <div
         className={`flex flex-1 flex-col bg-[#F5F5F5] ${montserratAlternates.className}`}
       >
-        <div className="flex w-full justify-center px-4 pb-12 pt-6 sm:px-8 lg:px-12">
-          <div className="mg-figma-content-panel px-5 pb-12 pt-8 sm:px-8">
+        <div className="flex w-full justify-center px-[15px] pb-12 pt-4 sm:px-8 lg:px-12 lg:pt-6">
+          <div className="mg-figma-content-panel px-0 pb-8 pt-2 sm:px-8 lg:px-5 lg:pb-12 lg:pt-8">
             <nav
               className="mb-6 flex flex-wrap items-center gap-2 text-[12px] leading-none"
               aria-label="Навігаційні крихти"
@@ -251,7 +251,7 @@ export default function MalvaGardenCatalogDesktop({
               </div>
 
               <CatalogGridFade page={pagination?.page ?? 1} className="w-full">
-                <div className="flex w-full flex-wrap justify-center gap-x-2 gap-y-5 rounded-2xl bg-[rgba(231,241,243,0.46)] px-2 py-[15px] lg:hidden">
+                <div className="grid w-full grid-cols-2 gap-x-2 gap-y-5 rounded-2xl bg-[rgba(231,241,243,0.46)] px-2 py-[15px] [&_article]:w-full lg:hidden">
                   {gridCards.length === 0 && (
                     <p className="w-full py-8 text-center text-[16px] text-[#5C5C5C]">
                       {emptyGridMessage}
