@@ -118,7 +118,7 @@ export function MalvaGardenFigmaPageShell({
         className={`flex flex-1 flex-col bg-[#F5F5F5] ${montserratAlternates.className}`}
       >
         <div className="flex w-full justify-center px-4 pb-12 pt-6 sm:px-8 lg:px-12">
-          <div className="flex w-full max-w-[1200px] flex-col bg-[#E7F1F3] px-5 pb-12 pt-8 sm:px-8">
+          <div className="mg-figma-content-panel px-5 pb-12 pt-8 sm:px-8">
             <FigmaBreadcrumbs items={breadcrumbs} />
             <header className="mb-8">
               <h1 className="text-[28px] font-bold leading-tight text-black sm:text-[32px]">

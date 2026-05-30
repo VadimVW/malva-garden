@@ -99,6 +99,16 @@ body {
 
 /* ——— Interactive components (етап B) ——— */
 @layer components {
+  .mg-figma-content-panel {
+    display: flex;
+    width: 100%;
+    max-width: 1200px;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 1rem;
+    background-color: #e7f1f3;
+  }
+
   .mg-product-card {
     box-shadow: var(--mg-shadow-card);
     transition:

@@ -76,7 +76,7 @@ export default function MalvaGardenHomeDesktop({ leaderProducts }: HomeProps) {
         className={`flex flex-1 flex-col bg-[#F5F5F5] ${montserratAlternates.className}`}
       >
         <div className="flex w-full justify-center px-4 pb-8 pt-6 sm:px-8 lg:px-12">
-          <main className="flex w-full max-w-[1200px] flex-col items-center gap-2.5 bg-[#E7F1F3] px-4 pb-14 pt-10 sm:px-6">
+          <main className="mg-figma-content-panel items-center gap-2.5 px-4 pb-14 pt-10 sm:px-6">
             <section className="flex w-full flex-col items-center px-2.5 pb-6 pt-0">
               <div className="w-full max-w-[1120px]">
                 <div className="relative w-full overflow-hidden rounded-2xl">

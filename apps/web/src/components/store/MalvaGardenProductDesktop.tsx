@@ -122,7 +122,7 @@ export default function MalvaGardenProductDesktop({
         className={`flex flex-1 flex-col bg-[#F5F5F5] ${montserratAlternates.className}`}
       >
         <div className="flex w-full justify-center px-4 pb-16 pt-6 sm:px-8 lg:px-12">
-          <div className="flex w-full max-w-[1200px] flex-col bg-[#E7F1F3] px-5 pb-12 pt-8 sm:px-8">
+          <div className="mg-figma-content-panel px-5 pb-12 pt-8 sm:px-8">
             <nav
               className="mb-8 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] leading-snug text-[#5E8F98]"
               aria-label="Навігаційні крихти"
