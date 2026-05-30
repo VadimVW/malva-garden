@@ -17,6 +17,7 @@ import { CatalogSortSelect } from "@/components/store/CatalogSortSelect";
 import { FigmaStoreFooter } from "@/components/store/FigmaStoreFooter";
 import { FigmaStoreHeader } from "@/components/store/FigmaStoreHeader";
 import { FigmaProductCard } from "@/components/store/FigmaProductCard";
+import { FigmaProductCardMobile } from "@/components/store/mobile/FigmaProductCardMobile";
 import type {
   CatalogPaginationMeta,
   CatalogUrlQuery,
@@ -249,28 +250,47 @@ export default function MalvaGardenCatalogDesktop({
                 ) : null}
               </div>
 
-              <CatalogGridFade
-                page={pagination?.page ?? 1}
-                className="grid w-full grid-cols-[repeat(auto-fill,225px)] justify-center gap-x-8 gap-y-10"
-              >
-                {gridCards.length === 0 && (
-                  <p className="col-span-full py-16 text-center text-[16px] text-[#5C5C5C]">
-                    {emptyGridMessage}
-                  </p>
-                )}
-                {gridCards.map((c) => (
-                  <FigmaProductCard
-                    key={c.slug}
-                    productId={c.productId}
-                    slug={c.slug!}
-                    title={c.title}
-                    subtitle={c.subtitle}
-                    price={c.price}
-                    stockQuantity={c.stockQuantity}
-                    imageUrl={c.imageUrl}
-                    titleAs="h2"
-                  />
-                ))}
+              <CatalogGridFade page={pagination?.page ?? 1} className="w-full">
+                <div className="flex w-full flex-wrap justify-center gap-x-2 gap-y-5 rounded-2xl bg-[rgba(231,241,243,0.46)] px-2 py-[15px] lg:hidden">
+                  {gridCards.length === 0 && (
+                    <p className="w-full py-8 text-center text-[16px] text-[#5C5C5C]">
+                      {emptyGridMessage}
+                    </p>
+                  )}
+                  {gridCards.map((c) => (
+                    <FigmaProductCardMobile
+                      key={c.slug}
+                      productId={c.productId}
+                      slug={c.slug!}
+                      title={c.title}
+                      subtitle={c.subtitle}
+                      price={c.price}
+                      stockQuantity={c.stockQuantity}
+                      imageUrl={c.imageUrl}
+                      titleAs="h2"
+                    />
+                  ))}
+                </div>
+                <div className="hidden w-full grid-cols-[repeat(auto-fill,225px)] justify-center gap-x-8 gap-y-10 lg:grid">
+                  {gridCards.length === 0 && (
+                    <p className="col-span-full py-16 text-center text-[16px] text-[#5C5C5C]">
+                      {emptyGridMessage}
+                    </p>
+                  )}
+                  {gridCards.map((c) => (
+                    <FigmaProductCard
+                      key={c.slug}
+                      productId={c.productId}
+                      slug={c.slug!}
+                      title={c.title}
+                      subtitle={c.subtitle}
+                      price={c.price}
+                      stockQuantity={c.stockQuantity}
+                      imageUrl={c.imageUrl}
+                      titleAs="h2"
+                    />
+                  ))}
+                </div>
               </CatalogGridFade>
 
               {paginationBasePath && pagination && pagination.totalPages > 0 ? (
