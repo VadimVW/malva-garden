@@ -78,7 +78,14 @@ function FigmaStoreSearchField({
     listRef,
     dropdownOpen,
     () => setActiveIndex(-1),
+    isMobile ? "viewport-center" : "anchor",
   );
+
+  const dropdownWidth = isMobile
+    ? listPosition?.width
+    : listPosition
+      ? Math.max(listPosition.width, 280)
+      : undefined;
 
   useEffect(() => {
     if (pathname === "/search") {
@@ -240,7 +247,7 @@ function FigmaStoreSearchField({
               position: "fixed",
               top: listPosition.top,
               left: listPosition.left,
-              width: Math.max(listPosition.width, 280),
+              width: dropdownWidth,
               zIndex: 9999,
             }}
           >
@@ -267,7 +274,7 @@ function FigmaStoreSearchField({
                     }`}
                     onMouseEnter={() => setActiveIndex(index)}
                     onClick={() => {
-                      setExpanded(false);
+                      if (!isMobile) setExpanded(false);
                       setActiveIndex(-1);
                     }}
                   >
@@ -313,7 +320,7 @@ function FigmaStoreSearchField({
                   }`}
                   onMouseEnter={() => setActiveIndex(suggestions.length)}
                   onClick={() => {
-                    setExpanded(false);
+                    if (!isMobile) setExpanded(false);
                     setActiveIndex(-1);
                   }}
                 >

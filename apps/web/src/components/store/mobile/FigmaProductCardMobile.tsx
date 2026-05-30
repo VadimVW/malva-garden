@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FigmaProductCardCartButton } from "@/components/store/FigmaProductCardCartButton";
+import { ProductCardTitle } from "@/components/store/ProductCardTitle";
 import { FIGMA_PRODUCT_CARD_IMG } from "@/components/store/figmaProductCardAssets";
 
 const DEFAULT_THUMB = "/images/figma/home/product-thumb.png";
@@ -33,10 +34,9 @@ export function FigmaProductCardMobile({
   const thumbSrc = imageUrl || imageFallback;
   const remote = thumbSrc.startsWith("http") || thumbSrc.startsWith("data:");
   const outOfStock = stockQuantity <= 0;
-  const TitleTag = titleAs;
 
   return (
-    <article className="mg-product-card relative flex h-[228px] w-[150px] flex-col overflow-visible rounded-2xl bg-white shadow-[0px_1px_0.5px_rgba(0,0,0,0.25)]">
+    <article className="mg-product-card relative flex h-[252px] w-[150px] flex-col overflow-visible rounded-2xl bg-white shadow-[0px_1px_0.5px_rgba(0,0,0,0.25)]">
       <Link
         href={`/product/${slug}`}
         className="absolute inset-0 z-0 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5C97A8] focus-visible:ring-offset-2"
@@ -74,9 +74,13 @@ export function FigmaProductCardMobile({
           </div>
         </div>
         <div className="flex min-h-0 flex-1 flex-col px-2.5 pb-2">
-          <TitleTag className="line-clamp-2 text-[16px] leading-snug text-black">
-            {title}
-          </TitleTag>
+          <div className="min-h-[40px] shrink-0">
+            <ProductCardTitle
+              title={title}
+              as={titleAs}
+              className="line-clamp-2 hyphens-auto text-[16px] leading-snug text-black"
+            />
+          </div>
           <p className="mt-0.5 line-clamp-1 text-[12px] text-[#9C9A9A]">{subtitle}</p>
           <div className="mt-auto flex items-end justify-between gap-1 pt-1">
             <p className="text-[16px] font-semibold leading-none text-black">{price}</p>

@@ -21,11 +21,17 @@ function positionsEqual(
   return a.top === b.top && a.left === b.left && a.width === b.width;
 }
 
+export type FloatingListStrategy = "anchor" | "viewport-center";
+
+const VIEWPORT_CENTER_PAD = 15;
+const VIEWPORT_CENTER_MAX_WIDTH = 360;
+
 export function useFloatingListPosition(
   anchorRef: RefObject<HTMLElement | null>,
   listRef: RefObject<HTMLElement | null>,
   open: boolean,
   onDismiss: () => void,
+  strategy: FloatingListStrategy = "anchor",
 ) {
   const [position, setPosition] = useState<FloatingListPosition | null>(null);
   const onDismissRef = useRef(onDismiss);
@@ -39,12 +45,24 @@ export function useFloatingListPosition(
     if (rect.bottom < 0 || rect.top > window.innerHeight) {
       return null;
     }
+    const top = rect.bottom + 4;
+    if (strategy === "viewport-center") {
+      const width = Math.min(
+        window.innerWidth - VIEWPORT_CENTER_PAD * 2,
+        VIEWPORT_CENTER_MAX_WIDTH,
+      );
+      return {
+        top,
+        left: (window.innerWidth - width) / 2,
+        width,
+      };
+    }
     return {
-      top: rect.bottom + 4,
+      top,
       left: rect.left,
       width: rect.width,
     };
-  }, [anchorRef]);
+  }, [anchorRef, strategy]);
 
   const commitPosition = useCallback((next: FloatingListPosition | null) => {
     if (!next) {

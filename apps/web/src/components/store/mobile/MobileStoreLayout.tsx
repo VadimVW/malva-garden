@@ -35,7 +35,7 @@ export function MobileStoreLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <MobileStoreChrome />
-      <div className="min-h-screen pt-[var(--mg-mobile-content-pt)] pb-[var(--mg-mobile-content-pb)] lg:pt-0 lg:pb-0">
+      <div className="min-h-screen bg-[#5C97A8] pt-[var(--mg-mobile-content-pt)] pb-[var(--mg-mobile-content-pb)] lg:bg-transparent lg:pt-0 lg:pb-0">
         {children}
       </div>
     </>
