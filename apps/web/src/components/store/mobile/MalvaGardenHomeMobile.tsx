@@ -142,7 +142,7 @@ export default function MalvaGardenHomeMobile({
         </div>
       </main>
 
-      <FigmaStoreFooter variant="mobile" />
+      <FigmaStoreFooter />
     </div>
   );
 }

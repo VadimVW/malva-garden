@@ -55,49 +55,45 @@ function SocialSvgImg({
   );
 }
 
-export function FigmaStoreFooter({
-  variant = "desktop",
-}: {
-  variant?: "desktop" | "mobile";
-}) {
-  if (variant === "mobile") {
-    return (
-      <footer className="mt-auto w-full shrink-0 bg-[#5C97A8] text-[#F7F4EF] lg:hidden">
-        <div
-          className={`flex flex-col gap-[10px] px-[15px] pb-4 pt-[15px] ${inter.className}`}
-        >
-          <div className="flex flex-col items-center">
-            <Image
-              src={FIGMA_STORE_IMG.logoMark}
-              alt="Malva Garden"
-              width={151}
-              height={107}
-              className="h-[107px] w-[151px] object-contain brightness-0 invert"
-            />
-          </div>
-          <FigmaStoreFooterMobileContacts />
-          <div className="flex flex-col gap-[5px] text-[14px]">
-            <p className="text-[20px] font-bold">Клієнтам:</p>
-            <Link className="hover:underline" href="/pages/dostavka-ta-oplata">
-              Доставка та оплата
-            </Link>
-            <Link className="hover:underline" href="/pages/povernennya">
-              Повернення товару
-            </Link>
-            <Link className="hover:underline" href="/pages/publichna-oferta">
-              Публічна оферта
-            </Link>
-            <Link className="hover:underline" href="/pages/konfidenciynist">
-              Політика конфіденційності
-            </Link>
-          </div>
-        </div>
-      </footer>
-    );
-  }
-
+function FigmaStoreFooterMobile() {
   return (
-    <footer className="mt-auto w-full shrink-0 bg-[#5C97A8] text-[#F7F4EF]">
+    <footer className="mt-auto w-full shrink-0 bg-[#5C97A8] text-[#F7F4EF] lg:hidden">
+      <div
+        className={`flex flex-col gap-[10px] px-[15px] pb-4 pt-[15px] ${inter.className}`}
+      >
+        <div className="flex flex-col items-center">
+          <Image
+            src={FIGMA_STORE_IMG.logoMark}
+            alt="Malva Garden"
+            width={151}
+            height={107}
+            className="h-[107px] w-[151px] object-contain brightness-0 invert"
+          />
+        </div>
+        <FigmaStoreFooterMobileContacts />
+        <div className="flex flex-col gap-[5px] text-[14px]">
+          <p className="text-[20px] font-bold">Клієнтам:</p>
+          <Link className="hover:underline" href="/pages/dostavka-ta-oplata">
+            Доставка та оплата
+          </Link>
+          <Link className="hover:underline" href="/pages/povernennya">
+            Повернення товару
+          </Link>
+          <Link className="hover:underline" href="/pages/publichna-oferta">
+            Публічна оферта
+          </Link>
+          <Link className="hover:underline" href="/pages/konfidenciynist">
+            Політика конфіденційності
+          </Link>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function FigmaStoreFooterDesktop() {
+  return (
+    <footer className="mt-auto hidden w-full shrink-0 bg-[#5C97A8] text-[#F7F4EF] lg:block">
       <div
         className={`mx-auto flex min-h-[280px] w-full max-w-[1280px] flex-col gap-8 px-4 pb-10 pt-6 sm:px-8 lg:px-12 ${inter.className}`}
       >
@@ -191,5 +187,20 @@ export function FigmaStoreFooter({
         </div>
       </div>
     </footer>
+  );
+}
+
+export function FigmaStoreFooter({
+  variant,
+}: {
+  variant?: "desktop" | "mobile";
+} = {}) {
+  if (variant === "mobile") return <FigmaStoreFooterMobile />;
+  if (variant === "desktop") return <FigmaStoreFooterDesktop />;
+  return (
+    <>
+      <FigmaStoreFooterMobile />
+      <FigmaStoreFooterDesktop />
+    </>
   );
 }
