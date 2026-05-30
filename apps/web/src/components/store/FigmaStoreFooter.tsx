@@ -54,7 +54,50 @@ function SocialSvgImg({
   );
 }
 
-export function FigmaStoreFooter() {
+export function FigmaStoreFooter({
+  variant = "desktop",
+}: {
+  variant?: "desktop" | "mobile";
+}) {
+  if (variant === "mobile") {
+    return (
+      <footer className="mt-auto w-full shrink-0 bg-[#5C97A8] text-[#F7F4EF] lg:hidden">
+        <div
+          className={`flex flex-col gap-[10px] px-[15px] pb-4 pt-[15px] ${inter.className}`}
+        >
+          <div className="flex flex-col items-center">
+            <Image
+              src={FIGMA_STORE_IMG.logoMark}
+              alt="Malva Garden"
+              width={151}
+              height={107}
+              className="h-[107px] w-[151px] object-contain brightness-0 invert"
+            />
+          </div>
+          <div className="flex flex-col items-center gap-[5px] text-center">
+            <p className="text-[20px] font-bold">Контакти:</p>
+            <p className="text-[12px] font-semibold">+380 67 258 98 28</p>
+          </div>
+          <div className="flex flex-col gap-[5px] text-[14px]">
+            <p className="text-[20px] font-bold">Клієнтам:</p>
+            <Link className="hover:underline" href="/pages/dostavka-ta-oplata">
+              Доставка та оплата
+            </Link>
+            <Link className="hover:underline" href="/pages/povernennya">
+              Повернення товару
+            </Link>
+            <Link className="hover:underline" href="/pages/publichna-oferta">
+              Публічна оферта
+            </Link>
+            <Link className="hover:underline" href="/pages/konfidenciynist">
+              Політика конфіденційності
+            </Link>
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
   return (
     <footer className="mt-auto w-full shrink-0 bg-[#5C97A8] text-[#F7F4EF]">
       <div

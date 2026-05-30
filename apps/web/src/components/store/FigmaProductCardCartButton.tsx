@@ -8,9 +8,17 @@ const CART_BTN_SRC = "/images/figma/catalog/cart-btn.svg";
 type Props = {
   productId: string;
   disabled?: boolean;
+  size?: "desktop" | "mobile";
 };
 
-export function FigmaProductCardCartButton({ productId, disabled }: Props) {
+export function FigmaProductCardCartButton({
+  productId,
+  disabled,
+  size = "desktop",
+}: Props) {
+  const dim = size === "mobile" ? 25 : 30;
+  const w = size === "mobile" ? 25 : 31;
+
   return (
     <AddToCartButton
       productId={productId}
@@ -22,10 +30,10 @@ export function FigmaProductCardCartButton({ productId, disabled }: Props) {
       <Image
         src={CART_BTN_SRC}
         alt=""
-        width={31}
-        height={30}
+        width={w}
+        height={dim}
         unoptimized
-        className="h-[30px] w-[31px]"
+        className={size === "mobile" ? "h-[25px] w-[25px]" : "h-[30px] w-[31px]"}
         aria-hidden
       />
     </AddToCartButton>

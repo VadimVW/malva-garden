@@ -2,7 +2,9 @@
 import MalvaGardenHomeDesktop, {
   type HomeLeaderProduct,
 } from "@/components/store/MalvaGardenHomeDesktop";
+import MalvaGardenHomeMobile from "@/components/store/mobile/MalvaGardenHomeMobile";
 import { apiFetch } from "@/lib/api";
+import { loadCatalogHubContent } from "@/lib/catalogHubSettings";
 import { homeMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = homeMetadata;
@@ -39,9 +41,17 @@ export default async function HomePage() {
     leaders = undefined;
   }
 
+  const hub = await loadCatalogHubContent();
+
   return (
-    <div className="min-h-screen w-full bg-[#F5F5F5]">
-      <MalvaGardenHomeDesktop leaderProducts={leaders} />
-    </div>
+    <>
+      <MalvaGardenHomeMobile
+        leaderProducts={leaders}
+        hubSections={hub.sections}
+      />
+      <div className="hidden min-h-screen w-full bg-[#F5F5F5] lg:block">
+        <MalvaGardenHomeDesktop leaderProducts={leaders} />
+      </div>
+    </>
   );
 }

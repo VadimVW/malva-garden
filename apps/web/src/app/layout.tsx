@@ -13,6 +13,7 @@ import {
   getSiteUrl,
   SITE_NAME,
 } from "@/lib/seo/site";
+import { MobileStoreLayout } from "@/components/store/mobile/MobileStoreLayout";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -67,7 +68,9 @@ export default async function RootLayout({
       >
         <StoreHeaderSettingsProvider value={headerSettings}>
           <CatalogNavProvider sections={catalogNavSections}>
-            <CustomerAuthProvider>{children}</CustomerAuthProvider>
+            <CustomerAuthProvider>
+              <MobileStoreLayout>{children}</MobileStoreLayout>
+            </CustomerAuthProvider>
           </CatalogNavProvider>
         </StoreHeaderSettingsProvider>
         <MgCartToast />

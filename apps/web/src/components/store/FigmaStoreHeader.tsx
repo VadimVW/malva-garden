@@ -81,7 +81,7 @@ export function FigmaStoreHeader({ activeRootSlug }: Props) {
 
   return (
     <header
-      className={`mg-figma-header sticky top-0 z-30 w-full bg-[#5C97A8] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] ${inter.className} ${scrolled ? "is-scrolled" : ""}`}
+      className={`mg-figma-header sticky top-0 z-30 hidden w-full bg-[#5C97A8] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] lg:block ${inter.className} ${scrolled ? "is-scrolled" : ""}`}
     >
       <div className="pointer-events-none absolute inset-0 z-[1] opacity-40">
         <Image

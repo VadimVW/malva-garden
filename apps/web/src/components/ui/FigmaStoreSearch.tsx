@@ -39,12 +39,18 @@ function SearchIcon({ className }: { className?: string }) {
 
 const shellClass =
   "relative z-[45] flex h-[34px] min-w-0 flex-1 items-center gap-2.5 rounded-full border border-[#F7F4EF] px-2";
+const mobileShellClass =
+  "relative z-[45] flex h-[34px] min-w-0 flex-1 items-center gap-2 rounded-[10px] border border-[#F7F4EF] px-1.5";
 const shellStyle = { paddingTop: 5, paddingBottom: 5 };
 
 const listClassName =
   "max-h-[min(360px,50vh)] overflow-y-auto rounded-xl border border-[#c5d8dc] bg-white py-1 shadow-[0px_10px_30px_rgba(0,0,0,0.14)] ring-1 ring-black/5";
 
-function FigmaStoreSearchField() {
+function FigmaStoreSearchField({
+  variant = "desktop",
+}: {
+  variant?: "desktop" | "mobile";
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -52,8 +58,9 @@ function FigmaStoreSearchField() {
   const rootRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const isMobile = variant === "mobile";
   const [value, setValue] = useState("");
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(isMobile);
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -81,10 +88,10 @@ function FigmaStoreSearchField() {
   }, [pathname, searchParams]);
 
   useEffect(() => {
-    if (!expanded) return;
+    if (!expanded || isMobile) return;
     const id = requestAnimationFrame(() => inputRef.current?.focus());
     return () => cancelAnimationFrame(id);
-  }, [expanded]);
+  }, [expanded, isMobile]);
 
   useEffect(() => {
     setListDismissed(false);
@@ -129,7 +136,7 @@ function FigmaStoreSearchField() {
   }, [trimmed, canSuggest]);
 
   useEffect(() => {
-    if (!expanded) return;
+    if (isMobile || !expanded) return;
     function onPointerDown(e: MouseEvent) {
       const target = e.target as Node;
       if (rootRef.current?.contains(target)) return;
@@ -139,7 +146,9 @@ function FigmaStoreSearchField() {
     }
     document.addEventListener("mousedown", onPointerDown);
     return () => document.removeEventListener("mousedown", onPointerDown);
-  }, [expanded]);
+  }, [expanded, isMobile]);
+
+  const fieldShellClass = isMobile ? mobileShellClass : shellClass;
 
   function openSearch() {
     setExpanded(true);
@@ -148,13 +157,13 @@ function FigmaStoreSearchField() {
   function goToSearch(q?: string) {
     const query = (q ?? value).trim();
     if (!query) return;
-    setExpanded(false);
+    if (!isMobile) setExpanded(false);
     setActiveIndex(-1);
     router.push(`/search?q=${encodeURIComponent(query)}`);
   }
 
   function goToProduct(slug: string) {
-    setExpanded(false);
+    if (!isMobile) setExpanded(false);
     setActiveIndex(-1);
     router.push(`/product/${slug}`);
   }
@@ -319,9 +328,9 @@ function FigmaStoreSearchField() {
         )
       : null;
 
-  if (!expanded) {
+  if (!expanded && !isMobile) {
     return (
-      <div ref={rootRef} className={shellClass} style={shellStyle}>
+      <div ref={rootRef} className={fieldShellClass} style={shellStyle}>
         <button
           type="button"
           onClick={openSearch}
@@ -341,7 +350,7 @@ function FigmaStoreSearchField() {
 
   return (
     <>
-      <div ref={rootRef} className={shellClass} style={shellStyle}>
+      <div ref={rootRef} className={fieldShellClass} style={shellStyle}>
         <form
           onSubmit={onSubmit}
           role="search"
@@ -382,12 +391,17 @@ function FigmaStoreSearchField() {
   );
 }
 
-export function FigmaStoreSearch() {
+export function FigmaStoreSearch({
+  variant = "desktop",
+}: {
+  variant?: "desktop" | "mobile";
+}) {
+  const fieldShellClass = variant === "mobile" ? mobileShellClass : shellClass;
   return (
     <Suspense
       fallback={
         <div
-          className={`${shellClass} opacity-80`}
+          className={`${fieldShellClass} opacity-80`}
           style={shellStyle}
           aria-hidden
         >
@@ -396,7 +410,7 @@ export function FigmaStoreSearch() {
         </div>
       }
     >
-      <FigmaStoreSearchField />
+      <FigmaStoreSearchField variant={variant} />
     </Suspense>
   );
 }
