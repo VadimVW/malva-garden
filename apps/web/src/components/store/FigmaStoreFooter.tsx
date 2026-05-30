@@ -2,6 +2,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Inter } from "next/font/google";
+import { FigmaStoreFooterMobileContacts } from "@/components/store/FigmaStoreFooterMobileContacts";
 import { FIGMA_SOCIAL_SVG, FIGMA_STORE_IMG } from "@/components/store/figmaStoreAssets";
 
 const inter = Inter({
@@ -74,10 +75,7 @@ export function FigmaStoreFooter({
               className="h-[107px] w-[151px] object-contain brightness-0 invert"
             />
           </div>
-          <div className="flex flex-col items-center gap-[5px] text-center">
-            <p className="text-[20px] font-bold">Контакти:</p>
-            <p className="text-[12px] font-semibold">+380 67 258 98 28</p>
-          </div>
+          <FigmaStoreFooterMobileContacts />
           <div className="flex flex-col gap-[5px] text-[14px]">
             <p className="text-[20px] font-bold">Клієнтам:</p>
             <Link className="hover:underline" href="/pages/dostavka-ta-oplata">

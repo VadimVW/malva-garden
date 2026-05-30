@@ -12,6 +12,10 @@ export const STORE_HEADER_SETTING_KEYS = {
   telegramUrl: "header_telegram_url",
 } as const;
 
+// TODO: admin UI for header_phone / messenger URLs — when phone changes, auto-sync
+// header_whatsapp_url (wa.me) and reuse StoreHeaderSettingsProvider in footer/desktop
+// (remove hardcoded contacts in FigmaStoreFooter desktop variant).
+
 export type StoreHeaderSettings = {
   phone: string;
   whatsappUrl: string;
