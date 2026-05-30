@@ -110,25 +110,25 @@ export function MalvaGardenFigmaPageShell({
   children,
 }: MalvaGardenFigmaPageShellProps) {
   return (
-    <div className="relative flex min-h-screen w-full flex-col overflow-visible bg-[#F5F5F5]">
+    <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-[#F5F5F5]">
       <FigmaStoreHeader activeRootSlug={activeRootSlug} />
 
 
       <div
-        className={`flex flex-1 flex-col bg-[#F5F5F5] ${montserratAlternates.className}`}
+        className={`flex min-w-0 flex-1 flex-col bg-[#F5F5F5] ${montserratAlternates.className}`}
       >
-        <div className="flex w-full justify-center px-4 pb-12 pt-6 sm:px-8 lg:px-12">
-          <div className="mg-figma-content-panel px-5 pb-12 pt-8 sm:px-8">
+        <div className="flex w-full min-w-0 justify-center px-[15px] pb-12 pt-4 sm:px-8 lg:px-12 lg:pt-6">
+          <div className="mg-figma-content-panel min-w-0 px-0 pb-8 pt-2 sm:px-8 lg:px-5 lg:pb-12 lg:pt-8">
             <FigmaBreadcrumbs items={breadcrumbs} />
             <header className="mb-8">
-              <h1 className="text-[28px] font-bold leading-tight text-black sm:text-[32px]">
+              <h1 className="text-[24px] font-bold leading-tight text-black sm:text-[28px] lg:text-[32px]">
                 {title}
               </h1>
               {subtitle ? (
                 <p className="mt-2 text-[14px] leading-snug text-[#5a5a5a]">{subtitle}</p>
               ) : null}
             </header>
-            {children}
+            <div className="min-w-0">{children}</div>
           </div>
         </div>
 

@@ -69,7 +69,7 @@ export function AccountLoginForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="mx-auto max-w-md space-y-4">
+    <form onSubmit={onSubmit} className="mx-auto w-full min-w-0 max-w-md space-y-4">
       <div>
         <label className="mb-1 block text-[13px] font-semibold text-black">
           Email
@@ -168,7 +168,7 @@ export function AccountForgotPasswordForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="mx-auto max-w-md space-y-4">
+    <form onSubmit={onSubmit} className="mx-auto w-full min-w-0 max-w-md space-y-4">
       <div>
         <label className="mb-1 block text-[13px] font-semibold text-black">
           Email
@@ -251,7 +251,7 @@ export function AccountResetPasswordForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="mx-auto max-w-md space-y-4">
+    <form onSubmit={onSubmit} className="mx-auto w-full min-w-0 max-w-md space-y-4">
       <div>
         <label className="mb-1 block text-[13px] font-semibold text-black">
           Новий пароль
@@ -367,7 +367,7 @@ export function AccountRegisterForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="mx-auto max-w-md space-y-4">
+    <form onSubmit={onSubmit} className="mx-auto w-full min-w-0 max-w-md space-y-4">
       <div>
         <label className="mb-1 block text-[13px] font-semibold text-black">
           Email *

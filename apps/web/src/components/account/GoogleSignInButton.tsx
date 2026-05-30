@@ -78,14 +78,35 @@ export function GoogleSignInButton({
 
   useEffect(() => {
     if (!clientId) return;
+    const container = containerRef.current;
+    if (!container) return;
+
     let mounted = true;
+    let resizeObserver: ResizeObserver | null = null;
+
+    const renderButton = () => {
+      if (!mounted || !containerRef.current || !window.google?.accounts?.id) {
+        return;
+      }
+      const width = Math.floor(containerRef.current.clientWidth);
+      if (width < 1) return;
+
+      containerRef.current.innerHTML = "";
+      window.google.accounts.id.renderButton(containerRef.current, {
+        theme: "outline",
+        size: "large",
+        shape: "pill",
+        text: mode === "register" ? "signup_with" : "signin_with",
+        locale: "uk",
+        width: Math.min(360, width),
+      });
+    };
 
     loadGoogleScript()
       .then(() => {
         if (!mounted || !containerRef.current || !window.google?.accounts?.id) {
           return;
         }
-        containerRef.current.innerHTML = "";
         window.google.accounts.id.initialize({
           client_id: clientId,
           callback: (response) => {
@@ -96,23 +117,19 @@ export function GoogleSignInButton({
             }
           },
         });
-        window.google.accounts.id.renderButton(containerRef.current, {
-          theme: "outline",
-          size: "large",
-          shape: "pill",
-          text: mode === "register" ? "signup_with" : "signin_with",
-          locale: "uk",
-          width: 360,
-        });
+        renderButton();
+        resizeObserver = new ResizeObserver(renderButton);
+        resizeObserver.observe(container);
       })
       .catch(() => onError("Не вдалося завантажити Google вхід"));
 
     return () => {
       mounted = false;
+      resizeObserver?.disconnect();
     };
   }, [clientId, mode, onCredential, onError]);
 
   if (!clientId) return null;
 
-  return <div ref={containerRef} className="flex justify-center" />;
+  return <div ref={containerRef} className="flex w-full min-w-0 justify-center overflow-hidden" />;
 }
