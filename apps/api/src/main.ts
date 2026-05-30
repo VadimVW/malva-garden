@@ -1,10 +1,14 @@
 import "reflect-metadata";
 import { RequestMethod, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
+import { NestExpressApplication } from "@nestjs/platform-express";
+import { resolve } from "path";
 import { AppModule } from "./app.module";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const uploadDir = resolve(process.env.UPLOAD_DIR?.trim() || "uploads");
+  app.useStaticAssets(uploadDir, { prefix: "/uploads" });
   app.setGlobalPrefix("api/v1", {
     exclude: [{ path: "", method: RequestMethod.GET }],
   });

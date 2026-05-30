@@ -70,3 +70,44 @@ export async function adminFetch<T>(
   if (res.status === 204) return undefined as T;
   return (await res.json()) as T;
 }
+
+export async function adminUploadFile(file: File): Promise<{ url: string }> {
+  if (typeof window !== "undefined") {
+    if (isSessionExpired()) {
+      clearStoredToken();
+      window.location.href = "/login?reason=idle";
+      throw new ApiError("Сесія закінчилась", 401);
+    }
+    touchActivity();
+  }
+
+  const form = new FormData();
+  form.append("file", file);
+
+  const headers: Record<string, string> = {};
+  const token = getStoredToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const url = `${getApiBaseUrl()}/admin/uploads`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers,
+    body: form,
+    cache: "no-store",
+  });
+
+  if (res.status === 401) {
+    clearStoredToken();
+    if (typeof window !== "undefined") {
+      window.location.href = "/login?reason=session";
+    }
+    throw new ApiError("Сесія закінчилась", 401);
+  }
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new ApiError(parseApiError(text, res.status), res.status);
+  }
+
+  return (await res.json()) as { url: string };
+}

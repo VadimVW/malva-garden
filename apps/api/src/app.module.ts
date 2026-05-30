@@ -10,6 +10,7 @@ import { SettingsModule } from "./settings/settings.module";
 import { DeliveryModule } from "./delivery/delivery.module";
 import { CustomerModule } from "./customer/customer.module";
 import { MailModule } from "./mail/mail.module";
+import { UploadsModule } from "./uploads/uploads.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
@@ -28,6 +29,7 @@ import { AppService } from "./app.service";
     DeliveryModule,
     MailModule,
     CustomerModule,
+    UploadsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

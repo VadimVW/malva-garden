@@ -10,6 +10,7 @@ import { Input } from "./ui/Input";
 import { Select } from "./ui/Select";
 import { Textarea } from "./ui/Textarea";
 import { Card } from "./ui/Card";
+import { ImageUploadField } from "./ImageUploadField";
 
 const schema = z.object({
   parentId: z.string().optional(),
@@ -58,6 +59,8 @@ export function CategoryForm({
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<CategoryFormValues>({
     resolver: zodResolver(schema),
@@ -116,10 +119,13 @@ export function CategoryForm({
           Для кореневих категорій (без батьківської): картинка та підзаголовок на
           сторінці вибору розділу. Назва плитки — поле «Назва».
         </p>
-        <Input
-          label="URL зображення плитки"
-          hint="Повний https://… або шлях з вітрини"
-          {...register("hubImageUrl")}
+        <ImageUploadField
+          label="Зображення плитки"
+          hint="Завантажте файл або вставте URL. Назва плитки — поле «Назва»."
+          value={watch("hubImageUrl") ?? ""}
+          onChange={(url) =>
+            setValue("hubImageUrl", url, { shouldDirty: true })
+          }
         />
         <Input
           label="Підзаголовок на плитці"
@@ -135,10 +141,13 @@ export function CategoryForm({
           підзаголовок необовʼязкові — якщо обидва порожні, на банері буде лише
           картинка (назва категорії лишається під банером).
         </p>
-        <Input
-          label="URL зображення банера"
-          hint="Повний https://… або шлях, доступний з вітрини"
-          {...register("bannerImageUrl")}
+        <ImageUploadField
+          label="Зображення банера"
+          hint="Завантажте файл або вставте URL"
+          value={watch("bannerImageUrl") ?? ""}
+          onChange={(url) =>
+            setValue("bannerImageUrl", url, { shouldDirty: true })
+          }
         />
         <Input
           label="Заголовок на банері"

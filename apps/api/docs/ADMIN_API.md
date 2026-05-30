@@ -42,6 +42,14 @@
 | PATCH | `/admin/products/:productId/images/:imageId` | Часткове оновлення; рівно одне головне фото нормалізується автоматично |
 | DELETE | `/admin/products/:productId/images/:imageId` | Видалити; якщо це було головне — інше стає головним |
 
+### Завантаження файлів
+
+| Метод | Шлях | Опис |
+|--------|------|------|
+| POST | `/admin/uploads` | `multipart/form-data`, поле `file` (JPEG/PNG/WebP/GIF, до 5 MB) → `{ "url": "https://…/uploads/<uuid>.ext" }` |
+
+Файли віддаються публічно з `GET /uploads/<filename>` (поза префіксом `/api/v1`). URL у відповіді будується з `API_PUBLIC_ORIGIN`.
+
 ---
 
 ## Замовлення

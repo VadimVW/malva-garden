@@ -13,6 +13,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "encrypted-tbn1.gstatic.com", pathname: "/**" },
       { protocol: "https", hostname: "encrypted-tbn2.gstatic.com", pathname: "/**" },
       { protocol: "https", hostname: "encrypted-tbn3.gstatic.com", pathname: "/**" },
+      { protocol: "http", hostname: "localhost", port: "4000", pathname: "/uploads/**" },
+      { protocol: "https", hostname: "malva-api-staging.onrender.com", pathname: "/uploads/**" },
     ],
   },
 };

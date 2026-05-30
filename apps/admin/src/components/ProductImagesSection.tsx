@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { adminFetch, ApiError } from "@/lib/api";
+import { adminFetch, adminUploadFile, ApiError } from "@/lib/api";
 import type { ProductImage } from "@/lib/types";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
@@ -18,8 +18,10 @@ export function ProductImagesSection({
 }) {
   const toast = useToast();
   const qc = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageUrl, setImageUrl] = useState("");
   const [altText, setAltText] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   const sorted = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
 
@@ -79,6 +81,21 @@ export function ProductImagesSection({
       toast.error(e instanceof ApiError ? e.message : "Помилка"),
   });
 
+  async function handleFileUpload(file: File | undefined) {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const { url } = await adminUploadFile(file);
+      setImageUrl(url);
+      toast.success("Файл завантажено — натисніть «Додати зображення»");
+    } catch (e) {
+      toast.error(e instanceof ApiError ? e.message : "Не вдалося завантажити");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
   return (
     <Card className="space-y-4 p-6">
       <h2 className="text-sm font-semibold text-gray-900">Зображення</h2>
@@ -128,17 +145,45 @@ export function ProductImagesSection({
           </li>
         ))}
       </ul>
-      <div className="grid gap-3 border-t border-admin-border pt-4 sm:grid-cols-2">
-        <Input
-          label="URL зображення"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-        />
-        <Input
-          label="Alt текст"
-          value={altText}
-          onChange={(e) => setAltText(e.target.value)}
-        />
+      <div className="space-y-3 border-t border-admin-border pt-4">
+        <div className="flex flex-wrap gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className="hidden"
+            onChange={(e) => void handleFileUpload(e.target.files?.[0])}
+          />
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={uploading}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {uploading ? "Завантаження…" : "Завантажити з компʼютера"}
+          </Button>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Input
+            label="URL зображення"
+            hint="Або вставте зовнішнє посилання вручну"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+          />
+          <Input
+            label="Alt текст"
+            value={altText}
+            onChange={(e) => setAltText(e.target.value)}
+          />
+        </div>
+        {imageUrl && (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={imageUrl}
+            alt=""
+            className="h-20 w-20 rounded object-cover"
+          />
+        )}
       </div>
       <Button
         type="button"
