@@ -33,9 +33,7 @@ coverage/
 
 # Misc
 *.tsbuildinfo
-uploads/
-
-# Agent
+apps/api/uploads/
 AGENT_CONTEXT.md
 
 # Docs
