@@ -1,0 +1,15 @@
+node_modules
+**/node_modules
+.git
+.cursor
+**/.next
+apps/api/dist
+apps/api/uploads
+**/*.md
+!apps/api/docs/**
+.env
+.env.*
+!.env.production.example
+terminals
+agent-transcripts
+agent-tools
