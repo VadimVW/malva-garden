@@ -1,10 +1,40 @@
 # Malva Garden — reverse proxy
-# Без доменів: вітрина :80, API /api + /uploads, адмінка :3001
-# З доменами: розкоментуй блок TLS внизу та задай SITE_DOMAIN тощо в .env
+# Домени: malva-garden.com (вітрина + /api/v1), admin.malva-garden.com (адмінка)
+# IP :80 / :3001 — fallback до повного переходу на HTTPS-домени
 
 {
 	email {$ACME_EMAIL}
 }
+
+# --- Production domains (HTTPS via Let's Encrypt) ---
+
+www.malva-garden.com {
+	redir https://malva-garden.com{uri} permanent
+}
+
+malva-garden.com {
+	@api_v1 path /api/v1/*
+	@uploads path /uploads/*
+	handle @api_v1 {
+		reverse_proxy api:4000
+	}
+	handle @uploads {
+		reverse_proxy api:4000
+	}
+	@web_api path /api/*
+	handle @web_api {
+		reverse_proxy web:3000
+	}
+	handle {
+		reverse_proxy web:3000
+	}
+}
+
+admin.malva-garden.com {
+	reverse_proxy admin:3000
+}
+
+# --- Fallback по IP (HTTP, без TLS) ---
 
 :80 {
 	@api_v1 path /api/v1/*
@@ -15,7 +45,6 @@
 	handle @uploads {
 		reverse_proxy api:4000
 	}
-	# Next.js Route Handlers (WayForPay return POST → redirect)
 	@web_api path /api/*
 	handle @web_api {
 		reverse_proxy web:3000
@@ -28,14 +57,3 @@
 :3001 {
 	reverse_proxy admin:3000
 }
-
-# --- Після появи DNS (приклад) ---
-# {$SITE_DOMAIN} {
-# 	reverse_proxy web:3000
-# }
-# {$ADMIN_DOMAIN} {
-# 	reverse_proxy admin:3000
-# }
-# {$API_DOMAIN} {
-# 	reverse_proxy api:4000
-# }

@@ -31,16 +31,25 @@
 
 ### Таблиця доменів
 
-| Роль | Плановий FQDN | DNS (A → IP) | Примітка |
-|------|---------------|--------------|----------|
-| Вітрина | | | `WEB_ORIGIN`, `NEXT_PUBLIC_SITE_URL` |
-| API | | | `API_PUBLIC_ORIGIN`, `NEXT_PUBLIC_API_URL` |
-| Адмінка | | | `ADMIN_ORIGIN`; IP allowlist / Basic Auth бажано |
+| Роль | FQDN | DNS (A → `159.195.148.48`) | Примітка |
+|------|------|---------------------------|----------|
+| Вітрина | **malva-garden.com** | A (+ www CNAME або A) | `WEB_ORIGIN`, `NEXT_PUBLIC_SITE_URL`; API на тому ж хості `/api/v1` |
+| API (шлях) | той самий домен | — | `NEXT_PUBLIC_API_URL=https://malva-garden.com/api/v1` |
+| Адмінка | **admin.malva-garden.com** | A | `ADMIN_ORIGIN`; Basic Auth / UFW бажано |
 
+**Реєстратор / DNS:** Cloudflare, зона **malva-garden.com**  
 **Фактичний IPv4 VPS:** `159.195.148.48`  
 **Hostname (netcup):** `v2202605363229464961.megasrv.de`  
-**Локація (з CCP):** Nuremberg (перевірити в замовленні)  
-**Дата підключення доменів:** `________________`
+**Дата підключення доменів:** 2026-05 (Cloudflare)
+
+### Cloudflare (рекомендація для першого TLS)
+
+1. **DNS → Records** (проксі **DNS only** / сіра хмара на старті — простіше для Caddy + Let's Encrypt):
+   - `malva-garden.com` → A → `159.195.148.48`
+   - `www` → CNAME → `malva-garden.com` (або A на той самий IP)
+   - `admin` → A → `159.195.148.48`
+2. Після успішних сертифікатів можна увімкнути проксі Cloudflare (помаранчева хмара), SSL mode **Full**.
+3. **ACME_EMAIL** у `.env` на VPS — ваш реальний email (для Caddy).
 
 ---
 
