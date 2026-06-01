@@ -6,7 +6,7 @@
 **Обраний тариф prod:** [**Netcup VPS 500 G12**](https://www.netcup.com/en/server/vps) — 2 shared vCore, 4 GB DDR5 ECC, 128 GB NVMe, KVM.  
 **ЦА:** Україна → локація **Nuremberg, Germany** (+€0.88/міс) або **No preference Europe** (€0, ДЦ може бути NUE/VIE/AMS).
 
-**Статус інфра в репо:** `docker-compose.prod.yml`, Dockerfile, Caddy, `start-prod.mjs` — ✓. CI — далі.
+**Статус інфра в репо:** `docker-compose.prod.yml`, Dockerfile, Caddy, `start-prod.mjs` — ✓. **CI/CD (GitHub Actions)** — ✓ (`ci.yml`, `deploy-vps.yml`, `scripts/deploy-vps.sh`).
 
 ---
 
@@ -230,14 +230,83 @@ docker compose -f docker-compose.prod.yml --env-file .env logs -f api
 
 ---
 
-## 7. Деплой оновлень
+## 7. CI/CD (GitHub Actions)
+
+### 7.1 Workflows
+
+| Файл | Тригер | Дія |
+|------|--------|-----|
+| [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | PR / push → `main`, `deploy/vps-production` | `npm ci` + `npm run lint` |
+| [`.github/workflows/deploy-vps.yml`](../.github/workflows/deploy-vps.yml) | push → **`deploy/vps-production`**, `workflow_dispatch` | lint → SSH → [`scripts/deploy-vps.sh`](../scripts/deploy-vps.sh) |
+
+**Гілка production:** `deploy/vps-production` (не `main`).
+
+Після push чекайте **15–30 хв** (збірка на VPS). Статус: GitHub → **Actions** → «Deploy VPS (production)».
+
+### 7.2 Одноразова підготовка (Secrets + SSH)
+
+1. **SSH-ключ лише для CI** (на своєму ПК):
+
+   ```bash
+   ssh-keygen -t ed25519 -f ~/.ssh/malva_github_deploy -N ""
+   ```
+
+2. **Публічний ключ** на VPS (`root` або `deploy`):
+
+   ```bash
+   ssh root@159.195.148.48
+   mkdir -p ~/.ssh && chmod 700 ~/.ssh
+   echo "<вміст malva_github_deploy.pub>" >> ~/.ssh/authorized_keys
+   chmod 600 ~/.ssh/authorized_keys
+   ```
+
+3. **GitHub** → репозиторій **Settings → Secrets and variables → Actions → New repository secret:**
+
+   | Secret | Значення |
+   |--------|----------|
+   | `VPS_SSH_HOST` | `159.195.148.48` |
+   | `VPS_SSH_USER` | `root` |
+   | `VPS_SSH_PRIVATE_KEY` | повний вміст файлу `malva_github_deploy` (private) |
+   | `VPS_DEPLOY_PATH` | `/opt/malva-garden` (опційно) |
+
+   Паролі БД, JWT, WayForPay **не** додавати в GitHub — лише в `.env` на сервері.
+
+4. **Перший pull після додавання CI в репо** (щоб на VPS з’явився `scripts/deploy-vps.sh`):
+
+   ```bash
+   ssh root@159.195.148.48
+   cd /opt/malva-garden
+   git pull origin deploy/vps-production
+   ```
+
+5. (Рекомендовано) Snapshot у Netcup CCP перед першим автодеплоєм.
+
+### 7.3 Що робить `deploy-vps.sh`
+
+1. `git fetch` + `checkout deploy/vps-production` + `pull --ff-only`
+2. `docker compose -f docker-compose.prod.yml --env-file .env up -d --build`
+3. `curl` → `http://127.0.0.1/api/v1/health` (до 5 хв)
+
+Міграції: автоматично в `start-prod.mjs` при старті контейнера `api` (**без seed**).
+
+### 7.4 Ручний деплой (fallback)
+
+```bash
+ssh root@159.195.148.48
+cd /opt/malva-garden
+bash scripts/deploy-vps.sh
+```
+
+Або з GitHub UI: **Actions** → **Deploy VPS (production)** → **Run workflow**.
+
+### 7.5 Деплой оновлень (процес)
 
 | Крок | Дія |
 |------|-----|
-| Pull / build | CI або SSH + `docker compose build` |
-| Migrate | `prisma migrate deploy` у API entrypoint — **без seed** |
-| Restart | `docker compose up -d` |
-| Перевірка | health + smoke |
+| Розробка | feature-гілка → PR (CI lint) |
+| Prod | merge / push у **`deploy/vps-production`** |
+| CI | lint → SSH deploy на VPS |
+| Перевірка | Actions green; `curl http://159.195.148.48/api/v1/health` |
 
 **Останній prod-деплой:** `________________` (commit: `________________`)
 
@@ -287,6 +356,10 @@ docker compose -f docker-compose.prod.yml --env-file .env logs -f api
 - IPv4: 159.195.148.48, SCP, стан started.
 - ОС: **Debian 13 (trixie)** (не Ubuntu — ок для prod).
 - Далі: swap, Docker, UFW.
+
+### 2026-05-31 — CI/CD
+- Workflows: `ci.yml`, `deploy-vps.yml`; скрипт `scripts/deploy-vps.sh`.
+- Deploy по push у `deploy/vps-production`; Secrets: VPS_SSH_*.
 ```
 
 *(Додавайте нові записи з датою.)*
