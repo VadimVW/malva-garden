@@ -76,6 +76,8 @@ services:
     restart: unless-stopped
     depends_on:
       - api
+    environment:
+      INTERNAL_API_URL: http://api:4000/api/v1
     expose:
       - "3000"
     deploy:
