@@ -37,6 +37,11 @@ admin.malva-garden.com {
 # --- Fallback по IP (HTTP, без TLS) ---
 
 :80 {
+	@admin host admin.malva-garden.com
+	handle @admin {
+		reverse_proxy admin:3000
+	}
+
 	@api_v1 path /api/v1/*
 	@uploads path /uploads/*
 	handle @api_v1 {
