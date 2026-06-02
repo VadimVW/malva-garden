@@ -5,6 +5,8 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 COPY apps/web ./apps/web
+# Shared with API — web tsconfig alias @malva/site-settings
+COPY apps/api/src/settings/public-site-settings.ts ./apps/api/src/settings/public-site-settings.ts
 
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_SITE_URL
