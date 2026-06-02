@@ -74,16 +74,7 @@ npm run dev
 3. Другий проєкт для `apps/admin`, Root `apps/admin`; у API виставити `ADMIN_ORIGIN` = preview-URL адмінки.
 4. У API: `WEB_ORIGIN` = preview-URL вітрини. Перевірити логін адмінки та каталог з `?page=2`.
 
-**Поточні production URL (Vercel, акаунт vadimvw):**
-
-| Додаток | URL |
-|---------|-----|
-| Вітрина | https://web-black-nine-61.vercel.app |
-| Адмінка | https://admin-swart-rho-88.vercel.app |
-
-Поки API не задеплоєно, у Vercel для **web** і **admin** треба виставити `NEXT_PUBLIC_API_URL` (після появи публічного URL API). У API — `WEB_ORIGIN` і `ADMIN_ORIGIN` з таблиці вище.
-
-CLI: `npm run deploy:web` / `npm run deploy:admin` (потрібен `npx vercel login`).
+CLI: `npm run deploy:web` / `npm run deploy:admin`
 
 Локально каталог: `/catalog/kvity?page=2` — пагінація 24 товари на сторінку.
 
@@ -95,7 +86,7 @@ CLI: `npm run deploy:web` / `npm run deploy:admin` (потрібен `npx vercel
 
 ## Далі по продукту
 
-- SEO: `robots.txt`, `sitemap.xml`, JSON-LD для товару (базові metadata на інфо-сторінках уже є)
+- SEO в коді: `robots.txt`, `sitemap.xml`, JSON-LD для товару; post-launch GSC — [`docs/SEO_GOOGLE.md`](docs/SEO_GOOGLE.md)
 - Мобільна головна (окремий Figma-кадр)
 - Завантаження зображень (S3 / локальний стор), WebP
 - Refresh-токен, rate limit на логін (адмінка)

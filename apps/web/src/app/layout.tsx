@@ -26,8 +26,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const googleSiteVerification =
+  process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim() || undefined;
+
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
+  ...(googleSiteVerification
+    ? { verification: { google: googleSiteVerification } }
+    : {}),
   title: {
     default: `${SITE_NAME} — насіння, квіти та садові товари`,
     template: `%s | ${SITE_NAME}`,
