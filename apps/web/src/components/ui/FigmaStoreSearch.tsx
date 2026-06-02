@@ -174,17 +174,27 @@ function FigmaStoreSearchField({
   }, [trimmed, canSuggest]);
 
   useEffect(() => {
-    if (isMobile || !expanded) return;
-    function onPointerDown(e: MouseEvent) {
+    if (isMobile) {
+      if (!dropdownOpen) return;
+    } else if (!expanded) {
+      return;
+    }
+
+    function onPointerDown(e: PointerEvent) {
       const target = e.target as Node;
       if (rootRef.current?.contains(target)) return;
       if (listRef.current?.contains(target)) return;
-      setExpanded(false);
-      setActiveIndex(-1);
+      if (isMobile) {
+        setListDismissed(true);
+        setActiveIndex(-1);
+      } else {
+        setExpanded(false);
+        setActiveIndex(-1);
+      }
     }
-    document.addEventListener("mousedown", onPointerDown);
-    return () => document.removeEventListener("mousedown", onPointerDown);
-  }, [expanded, isMobile]);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [expanded, isMobile, dropdownOpen]);
 
   const fieldShellClass = isMobile ? mobileShellClass : shellClass;
 
