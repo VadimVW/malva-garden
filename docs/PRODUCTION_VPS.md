@@ -177,7 +177,7 @@ postgres (volume) ← api
 | `WAYFORPAY_*` | оплата | prod merchant |
 | `NOVA_POSHTA_API_KEY` | НП | |
 | `SMTP_*`, `MAIL_FROM` | ЛК | `EMAIL_VERIFICATION_DEV=false` |
-| `GOOGLE_CLIENT_ID` | Google Sign-In | |
+| `GOOGLE_CLIENT_ID` | Google Sign-In (API) | `docs/GOOGLE_SIGNIN.md` |
 
 ### 5.2 Web / Admin (build-time)
 
@@ -185,7 +185,7 @@ postgres (volume) ← api
 |--------|-----|
 | `NEXT_PUBLIC_API_URL` | web + admin |
 | `NEXT_PUBLIC_SITE_URL` | web only |
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | web |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | web (build-time, той самий Client ID) | `docs/GOOGLE_SIGNIN.md` |
 
 ### 5.3 Caddy
 
@@ -380,6 +380,7 @@ bash scripts/deploy-vps.sh
 - Staging: [`STAGING.md`](STAGING.md)
 - WayForPay: [`PAYMENTS_WAYFORPAY.md`](PAYMENTS_WAYFORPAY.md)
 - SMTP: [`EMAIL_SMTP.md`](EMAIL_SMTP.md)
+- Google Sign-In: [`GOOGLE_SIGNIN.md`](GOOGLE_SIGNIN.md)
 - QA: [`QA_TEST_PLAN.md`](QA_TEST_PLAN.md)
 - Агент: [`AGENT_CONTEXT.md`](../AGENT_CONTEXT.md) §4, етап 14
 

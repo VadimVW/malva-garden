@@ -10,6 +10,7 @@
 - **SMTP на staging:** `docs/EMAIL_SMTP.md` — `SMTP_ENABLED=true`, `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`; на staging `EMAIL_VERIFICATION_DEV=false`.
 - `GOOGLE_CLIENT_ID` — OAuth client ID для перевірки Google ID token на API.
 - Web env: `NEXT_PUBLIC_GOOGLE_CLIENT_ID` — той самий OAuth client ID для Google Identity Services.
+- Налаштування Google Cloud + prod/staging: **`docs/GOOGLE_SIGNIN.md`**.
 
 ## Auth
 
