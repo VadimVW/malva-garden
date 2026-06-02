@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { PUBLIC_SITE_SETTING_KEYS } from "./public-site-settings";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateSiteSettingDto } from "./dto/site-setting.dto";
 
@@ -12,6 +13,7 @@ export class SettingsService {
 
   findAllPublic() {
     return this.prisma.siteSetting.findMany({
+      where: { key: { in: [...PUBLIC_SITE_SETTING_KEYS] } },
       orderBy: { key: "asc" },
       select: { key: true, value: true },
     });

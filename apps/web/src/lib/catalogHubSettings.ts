@@ -1,9 +1,14 @@
+import {
+  PUBLIC_SITE_SETTING_DEFAULTS,
+  type PublicSiteSettingKey,
+} from "@malva/site-settings";
 import { apiFetch } from "@/lib/api";
 import {
   fetchCategoryTree,
   hubSectionFromRoot,
   type CatalogHubSectionContent,
 } from "@/lib/catalogTree";
+import { getSiteSetting, siteSettingsToMap } from "@/lib/siteSettings";
 
 /** Ключі `SiteSetting` лише для заголовка hub `/catalog`. */
 export const CATALOG_HUB_SETTING_KEYS = {
@@ -20,8 +25,8 @@ export type CatalogHubContent = {
 export type { CatalogHubSectionContent };
 
 const DEFAULT_HUB: CatalogHubContent = {
-  title: "Оберіть розділ каталогу",
-  subtitle: "Оберіть категорію, щоб переглянути товари.",
+  title: PUBLIC_SITE_SETTING_DEFAULTS.catalog_hub_title,
+  subtitle: PUBLIC_SITE_SETTING_DEFAULTS.catalog_hub_subtitle,
   sections: [],
 };
 
@@ -29,11 +34,10 @@ type SiteSettingRow = { key: string; value: string };
 
 function settingValue(
   map: Map<string, string>,
-  key: string,
+  key: PublicSiteSettingKey,
   fallback: string,
 ): string {
-  const v = map.get(key)?.trim();
-  return v && v.length > 0 ? v : fallback;
+  return getSiteSetting(map, key, fallback);
 }
 
 export async function loadCatalogHubContent(): Promise<CatalogHubContent> {
@@ -42,16 +46,16 @@ export async function loadCatalogHubContent(): Promise<CatalogHubContent> {
       apiFetch<SiteSettingRow[]>("/site-settings"),
       fetchCategoryTree(),
     ]);
-    const map = new Map(settings.map((r) => [r.key, r.value]));
+    const map = siteSettingsToMap(settings);
     return {
       title: settingValue(
         map,
-        CATALOG_HUB_SETTING_KEYS.title,
+        CATALOG_HUB_SETTING_KEYS.title as PublicSiteSettingKey,
         DEFAULT_HUB.title,
       ),
       subtitle: settingValue(
         map,
-        CATALOG_HUB_SETTING_KEYS.subtitle,
+        CATALOG_HUB_SETTING_KEYS.subtitle as PublicSiteSettingKey,
         DEFAULT_HUB.subtitle,
       ),
       sections: roots.map(hubSectionFromRoot),

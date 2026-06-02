@@ -80,7 +80,7 @@
 
 | Метод | Шлях | Опис |
 |--------|------|------|
-| GET | `/site-settings` | Публічно: `[{ key, value }, …]` |
+| GET | `/site-settings` | Публічно: `[{ key, value }, …]` — лише **whitelist** ключів (див. `apps/api/src/settings/public-site-settings.ts`) |
 | GET | `/admin/settings` | Повний список з `id` |
 | GET | `/admin/settings/:key` | Один запис |
 | POST | `/admin/settings` | Створити `{ key, value }` (ключ має бути унікальним) |

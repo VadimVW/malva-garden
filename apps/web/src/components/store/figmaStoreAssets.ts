@@ -9,4 +9,5 @@ export const FIGMA_SOCIAL_SVG = {
   facebook: "/images/figma/home/facebook.svg",
   instagram: "/images/figma/home/instagram.svg",
   telegram: "/images/figma/home/telegram.svg",
+  viber: "/images/figma/home/viber.svg",
 } as const;

@@ -1,6 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import * as bcrypt from "bcrypt";
 import {
+  PUBLIC_SITE_SETTING_DEFAULTS,
+  PUBLIC_SITE_SETTING_KEYS,
+} from "../src/settings/public-site-settings";
+import {
   clearOrdersAndProducts,
   seedSadzhantsiProducts,
 } from "./seed-sadzhantsi";
@@ -99,19 +103,22 @@ async function main() {
     });
   }
 
-  const headerSettings: { key: string; value: string }[] = [
-    { key: "header_phone", value: "+380 67 258 98 28" },
-    { key: "header_whatsapp_url", value: "https://wa.me/380672589828" },
-    { key: "header_telegram_url", value: "https://t.me/malvagarden" },
-  ];
+  const publicSettings = PUBLIC_SITE_SETTING_KEYS.map((key) => ({
+    key,
+    value: PUBLIC_SITE_SETTING_DEFAULTS[key],
+  }));
 
-  for (const row of [...catalogHubSettings, ...headerSettings]) {
+  for (const row of [...catalogHubSettings, ...publicSettings]) {
     await prisma.siteSetting.upsert({
       where: { key: row.key },
       update: { value: row.value },
       create: row,
     });
   }
+
+  await prisma.siteSetting.deleteMany({
+    where: { key: "header_whatsapp_url" },
+  });
 }
 
 main()

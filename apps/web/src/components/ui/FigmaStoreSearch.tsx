@@ -9,6 +9,7 @@ import {
   useId,
   useRef,
   useState,
+  useSyncExternalStore,
   type FormEvent,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
@@ -46,6 +47,27 @@ const shellStyle = { paddingTop: 5, paddingBottom: 5 };
 const listClassName =
   "max-h-[min(360px,50vh)] overflow-y-auto rounded-xl border border-[#c5d8dc] bg-white py-1 shadow-[0px_10px_30px_rgba(0,0,0,0.14)] ring-1 ring-black/5";
 
+/** Tailwind `lg` — must match header chrome visibility (`lg:hidden` / `hidden lg:block`). */
+const LG_MAX_WIDTH_PX = 1023;
+
+function subscribeBelowLg(onStoreChange: () => void) {
+  const mq = window.matchMedia(`(max-width: ${LG_MAX_WIDTH_PX}px)`);
+  mq.addEventListener("change", onStoreChange);
+  return () => mq.removeEventListener("change", onStoreChange);
+}
+
+function getBelowLgSnapshot() {
+  return window.matchMedia(`(max-width: ${LG_MAX_WIDTH_PX}px)`).matches;
+}
+
+function useIsBelowLg() {
+  return useSyncExternalStore(
+    subscribeBelowLg,
+    getBelowLgSnapshot,
+    () => false,
+  );
+}
+
 function FigmaStoreSearchField({
   variant = "desktop",
 }: {
@@ -59,6 +81,10 @@ function FigmaStoreSearchField({
   const listRef = useRef<HTMLUListElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const isMobile = variant === "mobile";
+  const isBelowLg = useIsBelowLg();
+  /** Only the chrome that is visible at the current breakpoint may open suggestions. */
+  const chromeActive = isMobile ? isBelowLg : !isBelowLg;
+  const committedSearchQRef = useRef<string | null>(null);
   const [value, setValue] = useState("");
   const [expanded, setExpanded] = useState(isMobile);
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
@@ -68,7 +94,8 @@ function FigmaStoreSearchField({
   const [listDismissed, setListDismissed] = useState(false);
 
   const trimmed = value.trim();
-  const canSuggest = expanded && trimmed.length >= SEARCH_SUGGEST_MIN_LENGTH;
+  const canSuggest =
+    chromeActive && expanded && trimmed.length >= SEARCH_SUGGEST_MIN_LENGTH;
   const hasAllResultsLink = !loading && total > 0 && trimmed.length > 0;
   const optionCount = suggestions.length + (hasAllResultsLink ? 1 : 0);
   const dropdownOpen = canSuggest && !listDismissed;
@@ -88,9 +115,17 @@ function FigmaStoreSearchField({
       : undefined;
 
   useEffect(() => {
-    if (pathname === "/search") {
-      setValue(searchParams.get("q") ?? "");
-      setExpanded(true);
+    if (pathname !== "/search") {
+      committedSearchQRef.current = null;
+      return;
+    }
+    const urlQ = searchParams.get("q") ?? "";
+    setValue(urlQ);
+    setExpanded(true);
+    if (committedSearchQRef.current !== urlQ) {
+      committedSearchQRef.current = urlQ;
+      setListDismissed(true);
+      setActiveIndex(-1);
     }
   }, [pathname, searchParams]);
 
@@ -99,10 +134,6 @@ function FigmaStoreSearchField({
     const id = requestAnimationFrame(() => inputRef.current?.focus());
     return () => cancelAnimationFrame(id);
   }, [expanded, isMobile]);
-
-  useEffect(() => {
-    setListDismissed(false);
-  }, [trimmed]);
 
   useEffect(() => {
     if (!canSuggest) {
@@ -143,17 +174,27 @@ function FigmaStoreSearchField({
   }, [trimmed, canSuggest]);
 
   useEffect(() => {
-    if (isMobile || !expanded) return;
-    function onPointerDown(e: MouseEvent) {
+    if (isMobile) {
+      if (!dropdownOpen) return;
+    } else if (!expanded) {
+      return;
+    }
+
+    function onPointerDown(e: PointerEvent) {
       const target = e.target as Node;
       if (rootRef.current?.contains(target)) return;
       if (listRef.current?.contains(target)) return;
-      setExpanded(false);
-      setActiveIndex(-1);
+      if (isMobile) {
+        setListDismissed(true);
+        setActiveIndex(-1);
+      } else {
+        setExpanded(false);
+        setActiveIndex(-1);
+      }
     }
-    document.addEventListener("mousedown", onPointerDown);
-    return () => document.removeEventListener("mousedown", onPointerDown);
-  }, [expanded, isMobile]);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [expanded, isMobile, dropdownOpen]);
 
   const fieldShellClass = isMobile ? mobileShellClass : shellClass;
 
@@ -164,8 +205,9 @@ function FigmaStoreSearchField({
   function goToSearch(q?: string) {
     const query = (q ?? value).trim();
     if (!query) return;
-    if (!isMobile) setExpanded(false);
+    setListDismissed(true);
     setActiveIndex(-1);
+    if (!isMobile) setExpanded(false);
     router.push(`/search?q=${encodeURIComponent(query)}`);
   }
 
@@ -376,7 +418,10 @@ function FigmaStoreSearchField({
             type="search"
             name="q"
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e) => {
+              setValue(e.target.value);
+              setListDismissed(false);
+            }}
             onKeyDown={onInputKeyDown}
             onFocus={() => {
               setListDismissed(false);

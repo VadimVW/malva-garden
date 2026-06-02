@@ -19,9 +19,9 @@ export function FigmaProductCardCartButton({
   const dim = size === "mobile" ? 28 : 30;
   const w = size === "mobile" ? 28 : 31;
   const buttonClassName =
-    size === "mobile"
-      ? "relative z-20 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full p-0 transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-      : "relative z-20 inline-flex shrink-0 rounded-full p-0 transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50";
+  size === "mobile"
+    ? "relative z-20 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full p-0 transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+    : "relative z-20 inline-flex shrink-0 rounded-full p-0 transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50";
 
   return (
     <AddToCartButton

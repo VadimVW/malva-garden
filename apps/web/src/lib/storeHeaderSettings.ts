@@ -1,53 +1,88 @@
 import { cache } from "react";
 import {
+  PUBLIC_SITE_SETTING_DEFAULTS,
+  phoneToTelHref,
+  type PublicSiteSettingKey,
+} from "@malva/site-settings";
+import {
   fetchSiteSettings,
   getSiteSetting,
   siteSettingsToMap,
   type SiteSettingRow,
 } from "@/lib/siteSettings";
 
+export { phoneToTelHref };
+
 export const STORE_HEADER_SETTING_KEYS = {
   phone: "header_phone",
-  whatsappUrl: "header_whatsapp_url",
+  viberUrl: "header_viber_url",
   telegramUrl: "header_telegram_url",
+  youtubeUrl: "footer_youtube_url",
+  tiktokUrl: "footer_tiktok_url",
+  facebookUrl: "footer_facebook_url",
+  instagramUrl: "footer_instagram_url",
+  copyright: "footer_copyright",
 } as const;
-
-// TODO: admin UI for header_phone / messenger URLs — when phone changes, auto-sync
-// header_whatsapp_url (wa.me) and reuse StoreHeaderSettingsProvider in footer/desktop
-// (remove hardcoded contacts in FigmaStoreFooter desktop variant).
 
 export type StoreHeaderSettings = {
   phone: string;
-  whatsappUrl: string;
+  viberUrl: string;
   telegramUrl: string;
+  youtubeUrl: string;
+  tiktokUrl: string;
+  facebookUrl: string;
+  instagramUrl: string;
+  copyright: string;
 };
 
 export const STORE_HEADER_DEFAULTS: StoreHeaderSettings = {
-  phone: "+380 67 258 98 28",
-  whatsappUrl: "https://wa.me/380672589828",
-  telegramUrl: "https://t.me/malvagarden",
+  phone: PUBLIC_SITE_SETTING_DEFAULTS.header_phone,
+  viberUrl: PUBLIC_SITE_SETTING_DEFAULTS.header_viber_url,
+  telegramUrl: PUBLIC_SITE_SETTING_DEFAULTS.header_telegram_url,
+  youtubeUrl: PUBLIC_SITE_SETTING_DEFAULTS.footer_youtube_url,
+  tiktokUrl: PUBLIC_SITE_SETTING_DEFAULTS.footer_tiktok_url,
+  facebookUrl: PUBLIC_SITE_SETTING_DEFAULTS.footer_facebook_url,
+  instagramUrl: PUBLIC_SITE_SETTING_DEFAULTS.footer_instagram_url,
+  copyright: PUBLIC_SITE_SETTING_DEFAULTS.footer_copyright,
 };
+
+function pick(
+  map: Map<string, string>,
+  key: PublicSiteSettingKey,
+  fallback: string,
+): string {
+  return getSiteSetting(map, key, fallback);
+}
 
 export function buildStoreHeaderSettings(
   rows: SiteSettingRow[],
 ): StoreHeaderSettings {
   const map = siteSettingsToMap(rows);
   return {
-    phone: getSiteSetting(
+    phone: pick(map, "header_phone", STORE_HEADER_DEFAULTS.phone),
+    viberUrl: pick(map, "header_viber_url", STORE_HEADER_DEFAULTS.viberUrl),
+    telegramUrl: pick(
       map,
-      STORE_HEADER_SETTING_KEYS.phone,
-      STORE_HEADER_DEFAULTS.phone,
-    ),
-    whatsappUrl: getSiteSetting(
-      map,
-      STORE_HEADER_SETTING_KEYS.whatsappUrl,
-      STORE_HEADER_DEFAULTS.whatsappUrl,
-    ),
-    telegramUrl: getSiteSetting(
-      map,
-      STORE_HEADER_SETTING_KEYS.telegramUrl,
+      "header_telegram_url",
       STORE_HEADER_DEFAULTS.telegramUrl,
     ),
+    youtubeUrl: pick(
+      map,
+      "footer_youtube_url",
+      STORE_HEADER_DEFAULTS.youtubeUrl,
+    ),
+    tiktokUrl: pick(map, "footer_tiktok_url", STORE_HEADER_DEFAULTS.tiktokUrl),
+    facebookUrl: pick(
+      map,
+      "footer_facebook_url",
+      STORE_HEADER_DEFAULTS.facebookUrl,
+    ),
+    instagramUrl: pick(
+      map,
+      "footer_instagram_url",
+      STORE_HEADER_DEFAULTS.instagramUrl,
+    ),
+    copyright: pick(map, "footer_copyright", STORE_HEADER_DEFAULTS.copyright),
   };
 }
 
@@ -62,8 +97,3 @@ async function loadStoreHeaderSettingsUncached(): Promise<StoreHeaderSettings> {
 
 /** Дедуплікація в межах одного SSR-запиту; дані з ISR fetch у `fetchSiteSettings`. */
 export const loadStoreHeaderSettings = cache(loadStoreHeaderSettingsUncached);
-
-export function phoneToTelHref(phone: string): string {
-  const digits = phone.replace(/\D/g, "");
-  return digits ? `tel:+${digits.replace(/^\+?/, "")}` : "";
-}

@@ -186,6 +186,7 @@ postgres (volume) ← api
 | `NEXT_PUBLIC_API_URL` | web + admin |
 | `NEXT_PUBLIC_SITE_URL` | web only |
 | `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | web (build-time, той самий Client ID) | `docs/GOOGLE_SIGNIN.md` |
+| `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | web (build-time, GSC HTML tag) | `docs/SEO_GOOGLE.md` |
 
 ### 5.3 Caddy
 

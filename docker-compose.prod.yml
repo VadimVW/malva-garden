@@ -75,6 +75,7 @@ services:
         # Web build: NEXT_PUBLIC_* is inlined at build time (not in container env at runtime).
         # If only GOOGLE_CLIENT_ID is set in .env, it is used for the storefront button too.
         NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-${GOOGLE_CLIENT_ID}}
+        NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION: ${NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION:-}
     restart: unless-stopped
     depends_on:
       - api
