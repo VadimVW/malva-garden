@@ -84,7 +84,7 @@ function FigmaStoreSearchField({
   const isBelowLg = useIsBelowLg();
   /** Only the chrome that is visible at the current breakpoint may open suggestions. */
   const chromeActive = isMobile ? isBelowLg : !isBelowLg;
-  const isSearchResultsPage = pathname === "/search";
+  const committedSearchQRef = useRef<string | null>(null);
   const [value, setValue] = useState("");
   const [expanded, setExpanded] = useState(isMobile);
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
@@ -95,10 +95,7 @@ function FigmaStoreSearchField({
 
   const trimmed = value.trim();
   const canSuggest =
-    chromeActive &&
-    !isSearchResultsPage &&
-    expanded &&
-    trimmed.length >= SEARCH_SUGGEST_MIN_LENGTH;
+    chromeActive && expanded && trimmed.length >= SEARCH_SUGGEST_MIN_LENGTH;
   const hasAllResultsLink = !loading && total > 0 && trimmed.length > 0;
   const optionCount = suggestions.length + (hasAllResultsLink ? 1 : 0);
   const dropdownOpen = canSuggest && !listDismissed;
@@ -118,9 +115,15 @@ function FigmaStoreSearchField({
       : undefined;
 
   useEffect(() => {
-    if (pathname === "/search") {
-      setValue(searchParams.get("q") ?? "");
-      setExpanded(true);
+    if (pathname !== "/search") {
+      committedSearchQRef.current = null;
+      return;
+    }
+    const urlQ = searchParams.get("q") ?? "";
+    setValue(urlQ);
+    setExpanded(true);
+    if (committedSearchQRef.current !== urlQ) {
+      committedSearchQRef.current = urlQ;
       setListDismissed(true);
       setActiveIndex(-1);
     }
@@ -131,10 +134,6 @@ function FigmaStoreSearchField({
     const id = requestAnimationFrame(() => inputRef.current?.focus());
     return () => cancelAnimationFrame(id);
   }, [expanded, isMobile]);
-
-  useEffect(() => {
-    setListDismissed(false);
-  }, [trimmed]);
 
   useEffect(() => {
     if (!canSuggest) {
@@ -409,7 +408,10 @@ function FigmaStoreSearchField({
             type="search"
             name="q"
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e) => {
+              setValue(e.target.value);
+              setListDismissed(false);
+            }}
             onKeyDown={onInputKeyDown}
             onFocus={() => {
               setListDismissed(false);
