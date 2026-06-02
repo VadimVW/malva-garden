@@ -1,0 +1,64 @@
+# Malva Garden — reverse proxy
+# Домени: malva-garden.com (вітрина + /api/v1), admin.malva-garden.com (адмінка)
+# IP :80 / :3001 — fallback до повного переходу на HTTPS-домени
+
+{
+	email {$ACME_EMAIL}
+}
+
+# --- Production domains (HTTPS via Let's Encrypt) ---
+
+www.malva-garden.com {
+	redir https://malva-garden.com{uri} permanent
+}
+
+malva-garden.com {
+	@api_v1 path /api/v1/*
+	@uploads path /uploads/*
+	handle @api_v1 {
+		reverse_proxy api:4000
+	}
+	handle @uploads {
+		reverse_proxy api:4000
+	}
+	@web_api path /api/*
+	handle @web_api {
+		reverse_proxy web:3000
+	}
+	handle {
+		reverse_proxy web:3000
+	}
+}
+
+admin.malva-garden.com {
+	reverse_proxy admin:3000
+}
+
+# --- Fallback по IP (HTTP, без TLS) ---
+
+:80 {
+	@admin host admin.malva-garden.com
+	handle @admin {
+		reverse_proxy admin:3000
+	}
+
+	@api_v1 path /api/v1/*
+	@uploads path /uploads/*
+	handle @api_v1 {
+		reverse_proxy api:4000
+	}
+	handle @uploads {
+		reverse_proxy api:4000
+	}
+	@web_api path /api/*
+	handle @web_api {
+		reverse_proxy web:3000
+	}
+	handle {
+		reverse_proxy web:3000
+	}
+}
+
+:3001 {
+	reverse_proxy admin:3000
+}

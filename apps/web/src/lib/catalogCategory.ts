@@ -1,6 +1,6 @@
 ﻿import type { CatalogBreadcrumbItem } from "@/components/store/MalvaGardenCatalogDesktop";
 import { apiFetch } from "@/lib/api";
-import { catalogCategoryHref } from "@/lib/figmaCatalogLinks";
+import { catalogListingBreadcrumbs } from "@/lib/figmaCatalogLinks";
 
 export type PublicCategory = {
   id: string;
@@ -31,13 +31,7 @@ export async function fetchCategoryBySlug(
 export function breadcrumbsFromCategoryApi(
   breadcrumbs: CategoryBySlugResponse["breadcrumbs"],
 ): CatalogBreadcrumbItem[] {
-  return breadcrumbs.map((b, i) => ({
-    label: b.name,
-    href:
-      i < breadcrumbs.length - 1
-        ? catalogCategoryHref(b.slug, breadcrumbs.slice(0, i + 1))
-        : undefined,
-  }));
+  return catalogListingBreadcrumbs(breadcrumbs);
 }
 
 const DEFAULT_SECTION_DESCRIPTION =

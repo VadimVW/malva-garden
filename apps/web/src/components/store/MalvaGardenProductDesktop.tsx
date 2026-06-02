@@ -12,11 +12,7 @@ import type { ReactNode } from "react";
 import { Montserrat_Alternates } from "next/font/google";
 import { FigmaStoreFooter } from "@/components/store/FigmaStoreFooter";
 import { FigmaStoreHeader } from "@/components/store/FigmaStoreHeader";
-import {
-  catalogCategoryHref,
-  catalogHubCrumbFromBreadcrumbs,
-  categorySlugMatchesHub,
-} from "@/lib/figmaCatalogLinks";
+import { productCategoryBreadcrumbLinks } from "@/lib/figmaCatalogLinks";
 import { ProductFigmaBuyBlock } from "@/components/store/product/ProductFigmaBuyBlock";
 import type { GalleryImage } from "@/components/store/product/ProductFigmaGallery";
 import { ProductFigmaGallery } from "@/components/store/product/ProductFigmaGallery";
@@ -107,11 +103,9 @@ export default function MalvaGardenProductDesktop({
   const p = product;
   const priceLabel = p.price.includes("грн") ? p.price : `${p.price} грн`;
   const inStock = p.stockQuantity > 0;
-  const hub = categoryBreadcrumbs?.length
-    ? catalogHubCrumbFromBreadcrumbs(categoryBreadcrumbs)
-    : { label: "Каталог", href: "/catalog" };
-  const showCategoryCrumb =
-    Boolean(p.category) && !categorySlugMatchesHub(categoryBreadcrumbs);
+  const categoryCrumbLinks = categoryBreadcrumbs?.length
+    ? productCategoryBreadcrumbLinks(categoryBreadcrumbs)
+    : [{ label: "Каталог", href: "/catalog" }];
 
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-visible bg-[#F5F5F5]">
@@ -137,24 +131,14 @@ export default function MalvaGardenProductDesktop({
                   className="shrink-0"
                 />
               </Link>
-              <span className="text-[#9C9A9A]">/</span>
-              <Link href={hub.href} className="hover:underline">
-                {hub.label}
-              </Link>
-              {showCategoryCrumb && p.category ? (
-                <>
+              {categoryCrumbLinks.map((crumb) => (
+                <span key={crumb.href} className="inline-flex items-center gap-x-2">
                   <span className="text-[#9C9A9A]">/</span>
-                  <Link
-                    href={catalogCategoryHref(
-                      p.category.slug,
-                      categoryBreadcrumbs,
-                    )}
-                    className="hover:underline"
-                  >
-                    {p.category.name}
+                  <Link href={crumb.href} className="hover:underline">
+                    {crumb.label}
                   </Link>
-                </>
-              ) : null}
+                </span>
+              ))}
               <span className="text-[#9C9A9A]">/</span>
               <span className="font-semibold text-black">{p.name}</span>
             </nav>

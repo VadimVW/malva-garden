@@ -1,4 +1,8 @@
 export function getApiBaseUrl() {
+  // SSR у Docker: прямий виклик api:4000 (не через публічний URL / HTTPS)
+  if (typeof window === "undefined" && process.env.INTERNAL_API_URL?.trim()) {
+    return process.env.INTERNAL_API_URL.trim().replace(/\/$/, "");
+  }
   const base =
     process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
   return base.replace(/\/$/, "");
