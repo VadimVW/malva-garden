@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { isPublicSiteSettingKey } from "@malva/site-settings";
 import { adminFetch, ApiError } from "@/lib/api";
 import type { SiteSetting } from "@/lib/types";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { PublicSiteSettingsForm } from "@/components/PublicSiteSettingsForm";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -17,11 +19,14 @@ export default function SettingsPage() {
   const [newKey, setNewKey] = useState("");
   const [newValue, setNewValue] = useState("");
   const [deleteKey, setDeleteKey] = useState<string | null>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const { data = [], isLoading, error } = useQuery({
     queryKey: ["settings"],
     queryFn: () => adminFetch<SiteSetting[]>("/admin/settings"),
   });
+
+  const otherSettings = data.filter((row) => !isPublicSiteSettingKey(row.key));
 
   const createSetting = useMutation({
     mutationFn: () =>
@@ -71,77 +76,71 @@ export default function SettingsPage() {
     <>
       <PageHeader
         title="Налаштування сайту"
-        description="Пари key/value для публічного GET /site-settings"
+        description="Контакти, hub каталогу, footer — форма нижче. Публічний API повертає лише whitelist ключів."
       />
 
-      <Card className="mb-6 space-y-3 p-6">
-        <h2 className="text-sm font-semibold text-gray-900">Hub каталогу `/catalog`</h2>
-        <p className="text-xs text-gray-500">
-          Зміни застосовуються на вітрині без redeploy. Для зображень — повний https://
-          або шлях на вітрині (напр. <code className="font-mono">/images/figma/catalog/hero-kvity.png</code>
-          ).
-        </p>
-        <ul className="list-inside list-disc space-y-1 font-mono text-xs text-gray-700">
-          <li>catalog_hub_title, catalog_hub_subtitle</li>
-        </ul>
-        <p className="text-xs text-gray-500">
-          Плитки розділів (картинка, підзаголовок) — у формі категорії в розділі
-          «Категорії» (поля hub).
-        </p>
-      </Card>
+      <PublicSiteSettingsForm />
 
-      <Card className="mb-6 space-y-3 p-6">
-        <h2 className="text-sm font-semibold text-gray-900">Шапка сайту</h2>
-        <ul className="list-inside list-disc space-y-1 font-mono text-xs text-gray-700">
-          <li>header_phone — телефон (відображення в шапці)</li>
-          <li>header_whatsapp_url — посилання WhatsApp</li>
-          <li>header_telegram_url — посилання Telegram</li>
-        </ul>
-      </Card>
-
-      <Card className="mb-6 space-y-4 p-6">
-        <h2 className="text-sm font-semibold">Новий ключ</h2>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Input
-            label="Ключ"
-            value={newKey}
-            onChange={(e) => setNewKey(e.target.value)}
-            placeholder="hero_title"
-          />
-          <Input
-            label="Значення"
-            value={newValue}
-            onChange={(e) => setNewValue(e.target.value)}
-          />
-        </div>
-        <Button
+      <Card className="mb-6 p-6">
+        <button
           type="button"
-          disabled={!newKey || createSetting.isPending}
-          onClick={() => createSetting.mutate()}
+          className="text-sm font-semibold text-gray-900 hover:underline"
+          onClick={() => setShowAdvanced((v) => !v)}
         >
-          Створити
-        </Button>
-      </Card>
-
-      <Card className="overflow-hidden">
-        {isLoading && (
-          <p className="p-6 text-sm text-admin-muted">Завантаження…</p>
-        )}
-        {error && (
-          <p className="p-6 text-sm text-red-600">{(error as Error).message}</p>
-        )}
-        {data.length === 0 && !isLoading && (
-          <p className="p-6 text-sm text-admin-muted">Налаштувань ще немає.</p>
-        )}
-        {data.map((row) => (
-          <SettingRow
-            key={row.id}
-            row={row}
-            onSave={(value) => upsert.mutate({ key: row.key, value })}
-            onDelete={() => setDeleteKey(row.key)}
-            saving={upsert.isPending}
-          />
-        ))}
+          {showAdvanced ? "Сховати" : "Показати"} службові ключі (не на вітрині)
+        </button>
+        {showAdvanced ? (
+          <div className="mt-4 space-y-4">
+            <p className="text-xs text-gray-500">
+              Ключі поза whitelist не потрапляють у GET /site-settings. Для
+              вітрини використовуйте форму вище.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Input
+                label="Новий ключ"
+                value={newKey}
+                onChange={(e) => setNewKey(e.target.value)}
+                placeholder="internal_flag"
+              />
+              <Input
+                label="Значення"
+                value={newValue}
+                onChange={(e) => setNewValue(e.target.value)}
+              />
+            </div>
+            <Button
+              type="button"
+              disabled={!newKey || createSetting.isPending}
+              onClick={() => createSetting.mutate()}
+            >
+              Створити службовий ключ
+            </Button>
+            <Card className="overflow-hidden">
+              {isLoading && (
+                <p className="p-6 text-sm text-admin-muted">Завантаження…</p>
+              )}
+              {error && (
+                <p className="p-6 text-sm text-red-600">
+                  {(error as Error).message}
+                </p>
+              )}
+              {otherSettings.length === 0 && !isLoading && (
+                <p className="p-6 text-sm text-admin-muted">
+                  Службових ключів немає.
+                </p>
+              )}
+              {otherSettings.map((row) => (
+                <SettingRow
+                  key={row.id}
+                  row={row}
+                  onSave={(value) => upsert.mutate({ key: row.key, value })}
+                  onDelete={() => setDeleteKey(row.key)}
+                  saving={upsert.isPending}
+                />
+              ))}
+            </Card>
+          </div>
+        ) : null}
       </Card>
 
       <Modal
