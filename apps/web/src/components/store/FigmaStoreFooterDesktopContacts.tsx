@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { FigmaStoreFooterCustomerLinks } from "@/components/store/FigmaStoreFooterCustomerLinks";
 import {
   FIGMA_SOCIAL_SVG,
   FIGMA_STORE_IMG,
@@ -146,24 +146,7 @@ export function FigmaStoreFooterDesktopContacts() {
             </FooterSocialLink>
           </div>
         </div>
-        <div className="flex min-w-[200px] flex-col gap-[10px] text-[14px]">
-          <p className="font-bold">Клієнтам:</p>
-          <Link className="hover:underline" href="/pages/dostavka-ta-oplata">
-            Доставка та оплата
-          </Link>
-          <Link className="hover:underline" href="/pages/povernennya">
-            Повернення товару
-          </Link>
-          <Link className="hover:underline" href="/pages/publichna-oferta">
-            Публічна оферта
-          </Link>
-          <Link className="hover:underline" href="/pages/konfidenciynist">
-            Політика конфіденційності
-          </Link>
-          <Link className="hover:underline" href="/pages/kontakty">
-            Контакти
-          </Link>
-        </div>
+        <FigmaStoreFooterCustomerLinks className="flex min-w-[200px] flex-col gap-[10px] text-[14px]" />
       </div>
       {copyright.trim() ? (
         <p className="mt-6 text-center text-[12px] text-[#F7F4EF]/90">

@@ -1,6 +1,6 @@
 ﻿import Image from "next/image";
-import Link from "next/link";
 import { Inter } from "next/font/google";
+import { FigmaStoreFooterCustomerLinks } from "@/components/store/FigmaStoreFooterCustomerLinks";
 import { FigmaStoreFooterDesktopContacts } from "@/components/store/FigmaStoreFooterDesktopContacts";
 import { FigmaStoreFooterMobileContacts } from "@/components/store/FigmaStoreFooterMobileContacts";
 import { FIGMA_STORE_IMG } from "@/components/store/figmaStoreAssets";
@@ -26,21 +26,10 @@ function FigmaStoreFooterMobile() {
           />
         </div>
         <FigmaStoreFooterMobileContacts />
-        <div className="flex flex-col gap-[5px] text-[14px]">
-          <p className="text-[20px] font-bold">Клієнтам:</p>
-          <Link className="hover:underline" href="/pages/dostavka-ta-oplata">
-            Доставка та оплата
-          </Link>
-          <Link className="hover:underline" href="/pages/povernennya">
-            Повернення товару
-          </Link>
-          <Link className="hover:underline" href="/pages/publichna-oferta">
-            Публічна оферта
-          </Link>
-          <Link className="hover:underline" href="/pages/konfidenciynist">
-            Політика конфіденційності
-          </Link>
-        </div>
+        <FigmaStoreFooterCustomerLinks
+          className="flex flex-col gap-[5px] text-[14px]"
+          titleClassName="text-[20px] font-bold"
+        />
       </div>
     </footer>
   );

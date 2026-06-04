@@ -4,8 +4,10 @@ import { MgCartToast } from "@/components/ui/MgCartToast";
 import { CustomerAuthProvider } from "@/providers/CustomerAuthProvider";
 import { CatalogNavProvider } from "@/providers/CatalogNavProvider";
 import { StoreHeaderSettingsProvider } from "@/providers/StoreHeaderSettingsProvider";
+import { loadFooterContentPages } from "@/lib/footerContentPages";
 import { loadStoreNavSections } from "@/lib/loadStoreNav";
 import { loadStoreHeaderSettings } from "@/lib/storeHeaderSettings";
+import { FooterContentPagesProvider } from "@/providers/FooterContentPagesProvider";
 import {
   absoluteUrl,
   DEFAULT_DESCRIPTION,
@@ -62,10 +64,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [headerSettings, catalogNavSections] = await Promise.all([
-    loadStoreHeaderSettings(),
-    loadStoreNavSections(),
-  ]);
+  const [headerSettings, catalogNavSections, footerContentPages] =
+    await Promise.all([
+      loadStoreHeaderSettings(),
+      loadStoreNavSections(),
+      loadFooterContentPages(),
+    ]);
 
   return (
     <html lang="uk">
@@ -73,11 +77,13 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}
       >
         <StoreHeaderSettingsProvider value={headerSettings}>
-          <CatalogNavProvider sections={catalogNavSections}>
-            <CustomerAuthProvider>
-              <MobileStoreLayout>{children}</MobileStoreLayout>
-            </CustomerAuthProvider>
-          </CatalogNavProvider>
+          <FooterContentPagesProvider value={footerContentPages}>
+            <CatalogNavProvider sections={catalogNavSections}>
+              <CustomerAuthProvider>
+                <MobileStoreLayout>{children}</MobileStoreLayout>
+              </CustomerAuthProvider>
+            </CatalogNavProvider>
+          </FooterContentPagesProvider>
         </StoreHeaderSettingsProvider>
         <MgCartToast />
       </body>
