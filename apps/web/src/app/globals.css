@@ -350,8 +350,8 @@ body {
   /* Figma store header: компактніша шапка після скролу */
   .mg-figma-header .mg-header-top {
     min-height: 88px;
-    padding-top: 12px;
-    padding-bottom: 8px;
+    padding-top: 6px;
+    padding-bottom: 2px;
     transition:
       min-height var(--mg-motion-base) var(--mg-ease-out),
       padding var(--mg-motion-base) var(--mg-ease-out);
@@ -365,7 +365,7 @@ body {
 
   .mg-figma-header .mg-header-logo {
     width: auto;
-    height: 72px;
+    height: 85px;
     transition: height var(--mg-motion-base) var(--mg-ease-out);
   }
 

@@ -106,7 +106,7 @@ export function FigmaStoreHeader({ activeRootSlug }: Props) {
                 alt="Malva Garden"
                 width={LOGO_MARK_INTRINSIC.width}
                 height={LOGO_MARK_INTRINSIC.height}
-                sizes="(max-width: 1023px) 90px, 101px"
+                sizes="(max-width: 1023px) 90px, 119px"
                 quality={90}
                 priority
                 className="mg-header-logo object-contain brightness-0 invert"
