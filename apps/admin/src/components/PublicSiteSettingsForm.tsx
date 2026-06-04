@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  parseOrderMinimumAmount,
   PUBLIC_SITE_SETTING_DEFAULTS,
   PUBLIC_SITE_SETTING_FIELDS,
   phoneToViberUrl,
@@ -22,6 +23,7 @@ const SECTION_LABELS: Record<
   catalog_hub: "Hub каталогу `/catalog`",
   header: "Шапка та контакти",
   footer: "Footer (соцмережі та copyright)",
+  checkout: "Замовлення та checkout",
 };
 
 function isValidUrl(value: string, key: PublicSiteSettingKey): boolean {
@@ -79,6 +81,14 @@ export function PublicSiteSettingsForm() {
       for (const field of PUBLIC_SITE_SETTING_FIELDS) {
         if (field.type === "url" && !isValidUrl(payload[field.key], field.key)) {
           throw new Error(`Некоректне посилання: ${field.label}`);
+        }
+        if (field.type === "number") {
+          const raw = payload[field.key].trim();
+          if (!raw) throw new Error(`Вкажіть значення: ${field.label}`);
+          if (!/^\d+$/.test(raw.replace(/\s/g, ""))) {
+            throw new Error(`${field.label}: лише ціле невід’ємне число (грн)`);
+          }
+          parseOrderMinimumAmount(raw);
         }
       }
       await Promise.all(
@@ -149,7 +159,15 @@ export function PublicSiteSettingsForm() {
                     value={values[field.key]}
                     onChange={(e) => setField(field.key, e.target.value)}
                     placeholder={PUBLIC_SITE_SETTING_DEFAULTS[field.key]}
-                    type={field.type === "url" ? "url" : "text"}
+                    type={
+                      field.type === "url"
+                        ? "url"
+                        : field.type === "number"
+                          ? "number"
+                          : "text"
+                    }
+                    min={field.type === "number" ? 0 : undefined}
+                    step={field.type === "number" ? 1 : undefined}
                   />
                   {field.hint ? (
                     <p className="mt-1 text-xs text-gray-500">{field.hint}</p>

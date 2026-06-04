@@ -3,7 +3,10 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { PUBLIC_SITE_SETTING_KEYS } from "./public-site-settings";
+import {
+  parseOrderMinimumAmount,
+  PUBLIC_SITE_SETTING_KEYS,
+} from "./public-site-settings";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateSiteSettingDto } from "./dto/site-setting.dto";
 
@@ -17,6 +20,14 @@ export class SettingsService {
       orderBy: { key: "asc" },
       select: { key: true, value: true },
     });
+  }
+
+  async getOrderMinimumAmountUah(): Promise<number> {
+    const row = await this.prisma.siteSetting.findUnique({
+      where: { key: "order_minimum_amount" },
+      select: { value: true },
+    });
+    return parseOrderMinimumAmount(row?.value);
   }
 
   findAllAdmin() {
