@@ -23,10 +23,18 @@ malva-garden.com {
 	}
 	@web_api path /api/*
 	handle @web_api {
-		reverse_proxy web:3000
+		reverse_proxy web:3000 {
+			header_up Host {host}
+			header_up X-Forwarded-Host {host}
+			header_up X-Forwarded-Proto {scheme}
+		}
 	}
 	handle {
-		reverse_proxy web:3000
+		reverse_proxy web:3000 {
+			header_up Host {host}
+			header_up X-Forwarded-Host {host}
+			header_up X-Forwarded-Proto {scheme}
+		}
 	}
 }
 
@@ -52,10 +60,18 @@ admin.malva-garden.com {
 	}
 	@web_api path /api/*
 	handle @web_api {
-		reverse_proxy web:3000
+		reverse_proxy web:3000 {
+			header_up Host {host}
+			header_up X-Forwarded-Host {host}
+			header_up X-Forwarded-Proto {scheme}
+		}
 	}
 	handle {
-		reverse_proxy web:3000
+		reverse_proxy web:3000 {
+			header_up Host {host}
+			header_up X-Forwarded-Host {host}
+			header_up X-Forwarded-Proto {scheme}
+		}
 	}
 }
 
