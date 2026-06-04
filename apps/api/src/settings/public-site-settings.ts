@@ -13,6 +13,7 @@ export const PUBLIC_SITE_SETTING_KEYS = [
   "footer_facebook_url",
   "footer_instagram_url",
   "footer_copyright",
+  "order_minimum_amount",
 ] as const;
 
 export type PublicSiteSettingKey = (typeof PUBLIC_SITE_SETTING_KEYS)[number];
@@ -31,16 +32,17 @@ export const PUBLIC_SITE_SETTING_DEFAULTS: Record<
   footer_facebook_url: "https://www.facebook.com/",
   footer_instagram_url: "https://www.instagram.com/",
   footer_copyright: "",
+  order_minimum_amount: "200",
 };
 
-export type PublicSiteSettingFieldType = "text" | "url" | "phone";
+export type PublicSiteSettingFieldType = "text" | "url" | "phone" | "number";
 
 export type PublicSiteSettingFieldMeta = {
   key: PublicSiteSettingKey;
   label: string;
   hint?: string;
   type: PublicSiteSettingFieldType;
-  section: "catalog_hub" | "header" | "footer";
+  section: "catalog_hub" | "header" | "footer" | "checkout";
 };
 
 export const PUBLIC_SITE_SETTING_FIELDS: PublicSiteSettingFieldMeta[] = [
@@ -105,7 +107,25 @@ export const PUBLIC_SITE_SETTING_FIELDS: PublicSiteSettingFieldMeta[] = [
     type: "text",
     section: "footer",
   },
+  {
+    key: "order_minimum_amount",
+    label: "Мінімальна сума замовлення (грн)",
+    hint: "Перевірка на кошику, checkout і при створенні замовлення",
+    type: "number",
+    section: "checkout",
+  },
 ];
+
+/** Парсить мін. суму з SiteSetting; некоректне значення → дефолт 200. */
+export function parseOrderMinimumAmount(value: string | undefined | null): number {
+  const fallback = Number(PUBLIC_SITE_SETTING_DEFAULTS.order_minimum_amount) || 200;
+  if (value == null || !String(value).trim()) return fallback;
+  const n = Math.floor(
+    Number(String(value).trim().replace(/\s/g, "").replace(",", ".")),
+  );
+  if (!Number.isFinite(n) || n < 0) return fallback;
+  return n;
+}
 
 export function isPublicSiteSettingKey(
   key: string,

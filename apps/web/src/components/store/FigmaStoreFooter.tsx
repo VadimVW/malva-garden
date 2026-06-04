@@ -1,9 +1,12 @@
 ﻿import Image from "next/image";
-import Link from "next/link";
 import { Inter } from "next/font/google";
+import { FigmaStoreFooterCustomerLinks } from "@/components/store/FigmaStoreFooterCustomerLinks";
 import { FigmaStoreFooterDesktopContacts } from "@/components/store/FigmaStoreFooterDesktopContacts";
 import { FigmaStoreFooterMobileContacts } from "@/components/store/FigmaStoreFooterMobileContacts";
-import { FIGMA_STORE_IMG } from "@/components/store/figmaStoreAssets";
+import {
+  FIGMA_STORE_IMG,
+  LOGO_MARK_INTRINSIC,
+} from "@/components/store/figmaStoreAssets";
 
 const inter = Inter({
   subsets: ["latin", "cyrillic", "cyrillic-ext"],
@@ -20,27 +23,18 @@ function FigmaStoreFooterMobile() {
           <Image
             src={FIGMA_STORE_IMG.logoMark}
             alt="Malva Garden"
-            width={151}
-            height={107}
+            width={LOGO_MARK_INTRINSIC.width}
+            height={LOGO_MARK_INTRINSIC.height}
+            sizes="151px"
+            quality={90}
             className="h-[107px] w-[151px] object-contain brightness-0 invert"
           />
         </div>
         <FigmaStoreFooterMobileContacts />
-        <div className="flex flex-col gap-[5px] text-[14px]">
-          <p className="text-[20px] font-bold">Клієнтам:</p>
-          <Link className="hover:underline" href="/pages/dostavka-ta-oplata">
-            Доставка та оплата
-          </Link>
-          <Link className="hover:underline" href="/pages/povernennya">
-            Повернення товару
-          </Link>
-          <Link className="hover:underline" href="/pages/publichna-oferta">
-            Публічна оферта
-          </Link>
-          <Link className="hover:underline" href="/pages/konfidenciynist">
-            Політика конфіденційності
-          </Link>
-        </div>
+        <FigmaStoreFooterCustomerLinks
+          className="flex flex-col gap-[5px] text-[14px]"
+          titleClassName="text-[20px] font-bold"
+        />
       </div>
     </footer>
   );

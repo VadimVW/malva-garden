@@ -9,8 +9,8 @@ export class PagesService {
 
   findAllPublicIndex() {
     return this.prisma.contentPage.findMany({
-      select: { slug: true, updatedAt: true },
-      orderBy: { slug: "asc" },
+      select: { slug: true, title: true, updatedAt: true },
+      orderBy: { title: "asc" },
     });
   }
 

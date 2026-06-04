@@ -36,6 +36,11 @@ import {
   MG_CART_UPDATED,
   type CartUpdatedDetail,
 } from "@/lib/cart-ui-events";
+import {
+  formatOrderMinimumShortfallMessage,
+  isBelowOrderMinimum,
+} from "@/lib/orderMinimum";
+import { useStoreHeaderSettings } from "@/providers/StoreHeaderSettingsProvider";
 
 function formatPrice(value: string) {
   return value.includes("грн") ? value : `${value} грн`;
@@ -45,8 +50,15 @@ function labelClass() {
   return "block text-[13px] font-semibold text-black";
 }
 
-function OrderSummary({ cart }: { cart: CartResponse }) {
+function OrderSummary({
+  cart,
+  orderMinimumAmount,
+}: {
+  cart: CartResponse;
+  orderMinimumAmount: number;
+}) {
   const count = cart.items.reduce((n, i) => n + i.quantity, 0);
+  const belowMinimum = isBelowOrderMinimum(cart.subtotal, orderMinimumAmount);
   return (
     <aside className="animate-mg-fade-in rounded-2xl bg-white p-6 shadow-[0px_6px_20px_rgba(0,0,0,0.08)] lg:sticky lg:top-[140px]">
       <h2 className="text-[18px] font-bold text-black">Ваше замовлення</h2>
@@ -76,6 +88,14 @@ function OrderSummary({ cart }: { cart: CartResponse }) {
           <dd className="text-[20px] font-bold text-black">{formatPrice(cart.subtotal)}</dd>
         </div>
       </dl>
+      {belowMinimum ? (
+        <p
+          className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-[13px] leading-snug text-amber-950"
+          role="status"
+        >
+          {formatOrderMinimumShortfallMessage(orderMinimumAmount, cart.subtotal)}
+        </p>
+      ) : null}
       <p className="mt-4 text-[12px] leading-snug text-[#5a5a5a]">
         Натискаючи «Підтвердити», ви погоджуєтесь з{" "}
         <Link href="/pages/publichna-oferta" className="text-[#5C97A8] underline">
@@ -87,8 +107,21 @@ function OrderSummary({ cart }: { cart: CartResponse }) {
   );
 }
 
+async function readOrderError(res: Response): Promise<string> {
+  const text = await res.text();
+  try {
+    const json = JSON.parse(text) as { message?: string | string[] };
+    if (Array.isArray(json.message)) return json.message.join(", ");
+    if (typeof json.message === "string") return json.message;
+  } catch {
+    /* plain text */
+  }
+  return text || res.statusText;
+}
+
 export function MalvaGardenCheckoutDesktop() {
   const router = useRouter();
+  const { orderMinimumAmount } = useStoreHeaderSettings();
   const { customer, isLoading: authLoading } = useCustomerAuth();
   const [mounted, setMounted] = useState(false);
   const [cartLoading, setCartLoading] = useState(true);
@@ -222,6 +255,13 @@ export function MalvaGardenCheckoutDesktop() {
       return;
     }
 
+    if (cart && isBelowOrderMinimum(cart.subtotal, orderMinimumAmount)) {
+      setError(
+        formatOrderMinimumShortfallMessage(orderMinimumAmount, cart.subtotal),
+      );
+      return;
+    }
+
     const form = new FormData(e.currentTarget);
     const body = {
       customerName: String(form.get("customerName") ?? ""),
@@ -255,7 +295,7 @@ export function MalvaGardenCheckoutDesktop() {
         headers,
         body: JSON.stringify(body),
       });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) throw new Error(await readOrderError(res));
       const data = (await res.json()) as {
         orderNumber: string;
         paymentMethod?: string;
@@ -281,6 +321,8 @@ export function MalvaGardenCheckoutDesktop() {
   const hasToken = mounted && Boolean(getCartToken());
   const showSkeleton = !mounted || (hasToken && cartLoading);
   const isNovaPoshta = deliveryMethod === "nova_poshta";
+  const belowMinimum =
+    cart != null && isBelowOrderMinimum(cart.subtotal, orderMinimumAmount);
 
   return (
     <MalvaGardenFigmaPageShell
@@ -421,7 +463,7 @@ export function MalvaGardenCheckoutDesktop() {
             <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center">
               <FigmaPrimaryButton
                 type="submit"
-                disabled={loading}
+                disabled={loading || belowMinimum}
                 className="w-full sm:flex-1"
               >
                 {loading ? "Відправка…" : "Підтвердити замовлення"}
@@ -438,7 +480,7 @@ export function MalvaGardenCheckoutDesktop() {
             </div>
           ) : cart && cart.items.length > 0 ? (
             <div className="w-full shrink-0 lg:w-[320px]">
-              <OrderSummary cart={cart} />
+              <OrderSummary cart={cart} orderMinimumAmount={orderMinimumAmount} />
             </div>
           ) : null}
         </div>

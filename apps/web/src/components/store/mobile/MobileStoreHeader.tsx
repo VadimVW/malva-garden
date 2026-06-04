@@ -4,7 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { Inter } from "next/font/google";
 import { FigmaStoreSearch } from "@/components/ui/FigmaStoreSearch";
-import { FIGMA_STORE_IMG } from "@/components/store/figmaStoreAssets";
+import {
+  FIGMA_STORE_IMG,
+  LOGO_MARK_INTRINSIC,
+} from "@/components/store/figmaStoreAssets";
 
 const inter = Inter({
   subsets: ["latin", "cyrillic", "cyrillic-ext"],
@@ -31,9 +34,11 @@ export function MobileStoreHeader() {
           <Image
             src={FIGMA_STORE_IMG.logoMark}
             alt="Malva Garden"
-            width={80}
-            height={57}
-            className="h-[57px] w-[80px] object-contain brightness-0 invert"
+            width={LOGO_MARK_INTRINSIC.width}
+            height={LOGO_MARK_INTRINSIC.height}
+            sizes="90px"
+            quality={90}
+            className="h-[64px] w-[90px] object-contain brightness-0 invert"
             priority
           />
         </Link>

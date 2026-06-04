@@ -8,7 +8,11 @@ import { Inter } from "next/font/google";
 import { FigmaCartLink } from "@/components/ui/FigmaCartLink";
 import { FigmaStoreProfileLink } from "@/components/ui/FigmaStoreProfileLink";
 import { FigmaStoreSearch } from "@/components/ui/FigmaStoreSearch";
-import { FIGMA_STORE_IMG, FIGMA_SOCIAL_SVG } from "@/components/store/figmaStoreAssets";
+import {
+  FIGMA_STORE_IMG,
+  FIGMA_SOCIAL_SVG,
+  LOGO_MARK_INTRINSIC,
+} from "@/components/store/figmaStoreAssets";
 import { MalvaGardenFigmaStoreNav } from "@/components/store/MalvaGardenFigmaStoreNav";
 import { phoneToTelHref } from "@/lib/storeHeaderSettings";
 import { useStoreHeaderSettings } from "@/providers/StoreHeaderSettingsProvider";
@@ -100,8 +104,11 @@ export function FigmaStoreHeader({ activeRootSlug }: Props) {
               <Image
                 src={FIGMA_STORE_IMG.logoMark}
                 alt="Malva Garden"
-                width={97}
-                height={69}
+                width={LOGO_MARK_INTRINSIC.width}
+                height={LOGO_MARK_INTRINSIC.height}
+                sizes="(max-width: 1023px) 90px, 119px"
+                quality={90}
+                priority
                 className="mg-header-logo object-contain brightness-0 invert"
               />
             </Link>

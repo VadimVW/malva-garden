@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -99,16 +100,23 @@ export default function OrderDetailPage() {
         title={`Замовлення ${order.orderNumber}`}
         backHref="/orders"
         action={
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => {
-              void navigator.clipboard.writeText(order.orderNumber);
-              toast.success("Номер скопійовано");
-            }}
-          >
-            Копіювати номер
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Link href={`/orders/${id}/print`} target="_blank" rel="noopener noreferrer">
+              <Button type="button" variant="secondary">
+                Друк
+              </Button>
+            </Link>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                void navigator.clipboard.writeText(order.orderNumber);
+                toast.success("Номер скопійовано");
+              }}
+            >
+              Копіювати номер
+            </Button>
+          </div>
         }
       />
 

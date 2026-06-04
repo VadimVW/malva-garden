@@ -27,6 +27,11 @@ import {
 import type { CartResponse } from "@/lib/cart-types";
 import { dispatchCartUpdated } from "@/lib/cart-ui-events";
 import { clearCartToken, getCartToken } from "@/lib/cart-token";
+import {
+  formatOrderMinimumShortfallMessage,
+  isBelowOrderMinimum,
+} from "@/lib/orderMinimum";
+import { useStoreHeaderSettings } from "@/providers/StoreHeaderSettingsProvider";
 
 const PRODUCT_THUMB = "/images/figma/home/product-thumb.png";
 const EXIT_MS = 220;
@@ -38,12 +43,16 @@ function formatPrice(value: string) {
 function CartSummaryPanel({
   subtotal,
   itemCount,
+  orderMinimumAmount,
   checkoutHref = "/checkout",
 }: {
   subtotal: string;
   itemCount: number;
+  orderMinimumAmount: number;
   checkoutHref?: string;
 }) {
+  const belowMinimum = isBelowOrderMinimum(subtotal, orderMinimumAmount);
+
   return (
     <aside className="animate-mg-fade-in rounded-2xl bg-white p-6 shadow-[0px_6px_20px_rgba(0,0,0,0.08)] lg:sticky lg:top-[140px]">
       <h2 className="text-[18px] font-bold text-black">Підсумок</h2>
@@ -57,15 +66,33 @@ function CartSummaryPanel({
           <dd className="text-[20px] font-bold text-black">{formatPrice(subtotal)}</dd>
         </div>
       </dl>
-      <p className="mt-4 text-[13px] leading-snug text-[#5a5a5a]">
-        Безкоштовна доставка від 500 грн. Точну вартість доставки уточнить менеджер.
-      </p>
-      <Link
-        href={checkoutHref}
-        className="mg-btn-primary mt-6 flex w-full items-center justify-center rounded-xl bg-[#2f6f4e] px-6 py-3.5 text-[15px] font-bold text-white"
-      >
-        Оформити замовлення
-      </Link>
+      {belowMinimum ? (
+        <p
+          className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-[13px] leading-snug text-amber-950"
+          role="status"
+        >
+          {formatOrderMinimumShortfallMessage(orderMinimumAmount, subtotal)}
+        </p>
+      ) : (
+        <p className="mt-4 text-[13px] leading-snug text-[#5a5a5a]">
+          Мінімальна сума замовлення — {orderMinimumAmount} грн.
+        </p>
+      )}
+      {belowMinimum ? (
+        <span
+          aria-disabled
+          className="mt-6 flex w-full cursor-not-allowed items-center justify-center rounded-xl bg-[#9c9a9a] px-6 py-3.5 text-[15px] font-bold text-white"
+        >
+          Оформити замовлення
+        </span>
+      ) : (
+        <Link
+          href={checkoutHref}
+          className="mg-btn-primary mt-6 flex w-full items-center justify-center rounded-xl bg-[#2f6f4e] px-6 py-3.5 text-[15px] font-bold text-white"
+        >
+          Оформити замовлення
+        </Link>
+      )}
       <FigmaSecondaryLink href="/catalog/kvity" className="mt-3 w-full">
         Продовжити покупки
       </FigmaSecondaryLink>
@@ -106,6 +133,7 @@ function EmptyCart() {
 }
 
 export function MalvaGardenCartDesktop() {
+  const { orderMinimumAmount } = useStoreHeaderSettings();
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<CartResponse | null>(null);
@@ -342,6 +370,7 @@ export function MalvaGardenCartDesktop() {
             <CartSummaryPanel
               subtotal={cart!.subtotal}
               itemCount={cart!.items.reduce((n, i) => n + i.quantity, 0)}
+              orderMinimumAmount={orderMinimumAmount}
             />
           </div>
         </div>

@@ -8,7 +8,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import type { ReactNode } from "react";
 import { Montserrat_Alternates } from "next/font/google";
 import { FigmaStoreFooter } from "@/components/store/FigmaStoreFooter";
 import { FigmaStoreHeader } from "@/components/store/FigmaStoreHeader";
@@ -25,10 +24,7 @@ const montserratAlternates = Montserrat_Alternates({
 });
 
 const IMG = {
-  logoMark: "/images/figma/home/logo-mark.png",
-  cartIcon: "/images/figma/home/cart.svg",
   galleryRef: "/images/figma/product/gallery-ref.png",
-  truck: "/images/figma/product/Truck.svg",
 } as const;
 
 
@@ -66,29 +62,6 @@ const DEMO_PRODUCT: MalvaGardenProductPayload = {
 
 
 
-function SocialSvgImg({
-  src,
-  width,
-  height,
-  className,
-}: {
-  src: string;
-  width: number;
-  height: number;
-  className?: string;
-}) {
-  return (
-    <Image
-      src={src}
-      alt=""
-      width={width}
-      height={height}
-      unoptimized
-      className={className}
-    />
-  );
-}
-
 export default function MalvaGardenProductDesktop({
   product = DEMO_PRODUCT,
   preview = false,
@@ -102,7 +75,6 @@ export default function MalvaGardenProductDesktop({
 }) {
   const p = product;
   const priceLabel = p.price.includes("грн") ? p.price : `${p.price} грн`;
-  const inStock = p.stockQuantity > 0;
   const categoryCrumbLinks = categoryBreadcrumbs?.length
     ? productCategoryBreadcrumbLinks(categoryBreadcrumbs)
     : [{ label: "Каталог", href: "/catalog" }];
@@ -156,36 +128,9 @@ export default function MalvaGardenProductDesktop({
                     {p.name}
                   </h1>
                   <p className="mt-4 text-[22px] font-bold text-black">{priceLabel}</p>
-                  {inStock ? (
-                    <div className="mt-4 flex items-center gap-2 text-[14px] font-semibold text-[#2d6a4f]">
-                      <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden>
-                        <path
-                          d="M20 6L9 17l-5-5"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      Є в наявності
-                    </div>
-                  ) : (
-                    <div className="mt-4 text-[14px] font-semibold text-[#b91c1c]">
-                      Немає в наявності
-                    </div>
-                  )}
-                  <div className="mt-3 flex items-start gap-2 text-[13px] leading-snug text-[#5a5a5a]">
-                    <SocialSvgImg
-                      src={IMG.truck}
-                      width={16}
-                      height={16}
-                      className="mt-0.5 size-4 shrink-0 object-contain"
-                    />
-                    Безкоштовна доставка від 500 грн
-                  </div>
                   <ProductFigmaBuyBlock
                     productId={p.id}
-                    maxQty={p.stockQuantity}
+                    stockQuantity={p.stockQuantity}
                     preview={preview}
                   />
                   {!preview ? null : (

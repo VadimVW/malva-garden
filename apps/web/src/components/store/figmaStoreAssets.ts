@@ -3,6 +3,9 @@ export const FIGMA_STORE_IMG = {
   headerTexture: "/images/figma/home/header-texture.png",
 } as const;
 
+/** Розмір `logo-mark.png` — оновлювати при заміні файлу. */
+export const LOGO_MARK_INTRINSIC = { width: 1486, height: 1058 } as const;
+
 export const FIGMA_SOCIAL_SVG = {
   youtube: "/images/figma/home/youtube.svg",
   tiktok: "/images/figma/home/tiktok.svg",

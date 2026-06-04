@@ -7,6 +7,7 @@ import { OrderStatus, PaymentStatus, ProductStatus } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import { PrismaService } from "../prisma/prisma.service";
 import { CartService } from "../cart/cart.service";
+import { SettingsService } from "../settings/settings.service";
 import { moneyToString } from "../common/money";
 import { CreateOrderDto } from "./dto/create-order.dto";
 import { normalizePhoneUa } from "../customer/phone.util";
@@ -22,6 +23,7 @@ export class OrdersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cart: CartService,
+    private readonly settings: SettingsService,
   ) {}
 
   async createFromCart(dto: CreateOrderDto, customerId?: string) {
@@ -32,6 +34,19 @@ export class OrdersService {
     }
     if (!cart.items.length) {
       throw new BadRequestException("Кошик порожній");
+    }
+
+    let cartTotal = new Decimal(0);
+    for (const line of cart.items) {
+      cartTotal = cartTotal.add(line.product.price.mul(line.quantity));
+    }
+    const minimumUah = await this.settings.getOrderMinimumAmountUah();
+    const minimum = new Decimal(minimumUah);
+    if (cartTotal.lessThan(minimum)) {
+      const shortfall = minimum.sub(cartTotal).toDecimalPlaces(0, Decimal.ROUND_CEIL);
+      throw new BadRequestException(
+        `Мінімальна сума замовлення — ${minimumUah} грн. Додайте товарів ще на ${shortfall} грн.`,
+      );
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -59,10 +74,7 @@ export class OrdersService {
         }
       }
 
-      let total = new Decimal(0);
-      for (const line of cart.items) {
-        total = total.add(line.product.price.mul(line.quantity));
-      }
+      const total = cartTotal;
 
       const orderNumber = generateOrderNumber();
 
@@ -171,7 +183,7 @@ export class OrdersService {
         productNameSnapshot: i.productNameSnapshot,
         priceSnapshot: moneyToString(i.priceSnapshot),
         quantity: i.quantity,
-        total: moneyToString(i.total),
+        lineTotal: moneyToString(i.total),
       })),
     };
   }

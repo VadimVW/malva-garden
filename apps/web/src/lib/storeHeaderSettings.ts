@@ -1,5 +1,6 @@
 import { cache } from "react";
 import {
+  parseOrderMinimumAmount,
   PUBLIC_SITE_SETTING_DEFAULTS,
   phoneToTelHref,
   type PublicSiteSettingKey,
@@ -22,6 +23,7 @@ export const STORE_HEADER_SETTING_KEYS = {
   facebookUrl: "footer_facebook_url",
   instagramUrl: "footer_instagram_url",
   copyright: "footer_copyright",
+  orderMinimumAmount: "order_minimum_amount",
 } as const;
 
 export type StoreHeaderSettings = {
@@ -33,6 +35,7 @@ export type StoreHeaderSettings = {
   facebookUrl: string;
   instagramUrl: string;
   copyright: string;
+  orderMinimumAmount: number;
 };
 
 export const STORE_HEADER_DEFAULTS: StoreHeaderSettings = {
@@ -44,6 +47,9 @@ export const STORE_HEADER_DEFAULTS: StoreHeaderSettings = {
   facebookUrl: PUBLIC_SITE_SETTING_DEFAULTS.footer_facebook_url,
   instagramUrl: PUBLIC_SITE_SETTING_DEFAULTS.footer_instagram_url,
   copyright: PUBLIC_SITE_SETTING_DEFAULTS.footer_copyright,
+  orderMinimumAmount: parseOrderMinimumAmount(
+    PUBLIC_SITE_SETTING_DEFAULTS.order_minimum_amount,
+  ),
 };
 
 function pick(
@@ -83,6 +89,13 @@ export function buildStoreHeaderSettings(
       STORE_HEADER_DEFAULTS.instagramUrl,
     ),
     copyright: pick(map, "footer_copyright", STORE_HEADER_DEFAULTS.copyright),
+    orderMinimumAmount: parseOrderMinimumAmount(
+      pick(
+        map,
+        "order_minimum_amount",
+        String(STORE_HEADER_DEFAULTS.orderMinimumAmount),
+      ),
+    ),
   };
 }
 

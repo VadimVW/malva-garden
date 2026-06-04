@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import MalvaGardenCatalogDesktop from "@/components/store/MalvaGardenCatalogDesktop";
+import MalvaGardenCatalogHubDesktop from "@/components/store/MalvaGardenCatalogHubDesktop";
 import {
   catalogDesktopPropsFromCategoryMeta,
   fetchCategoryBySlug,
 } from "@/lib/catalogCategory";
+import { loadCatalogHubContent } from "@/lib/catalogHubSettings";
 import { catalogPathFromSlugs, pathsMatchSegments } from "@/lib/catalogTree";
 import { loadCatalogPage } from "@/lib/loadCatalogPage";
-import { metadataForCategorySlug } from "@/lib/seo/metadata";
+import { catalogHubMetadata, metadataForCategorySlug } from "@/lib/seo/metadata";
 
 export async function generateMetadata({
   params,
@@ -15,13 +17,13 @@ export async function generateMetadata({
   params: Promise<{ segments?: string[] }>;
 }): Promise<Metadata> {
   const { segments } = await params;
-  if (!segments?.length) return { title: "Каталог" };
+  if (!segments?.length) return catalogHubMetadata;
   const slug = segments[segments.length - 1]!;
   const basePath = catalogPathFromSlugs(segments);
   return metadataForCategorySlug(slug, slug, basePath);
 }
 
-export default async function CatalogCategoryPage({
+export default async function CatalogPage({
   params,
   searchParams,
 }: {
@@ -29,7 +31,14 @@ export default async function CatalogCategoryPage({
   searchParams: Promise<{ page?: string; sort?: string; q?: string }>;
 }) {
   const { segments } = await params;
-  if (!segments?.length) notFound();
+  if (!segments?.length) {
+    const hub = await loadCatalogHubContent();
+    return (
+      <div className="min-h-screen w-full bg-[#F5F5F5]">
+        <MalvaGardenCatalogHubDesktop {...hub} />
+      </div>
+    );
+  }
 
   const slug = segments[segments.length - 1]!;
   const basePath = catalogPathFromSlugs(segments);
