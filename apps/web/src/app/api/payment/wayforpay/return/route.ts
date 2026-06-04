@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { absoluteUrl } from "@/lib/seo/site";
+import { absoluteUrl } from "@/lib/public-origin";
+import { sanitizeOrderNumber } from "@/lib/order-number";
 
 /**
  * WayForPay redirects the customer to returnUrl with POST by default.
@@ -7,9 +8,9 @@ import { absoluteUrl } from "@/lib/seo/site";
  * GET — fallback when WFP uses GET or the browser opens the URL after a failed POST.
  */
 function orderNumberFromQuery(request: NextRequest): string | null {
-  const raw = new URL(request.url).searchParams.get("orderNumber");
-  const trimmed = raw?.trim();
-  return trimmed ? trimmed : null;
+  return sanitizeOrderNumber(
+    new URL(request.url).searchParams.get("orderNumber"),
+  );
 }
 
 async function orderNumberFromPostBody(
@@ -19,14 +20,14 @@ async function orderNumberFromPostBody(
     const contentType = request.headers.get("content-type") ?? "";
     if (contentType.includes("application/json")) {
       const json = (await request.json()) as Record<string, unknown>;
-      const ref = String(json.orderReference ?? json.orderNumber ?? "").trim();
-      return ref || null;
+      return sanitizeOrderNumber(
+        String(json.orderReference ?? json.orderNumber ?? ""),
+      );
     }
     const form = await request.formData();
-    const ref = String(
-      form.get("orderReference") ?? form.get("orderNumber") ?? "",
-    ).trim();
-    return ref || null;
+    return sanitizeOrderNumber(
+      String(form.get("orderReference") ?? form.get("orderNumber") ?? ""),
+    );
   } catch {
     return null;
   }

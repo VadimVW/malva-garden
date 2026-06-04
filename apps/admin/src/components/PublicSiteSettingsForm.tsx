@@ -91,14 +91,13 @@ export function PublicSiteSettingsForm() {
           parseOrderMinimumAmount(raw);
         }
       }
-      await Promise.all(
-        (Object.keys(payload) as PublicSiteSettingKey[]).map((key) =>
-          adminFetch(`/admin/settings/${encodeURIComponent(key)}`, {
-            method: "PUT",
-            body: JSON.stringify({ value: payload[key] }),
-          }),
-        ),
-      );
+      const keys = PUBLIC_SITE_SETTING_FIELDS.map((f) => f.key);
+      for (const key of keys) {
+        await adminFetch(`/admin/settings/${encodeURIComponent(key)}`, {
+          method: "PUT",
+          body: JSON.stringify({ value: payload[key] }),
+        });
+      }
     },
     onSuccess: () => {
       toast.success("Налаштування збережено");

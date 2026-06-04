@@ -54,6 +54,10 @@ export class WayforpayService {
     );
   }
 
+  private stripTrailingSlash(url: string): string {
+    return url.replace(/\/$/, "");
+  }
+
   /** Prod must use https in WFP form — http returnUrl triggers browser «незащищённая отправка». */
   private normalizePublicHttpsUrl(url: string): string {
     try {
@@ -65,28 +69,33 @@ export class WayforpayService {
       if (!local && u.protocol === "http:") {
         u.protocol = "https:";
       }
-      return u.toString().replace(/\/$/, "");
+      return this.stripTrailingSlash(u.toString());
     } catch {
-      return url.replace(/\/$/, "");
+      return this.stripTrailingSlash(url);
     }
+  }
+
+  private publicPaymentUrl(origin: string, pathname: string): string {
+    const base = this.stripTrailingSlash(origin);
+    const path = pathname.startsWith("/") ? pathname : `/${pathname}`;
+    return this.normalizePublicHttpsUrl(`${base}${path}`);
   }
 
   private returnUrl(): string {
     const explicit = this.config.get<string>("WAYFORPAY_RETURN_URL");
+    if (explicit) return this.normalizePublicHttpsUrl(explicit);
     const web = this.config.get<string>("WEB_ORIGIN") ?? "http://localhost:3300";
-    const raw =
-      explicit ??
-      `${web.replace(/\/$/, "")}/api/payment/wayforpay/return`;
     // WayForPay POSTs to returnUrl; use Route Handler, not App Router page.
-    return this.normalizePublicHttpsUrl(raw);
+    return this.publicPaymentUrl(web, "/api/payment/wayforpay/return");
   }
 
   private serviceUrl(): string {
     const explicit = this.config.get<string>("WAYFORPAY_SERVICE_URL");
+    if (explicit) return this.normalizePublicHttpsUrl(explicit);
     const api =
-      explicit ??
-      `${(this.config.get<string>("API_PUBLIC_ORIGIN") ?? `http://localhost:${this.config.get<string>("PORT") ?? "4000"}`).replace(/\/$/, "")}/api/v1/payments/wayforpay/callback`;
-    return this.normalizePublicHttpsUrl(api);
+      this.config.get<string>("API_PUBLIC_ORIGIN") ??
+      `http://localhost:${this.config.get<string>("PORT") ?? "4000"}`;
+    return this.publicPaymentUrl(api, "/api/v1/payments/wayforpay/callback");
   }
 
   private extractHost(origin: string): string {

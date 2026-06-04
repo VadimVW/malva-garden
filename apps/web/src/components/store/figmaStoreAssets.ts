@@ -18,11 +18,32 @@ export const FIGMA_SOCIAL_SVG = DEFAULT_FIGMA_SOCIAL_SVG;
 /** Розмір `logo-mark.png` — оновлювати при заміні файлу. */
 export const LOGO_MARK_INTRINSIC = { width: 1486, height: 1058 } as const;
 
+function hasStoreImg(
+  img: typeof DEFAULT_FIGMA_STORE_IMG | undefined,
+): img is typeof DEFAULT_FIGMA_STORE_IMG {
+  return Boolean(img?.logoMark && img?.headerTexture);
+}
+
+function hasSocialSvg(
+  svg: typeof DEFAULT_FIGMA_SOCIAL_SVG | undefined,
+): svg is typeof DEFAULT_FIGMA_SOCIAL_SVG {
+  return Boolean(
+    svg?.youtube &&
+      svg?.tiktok &&
+      svg?.facebook &&
+      svg?.instagram &&
+      svg?.telegram &&
+      svg?.viber,
+  );
+}
+
 /** Безпечний доступ під час завантаження chunk (уникає crash на `undefined.logoMark`). */
 export function resolveFigmaStoreImg(): typeof DEFAULT_FIGMA_STORE_IMG {
-  return FIGMA_STORE_IMG ?? DEFAULT_FIGMA_STORE_IMG;
+  return hasStoreImg(FIGMA_STORE_IMG) ? FIGMA_STORE_IMG : DEFAULT_FIGMA_STORE_IMG;
 }
 
 export function resolveFigmaSocialSvg(): typeof DEFAULT_FIGMA_SOCIAL_SVG {
-  return FIGMA_SOCIAL_SVG ?? DEFAULT_FIGMA_SOCIAL_SVG;
+  return hasSocialSvg(FIGMA_SOCIAL_SVG)
+    ? FIGMA_SOCIAL_SVG
+    : DEFAULT_FIGMA_SOCIAL_SVG;
 }
