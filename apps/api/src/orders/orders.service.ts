@@ -183,7 +183,7 @@ export class OrdersService {
         productNameSnapshot: i.productNameSnapshot,
         priceSnapshot: moneyToString(i.priceSnapshot),
         quantity: i.quantity,
-        total: moneyToString(i.total),
+        lineTotal: moneyToString(i.total),
       })),
     };
   }

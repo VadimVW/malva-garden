@@ -29,6 +29,11 @@ export const PAYMENT_STATUS_LABELS: Record<string, string> = {
   FAILED: "Помилка",
 };
 
+export const DELIVERY_METHOD_LABELS: Record<string, string> = {
+  nova_poshta: "Нова пошта",
+  pickup: "Самовивіз",
+};
+
 export const PAYMENT_METHOD_LABELS: Record<string, string> = {
   cash_on_delivery: "При отриманні (готівка)",
   card_on_delivery: "Карткою при отриманні",

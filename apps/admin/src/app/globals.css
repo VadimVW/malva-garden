@@ -10,3 +10,98 @@ body {
 body {
   @apply bg-admin-bg text-gray-900 antialiased;
 }
+
+/* §7.23.3 — друк замовлення */
+.order-print-page {
+  @apply mx-auto max-w-[210mm] bg-white p-6 text-gray-900;
+}
+
+.order-print-toolbar {
+  @apply mb-6 flex flex-wrap gap-3;
+}
+
+.order-print-doc {
+  @apply text-sm leading-relaxed;
+}
+
+.order-print-header {
+  @apply mb-6 border-b border-gray-300 pb-4;
+}
+
+.order-print-brand {
+  @apply text-xs font-semibold uppercase tracking-wide text-gray-500;
+}
+
+.order-print-title {
+  @apply mt-1 text-xl font-bold;
+}
+
+.order-print-meta {
+  @apply mt-1 text-sm text-gray-600;
+}
+
+.order-print-section {
+  @apply mb-5;
+}
+
+.order-print-section h2 {
+  @apply mb-2 text-sm font-semibold uppercase tracking-wide text-gray-700;
+}
+
+.order-print-section dl {
+  @apply space-y-1;
+}
+
+.order-print-row {
+  @apply flex justify-between gap-4;
+}
+
+.order-print-row dt {
+  @apply text-gray-600;
+}
+
+.order-print-row dd {
+  @apply text-right font-medium;
+}
+
+.order-print-note {
+  @apply mt-2 rounded border border-gray-200 bg-gray-50 p-2 text-sm;
+}
+
+.order-print-table {
+  @apply w-full border-collapse text-sm;
+}
+
+.order-print-table th,
+.order-print-table td {
+  @apply border border-gray-300 px-2 py-1.5 text-left;
+}
+
+.order-print-table th {
+  @apply bg-gray-100 text-xs font-semibold uppercase text-gray-700;
+}
+
+.order-print-total {
+  @apply mt-3 text-right text-base;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  .order-print-page {
+    max-width: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  @page {
+    margin: 12mm;
+  }
+}
