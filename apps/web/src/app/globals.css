@@ -365,12 +365,12 @@ body {
 
   .mg-figma-header .mg-header-logo {
     width: auto;
-    height: 64px;
+    height: 72px;
     transition: height var(--mg-motion-base) var(--mg-ease-out);
   }
 
   .mg-figma-header.is-scrolled .mg-header-logo {
-    height: 48px;
+    height: 54px;
   }
 
   .mg-figma-header.is-scrolled .mg-header-profile {

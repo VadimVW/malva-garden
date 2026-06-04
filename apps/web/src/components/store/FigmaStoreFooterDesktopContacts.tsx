@@ -6,6 +6,7 @@ import { FigmaStoreFooterCustomerLinks } from "@/components/store/FigmaStoreFoot
 import {
   FIGMA_SOCIAL_SVG,
   FIGMA_STORE_IMG,
+  LOGO_MARK_INTRINSIC,
 } from "@/components/store/figmaStoreAssets";
 import { phoneToTelHref } from "@/lib/storeHeaderSettings";
 import { useStoreHeaderSettings } from "@/providers/StoreHeaderSettingsProvider";
@@ -76,8 +77,10 @@ export function FigmaStoreFooterDesktopContacts() {
           <Image
             src={FIGMA_STORE_IMG.logoMark}
             alt="Malva Garden"
-            width={120}
-            height={85}
+            width={LOGO_MARK_INTRINSIC.width}
+            height={LOGO_MARK_INTRINSIC.height}
+            sizes="120px"
+            quality={90}
             className="h-auto w-[120px] object-contain brightness-0 invert"
           />
         </div>
