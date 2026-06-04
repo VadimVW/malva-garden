@@ -14,12 +14,11 @@ export function FigmaStoreFooterCustomerLinks({
   titleClassName = "font-bold",
 }: Props) {
   const pages = useFooterContentPages();
-  if (pages.length === 0) return null;
 
   return (
     <div className={className}>
       <p className={titleClassName}>Клієнтам:</p>
-      {pages.map((page) => (
+      {pages.length === 0 ? null : pages.map((page) => (
         <Link
           key={page.slug}
           href={`/pages/${page.slug}`}
