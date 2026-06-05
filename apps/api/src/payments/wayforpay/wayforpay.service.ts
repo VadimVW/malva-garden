@@ -54,21 +54,48 @@ export class WayforpayService {
     );
   }
 
+  private stripTrailingSlash(url: string): string {
+    return url.replace(/\/$/, "");
+  }
+
+  /** Prod must use https in WFP form — http returnUrl triggers browser «незащищённая отправка». */
+  private normalizePublicHttpsUrl(url: string): string {
+    try {
+      const u = new URL(url);
+      const local =
+        u.hostname === "localhost" ||
+        u.hostname === "127.0.0.1" ||
+        u.hostname.endsWith(".local");
+      if (!local && u.protocol === "http:") {
+        u.protocol = "https:";
+      }
+      return this.stripTrailingSlash(u.toString());
+    } catch {
+      return this.stripTrailingSlash(url);
+    }
+  }
+
+  private publicPaymentUrl(origin: string, pathname: string): string {
+    const base = this.stripTrailingSlash(origin);
+    const path = pathname.startsWith("/") ? pathname : `/${pathname}`;
+    return this.normalizePublicHttpsUrl(`${base}${path}`);
+  }
+
   private returnUrl(): string {
     const explicit = this.config.get<string>("WAYFORPAY_RETURN_URL");
-    if (explicit) return explicit;
+    if (explicit) return this.normalizePublicHttpsUrl(explicit);
     const web = this.config.get<string>("WEB_ORIGIN") ?? "http://localhost:3300";
     // WayForPay POSTs to returnUrl; use Route Handler, not App Router page.
-    return `${web.replace(/\/$/, "")}/api/payment/wayforpay/return`;
+    return this.publicPaymentUrl(web, "/api/payment/wayforpay/return");
   }
 
   private serviceUrl(): string {
     const explicit = this.config.get<string>("WAYFORPAY_SERVICE_URL");
-    if (explicit) return explicit;
+    if (explicit) return this.normalizePublicHttpsUrl(explicit);
     const api =
       this.config.get<string>("API_PUBLIC_ORIGIN") ??
       `http://localhost:${this.config.get<string>("PORT") ?? "4000"}`;
-    return `${api.replace(/\/$/, "")}/api/v1/payments/wayforpay/callback`;
+    return this.publicPaymentUrl(api, "/api/v1/payments/wayforpay/callback");
   }
 
   private extractHost(origin: string): string {

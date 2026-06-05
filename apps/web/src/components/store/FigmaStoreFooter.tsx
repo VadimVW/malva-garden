@@ -4,8 +4,8 @@ import { FigmaStoreFooterCustomerLinks } from "@/components/store/FigmaStoreFoot
 import { FigmaStoreFooterDesktopContacts } from "@/components/store/FigmaStoreFooterDesktopContacts";
 import { FigmaStoreFooterMobileContacts } from "@/components/store/FigmaStoreFooterMobileContacts";
 import {
-  FIGMA_STORE_IMG,
   LOGO_MARK_INTRINSIC,
+  resolveFigmaStoreImg,
 } from "@/components/store/figmaStoreAssets";
 
 const inter = Inter({
@@ -14,6 +14,8 @@ const inter = Inter({
 });
 
 function FigmaStoreFooterMobile() {
+  const figmaImg = resolveFigmaStoreImg();
+
   return (
     <footer className="mt-auto w-full shrink-0 bg-[#5C97A8] text-[#F7F4EF] lg:hidden">
       <div
@@ -21,7 +23,7 @@ function FigmaStoreFooterMobile() {
       >
         <div className="flex flex-col items-center">
           <Image
-            src={FIGMA_STORE_IMG.logoMark}
+            src={figmaImg.logoMark}
             alt="Malva Garden"
             width={LOGO_MARK_INTRINSIC.width}
             height={LOGO_MARK_INTRINSIC.height}

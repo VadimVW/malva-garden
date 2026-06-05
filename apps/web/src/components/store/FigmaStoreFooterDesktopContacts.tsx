@@ -4,9 +4,9 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import { FigmaStoreFooterCustomerLinks } from "@/components/store/FigmaStoreFooterCustomerLinks";
 import {
-  FIGMA_SOCIAL_SVG,
-  FIGMA_STORE_IMG,
   LOGO_MARK_INTRINSIC,
+  resolveFigmaSocialSvg,
+  resolveFigmaStoreImg,
 } from "@/components/store/figmaStoreAssets";
 import { phoneToTelHref } from "@/lib/storeHeaderSettings";
 import { useStoreHeaderSettings } from "@/providers/StoreHeaderSettingsProvider";
@@ -58,6 +58,8 @@ function SocialSvgImg({
 }
 
 export function FigmaStoreFooterDesktopContacts() {
+  const figmaImg = resolveFigmaStoreImg();
+  const figmaSocial = resolveFigmaSocialSvg();
   const {
     phone,
     viberUrl,
@@ -75,7 +77,7 @@ export function FigmaStoreFooterDesktopContacts() {
       <div className="flex flex-wrap gap-x-10 gap-y-8 lg:gap-x-16">
         <div className="flex w-[151px] flex-col gap-4">
           <Image
-            src={FIGMA_STORE_IMG.logoMark}
+            src={figmaImg.logoMark}
             alt="Malva Garden"
             width={LOGO_MARK_INTRINSIC.width}
             height={LOGO_MARK_INTRINSIC.height}
@@ -101,7 +103,7 @@ export function FigmaStoreFooterDesktopContacts() {
           <div className="flex flex-wrap justify-center gap-4">
             <FooterSocialLink label="YouTube" href={youtubeUrl}>
               <SocialSvgImg
-                src={FIGMA_SOCIAL_SVG.youtube}
+                src={figmaSocial.youtube}
                 width={24}
                 height={24}
                 className="h-6 w-6 object-contain"
@@ -109,7 +111,7 @@ export function FigmaStoreFooterDesktopContacts() {
             </FooterSocialLink>
             <FooterSocialLink label="TikTok" href={tiktokUrl}>
               <SocialSvgImg
-                src={FIGMA_SOCIAL_SVG.tiktok}
+                src={figmaSocial.tiktok}
                 width={24}
                 height={24}
                 className="h-6 w-6 object-contain"
@@ -117,7 +119,7 @@ export function FigmaStoreFooterDesktopContacts() {
             </FooterSocialLink>
             <FooterSocialLink label="Facebook" href={facebookUrl}>
               <SocialSvgImg
-                src={FIGMA_SOCIAL_SVG.facebook}
+                src={figmaSocial.facebook}
                 width={24}
                 height={24}
                 className="h-6 w-6 object-contain"
@@ -125,7 +127,7 @@ export function FigmaStoreFooterDesktopContacts() {
             </FooterSocialLink>
             <FooterSocialLink label="Instagram" href={instagramUrl}>
               <SocialSvgImg
-                src={FIGMA_SOCIAL_SVG.instagram}
+                src={figmaSocial.instagram}
                 width={24}
                 height={24}
                 className="h-6 w-6 object-contain"
@@ -133,7 +135,7 @@ export function FigmaStoreFooterDesktopContacts() {
             </FooterSocialLink>
             <FooterSocialLink label="Telegram" href={telegramUrl}>
               <SocialSvgImg
-                src={FIGMA_SOCIAL_SVG.telegram}
+                src={figmaSocial.telegram}
                 width={24}
                 height={24}
                 className="h-6 w-6 object-contain"
@@ -141,7 +143,7 @@ export function FigmaStoreFooterDesktopContacts() {
             </FooterSocialLink>
             <FooterSocialLink label="Viber" href={viberUrl}>
               <SocialSvgImg
-                src={FIGMA_SOCIAL_SVG.viber}
+                src={figmaSocial.viber}
                 width={24}
                 height={24}
                 className="h-6 w-6 object-contain"

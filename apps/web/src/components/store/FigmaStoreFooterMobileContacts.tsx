@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FIGMA_SOCIAL_SVG } from "@/components/store/figmaStoreAssets";
+import { resolveFigmaSocialSvg } from "@/components/store/figmaStoreAssets";
 import { phoneToTelHref } from "@/lib/storeHeaderSettings";
 import { useStoreHeaderSettings } from "@/providers/StoreHeaderSettingsProvider";
 
@@ -28,6 +28,7 @@ function FooterSocialLink({
 }
 
 export function FigmaStoreFooterMobileContacts() {
+  const figmaSocial = resolveFigmaSocialSvg();
   const { phone, viberUrl, telegramUrl } = useStoreHeaderSettings();
   const telHref = phoneToTelHref(phone);
 
@@ -44,7 +45,7 @@ export function FigmaStoreFooterMobileContacts() {
       <div className="mt-1 flex gap-3">
         <FooterSocialLink label="Telegram" href={telegramUrl}>
           <Image
-            src={FIGMA_SOCIAL_SVG.telegram}
+            src={figmaSocial.telegram}
             alt=""
             width={24}
             height={24}
@@ -54,7 +55,7 @@ export function FigmaStoreFooterMobileContacts() {
         </FooterSocialLink>
         <FooterSocialLink label="Viber" href={viberUrl}>
           <Image
-            src={FIGMA_SOCIAL_SVG.viber}
+            src={figmaSocial.viber}
             alt=""
             width={24}
             height={24}

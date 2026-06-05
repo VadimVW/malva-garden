@@ -192,6 +192,35 @@ postgres (volume) ← api
 
 - ACME email: `________________`
 
+### 5.4 WayForPay (§14.1.2)
+
+Повна інструкція: [`PAYMENTS_WAYFORPAY.md`](PAYMENTS_WAYFORPAY.md) → розділ **Production**.
+
+| Змінна | Production (malva-garden.com) |
+|--------|-------------------------------|
+| `WAYFORPAY_MERCHANT_ACCOUNT` | login з кабінету WFP |
+| `WAYFORPAY_MERCHANT_SECRET` | Secret key (підпис Purchase + callback) |
+| `WAYFORPAY_MERCHANT_PASSWORD` | Merchant password (кабінет) |
+| `WAYFORPAY_MERCHANT_DOMAIN` | `malva-garden.com` |
+| `WAYFORPAY_SERVICE_URL` | *(опційно)* дефолт: `https://malva-garden.com/api/v1/payments/wayforpay/callback` |
+| `WAYFORPAY_RETURN_URL` | *(опційно)* дефолт: `https://malva-garden.com/api/payment/wayforpay/return` |
+
+Потрібні також `WEB_ORIGIN` і `API_PUBLIC_ORIGIN` = `https://malva-garden.com` (без слеша в кінці).
+
+Після зміни `.env`:
+
+```bash
+cd /opt/malva-garden
+docker compose -f docker-compose.prod.yml --env-file .env up -d api
+```
+
+Чеклист:
+
+- [ ] Домен `malva-garden.com` у кабінеті WayForPay
+- [ ] `WAYFORPAY_*` у `/opt/malva-garden/.env`
+- [ ] Restart `api`; smoke: checkout → WayForPay → **PAID** в адмінці
+- [ ] Cloudflare: callback не в **Block** (Security → Events)
+
 ---
 
 ## 6. Порядок першого деплою (чеклист)

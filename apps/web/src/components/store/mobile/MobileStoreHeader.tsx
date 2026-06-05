@@ -5,8 +5,8 @@ import Link from "next/link";
 import { Inter } from "next/font/google";
 import { FigmaStoreSearch } from "@/components/ui/FigmaStoreSearch";
 import {
-  FIGMA_STORE_IMG,
   LOGO_MARK_INTRINSIC,
+  resolveFigmaStoreImg,
 } from "@/components/store/figmaStoreAssets";
 
 const inter = Inter({
@@ -15,13 +15,15 @@ const inter = Inter({
 });
 
 export function MobileStoreHeader() {
+  const figmaImg = resolveFigmaStoreImg();
+
   return (
     <header
       className={`fixed left-0 right-0 top-0 z-40 h-[var(--mg-mobile-header-h)] bg-[#5C97A8] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] lg:hidden ${inter.className}`}
     >
       <div className="pointer-events-none absolute inset-0 opacity-40">
         <Image
-          src={FIGMA_STORE_IMG.headerTexture}
+          src={figmaImg.headerTexture}
           alt=""
           fill
           className="object-cover object-center"
@@ -32,7 +34,7 @@ export function MobileStoreHeader() {
       <div className="relative z-[1] flex h-full items-end gap-[15px] px-[15px] pb-2 pt-6">
         <Link href="/" className="relative shrink-0">
           <Image
-            src={FIGMA_STORE_IMG.logoMark}
+            src={figmaImg.logoMark}
             alt="Malva Garden"
             width={LOGO_MARK_INTRINSIC.width}
             height={LOGO_MARK_INTRINSIC.height}

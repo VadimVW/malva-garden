@@ -1,8 +1,8 @@
 import { IsString, MinLength } from "class-validator";
 
 export class UpsertSiteSettingDto {
+  /** Порожній рядок дозволено (напр. `footer_copyright`, опційні URL). */
   @IsString()
-  @MinLength(1)
   value!: string;
 }
 

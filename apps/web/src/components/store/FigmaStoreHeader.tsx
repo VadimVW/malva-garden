@@ -9,9 +9,9 @@ import { FigmaCartLink } from "@/components/ui/FigmaCartLink";
 import { FigmaStoreProfileLink } from "@/components/ui/FigmaStoreProfileLink";
 import { FigmaStoreSearch } from "@/components/ui/FigmaStoreSearch";
 import {
-  FIGMA_STORE_IMG,
-  FIGMA_SOCIAL_SVG,
   LOGO_MARK_INTRINSIC,
+  resolveFigmaSocialSvg,
+  resolveFigmaStoreImg,
 } from "@/components/store/figmaStoreAssets";
 import { MalvaGardenFigmaStoreNav } from "@/components/store/MalvaGardenFigmaStoreNav";
 import { phoneToTelHref } from "@/lib/storeHeaderSettings";
@@ -72,6 +72,8 @@ type Props = {
 };
 
 export function FigmaStoreHeader({ activeRootSlug }: Props) {
+  const figmaImg = resolveFigmaStoreImg();
+  const figmaSocial = resolveFigmaSocialSvg();
   const { phone, viberUrl, telegramUrl } = useStoreHeaderSettings();
   const telHref = phoneToTelHref(phone);
   const [scrolled, setScrolled] = useState(false);
@@ -89,7 +91,7 @@ export function FigmaStoreHeader({ activeRootSlug }: Props) {
     >
       <div className="pointer-events-none absolute inset-0 z-[1] opacity-40">
         <Image
-          src={FIGMA_STORE_IMG.headerTexture}
+          src={figmaImg.headerTexture}
           alt=""
           fill
           className="object-cover object-center"
@@ -102,7 +104,7 @@ export function FigmaStoreHeader({ activeRootSlug }: Props) {
           <div className="mg-header-logo-wrap relative flex shrink-0 items-center">
             <Link href="/" className="inline-flex">
               <Image
-                src={FIGMA_STORE_IMG.logoMark}
+                src={figmaImg.logoMark}
                 alt="Malva Garden"
                 width={LOGO_MARK_INTRINSIC.width}
                 height={LOGO_MARK_INTRINSIC.height}
@@ -118,7 +120,7 @@ export function FigmaStoreHeader({ activeRootSlug }: Props) {
             <div className="flex gap-2.5">
               <NavIconButton label="Viber" href={viberUrl}>
                 <SocialSvgImg
-                  src={FIGMA_SOCIAL_SVG.viber}
+                  src={figmaSocial.viber}
                   width={18}
                   height={18}
                   className="size-[18px] object-contain"
@@ -126,7 +128,7 @@ export function FigmaStoreHeader({ activeRootSlug }: Props) {
               </NavIconButton>
               <NavIconButton label="Telegram" href={telegramUrl}>
                 <SocialSvgImg
-                  src={FIGMA_SOCIAL_SVG.telegram}
+                  src={figmaSocial.telegram}
                   width={18}
                   height={18}
                   className="size-[18px] object-contain"

@@ -110,7 +110,7 @@ export function MalvaGardenFigmaPageShell({
   children,
 }: MalvaGardenFigmaPageShellProps) {
   return (
-    <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-[#F5F5F5]">
+    <div className="relative flex min-h-screen w-full flex-col overflow-visible bg-[#F5F5F5]">
       <FigmaStoreHeader activeRootSlug={activeRootSlug} />
 
 
