@@ -1,5 +1,4 @@
 /**
- * Іконка кошика з Figma (cart.svg).
  * Inline SVG + квадратний viewBox — оптичне центрування в круглій кнопці картки.
  */
 export function FigmaCartIcon({ className }: { className?: string }) {
