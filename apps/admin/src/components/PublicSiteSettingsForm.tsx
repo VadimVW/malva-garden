@@ -161,9 +161,11 @@ export function PublicSiteSettingsForm() {
                     type={
                       field.type === "url"
                         ? "url"
-                        : field.type === "number"
-                          ? "number"
-                          : "text"
+                        : field.type === "email"
+                          ? "email"
+                          : field.type === "number"
+                            ? "number"
+                            : "text"
                     }
                     min={field.type === "number" ? 0 : undefined}
                     step={field.type === "number" ? 1 : undefined}

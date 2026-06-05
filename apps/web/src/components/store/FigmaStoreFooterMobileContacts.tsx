@@ -29,8 +29,10 @@ function FooterSocialLink({
 
 export function FigmaStoreFooterMobileContacts() {
   const figmaSocial = resolveFigmaSocialSvg();
-  const { phone, viberUrl, telegramUrl } = useStoreHeaderSettings();
+  const { phone, contactEmail, viberUrl, telegramUrl } =
+    useStoreHeaderSettings();
   const telHref = phoneToTelHref(phone);
+  const email = contactEmail.trim();
 
   return (
     <div className="flex flex-col gap-[5px] text-[14px]">
@@ -42,6 +44,14 @@ export function FigmaStoreFooterMobileContacts() {
       ) : (
         <p className="text-[12px] font-semibold">{phone}</p>
       )}
+      {email ? (
+        <a
+          href={`mailto:${email}`}
+          className="text-[12px] font-semibold hover:underline"
+        >
+          {email}
+        </a>
+      ) : null}
       <div className="mt-1 flex gap-3">
         <FooterSocialLink label="Telegram" href={telegramUrl}>
           <Image

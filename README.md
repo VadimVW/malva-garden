@@ -82,7 +82,7 @@ npm run db:seed
 
 - Сайт: http://localhost:3300
 
-- **Адмін-панель:** http://localhost:3301 (логін `admin@malva.local` / пароль з `ADMIN_SEED_PASSWORD`, за замовчуванням `admin123`)
+- **Адмін-панель:** http://localhost:3301 — логін **`admin@malva.local`** / пароль з `ADMIN_SEED_PASSWORD` (за замовч. `admin123`). На **prod** email адміна — доменний (`info@malva-garden.com`); див. `docs/EMAIL_CLOUDFLARE_ROUTING.md`
 
 - API: http://localhost:4000/api/v1/health
 

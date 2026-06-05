@@ -6,6 +6,7 @@ export const PUBLIC_SITE_SETTING_KEYS = [
   "catalog_hub_title",
   "catalog_hub_subtitle",
   "header_phone",
+  "header_contact_email",
   "header_viber_url",
   "header_telegram_url",
   "footer_youtube_url",
@@ -25,6 +26,7 @@ export const PUBLIC_SITE_SETTING_DEFAULTS: Record<
   catalog_hub_title: "Оберіть розділ каталогу",
   catalog_hub_subtitle: "Оберіть категорію, щоб переглянути товари.",
   header_phone: "+380 67 258 98 28",
+  header_contact_email: "info@malva-garden.com",
   header_viber_url: "viber://chat?number=380672589828",
   header_telegram_url: "https://t.me/malvagarden",
   footer_youtube_url: "https://www.youtube.com/",
@@ -35,7 +37,12 @@ export const PUBLIC_SITE_SETTING_DEFAULTS: Record<
   order_minimum_amount: "200",
 };
 
-export type PublicSiteSettingFieldType = "text" | "url" | "phone" | "number";
+export type PublicSiteSettingFieldType =
+  | "text"
+  | "url"
+  | "phone"
+  | "email"
+  | "number";
 
 export type PublicSiteSettingFieldMeta = {
   key: PublicSiteSettingKey;
@@ -63,6 +70,13 @@ export const PUBLIC_SITE_SETTING_FIELDS: PublicSiteSettingFieldMeta[] = [
     label: "Телефон",
     hint: "Шапка та footer; при зміні можна оновити Viber (viber://)",
     type: "phone",
+    section: "header",
+  },
+  {
+    key: "header_contact_email",
+    label: "Email контактів",
+    hint: "Footer та сторінка контактів; вхідна пошта — Cloudflare Email Routing (docs/EMAIL_CLOUDFLARE_ROUTING.md)",
+    type: "email",
     section: "header",
   },
   {

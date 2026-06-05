@@ -62,6 +62,7 @@ export function FigmaStoreFooterDesktopContacts() {
   const figmaSocial = resolveFigmaSocialSvg();
   const {
     phone,
+    contactEmail,
     viberUrl,
     telegramUrl,
     youtubeUrl,
@@ -71,6 +72,7 @@ export function FigmaStoreFooterDesktopContacts() {
     copyright,
   } = useStoreHeaderSettings();
   const telHref = phoneToTelHref(phone);
+  const email = contactEmail.trim();
 
   return (
     <>
@@ -95,6 +97,11 @@ export function FigmaStoreFooterDesktopContacts() {
           ) : (
             <p className="text-[14px]">{phone}</p>
           )}
+          {email ? (
+            <a href={`mailto:${email}`} className="text-[14px] hover:underline">
+              {email}
+            </a>
+          ) : null}
         </div>
         <div className="flex min-w-[200px] flex-col items-center gap-3">
           <p className="w-full text-center text-[14px] font-bold">

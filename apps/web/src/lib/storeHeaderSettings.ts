@@ -16,6 +16,7 @@ export { phoneToTelHref };
 
 export const STORE_HEADER_SETTING_KEYS = {
   phone: "header_phone",
+  contactEmail: "header_contact_email",
   viberUrl: "header_viber_url",
   telegramUrl: "header_telegram_url",
   youtubeUrl: "footer_youtube_url",
@@ -28,6 +29,7 @@ export const STORE_HEADER_SETTING_KEYS = {
 
 export type StoreHeaderSettings = {
   phone: string;
+  contactEmail: string;
   viberUrl: string;
   telegramUrl: string;
   youtubeUrl: string;
@@ -40,6 +42,7 @@ export type StoreHeaderSettings = {
 
 export const STORE_HEADER_DEFAULTS: StoreHeaderSettings = {
   phone: PUBLIC_SITE_SETTING_DEFAULTS.header_phone,
+  contactEmail: PUBLIC_SITE_SETTING_DEFAULTS.header_contact_email,
   viberUrl: PUBLIC_SITE_SETTING_DEFAULTS.header_viber_url,
   telegramUrl: PUBLIC_SITE_SETTING_DEFAULTS.header_telegram_url,
   youtubeUrl: PUBLIC_SITE_SETTING_DEFAULTS.footer_youtube_url,
@@ -66,6 +69,11 @@ export function buildStoreHeaderSettings(
   const map = siteSettingsToMap(rows);
   return {
     phone: pick(map, "header_phone", STORE_HEADER_DEFAULTS.phone),
+    contactEmail: pick(
+      map,
+      "header_contact_email",
+      STORE_HEADER_DEFAULTS.contactEmail,
+    ),
     viberUrl: pick(map, "header_viber_url", STORE_HEADER_DEFAULTS.viberUrl),
     telegramUrl: pick(
       map,

@@ -11,14 +11,45 @@ import {
 
 const prisma = new PrismaClient();
 
+const LEGACY_ADMIN_SEED_EMAIL = "admin@malva.local";
+
+async function seedAdminUser(passwordHash: string) {
+  const adminEmail =
+    process.env.ADMIN_SEED_EMAIL?.trim() || LEGACY_ADMIN_SEED_EMAIL;
+
+  const existing = await prisma.adminUser.findUnique({
+    where: { email: adminEmail },
+  });
+  if (existing) {
+    await prisma.adminUser.update({
+      where: { email: adminEmail },
+      data: { passwordHash },
+    });
+    return;
+  }
+
+  if (adminEmail !== LEGACY_ADMIN_SEED_EMAIL) {
+    const legacy = await prisma.adminUser.findUnique({
+      where: { email: LEGACY_ADMIN_SEED_EMAIL },
+    });
+    if (legacy) {
+      await prisma.adminUser.update({
+        where: { id: legacy.id },
+        data: { email: adminEmail, passwordHash },
+      });
+      return;
+    }
+  }
+
+  await prisma.adminUser.create({
+    data: { email: adminEmail, passwordHash },
+  });
+}
+
 async function main() {
   const password = process.env.ADMIN_SEED_PASSWORD ?? "admin123";
   const hash = await bcrypt.hash(password, 10);
-  await prisma.adminUser.upsert({
-    where: { email: "admin@malva.local" },
-    update: { passwordHash: hash },
-    create: { email: "admin@malva.local", passwordHash: hash },
-  });
+  await seedAdminUser(hash);
 
   const cleared = await clearOrdersAndProducts(prisma);
   console.log(
@@ -52,7 +83,8 @@ async function main() {
     {
       slug: "kontakty",
       title: "Контакти",
-      content: "<p>Телефон та email магазину.</p>",
+      content:
+        '<p>Телефон і месенджери — у шапці та footer сайту.</p><p>Email: <a href="mailto:info@malva-garden.com">info@malva-garden.com</a></p>',
     },
   ];
 
