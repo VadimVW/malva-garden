@@ -5,7 +5,7 @@ import { AppService } from "./app.service";
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  /** Корінь хоста (без /api/v1) — підказка для Render / браузера */
+  /** Корінь хоста (без /api/v1) — підказка для браузера / health-check */
   @Get()
   getRoot() {
     return {

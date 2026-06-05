@@ -7,10 +7,10 @@
 - `JWT_SECRET` — спільний з адміном; у payload клієнта обов’язково `role: "customer"`.
 - `WEB_ORIGIN` — база для посилання підтвердження email.
 - `EMAIL_VERIFICATION_DEV=true` — локально: `verificationUrl` у JSON, якщо SMTP не відправив лист.
-- **SMTP на staging:** `docs/EMAIL_SMTP.md` — `SMTP_ENABLED=true`, `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`; на staging `EMAIL_VERIFICATION_DEV=false`.
+- **SMTP (production):** `docs/EMAIL_SMTP.md` — `SMTP_ENABLED=true`, `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`; `EMAIL_VERIFICATION_DEV=false`.
 - `GOOGLE_CLIENT_ID` — OAuth client ID для перевірки Google ID token на API.
 - Web env: `NEXT_PUBLIC_GOOGLE_CLIENT_ID` — той самий OAuth client ID для Google Identity Services.
-- Налаштування Google Cloud + prod/staging: **`docs/GOOGLE_SIGNIN.md`**.
+- Налаштування Google Cloud (production): **`docs/GOOGLE_SIGNIN.md`**.
 
 ## Auth
 

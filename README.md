@@ -53,28 +53,17 @@ npm run dev
 
 Запускає вітрину, API та адмінку паралельно (`concurrently`). Окремо: `npm run dev:admin` (лише адмінка на порту 3301).
 
-## Staging (тимчасовий тест)
+## Production
 
-Повна інструкція: **[docs/STAGING.md](docs/STAGING.md)** — Render (API + Postgres) + Vercel (web/admin), без прив’язки до Vercel як до фінального production.
+Деплой на **Netcup VPS** (Docker Compose + Caddy): **[docs/PRODUCTION_VPS.md](docs/PRODUCTION_VPS.md)**.
 
-Коротко: Blueprint з [`render.yaml`](render.yaml) → `npm run staging:vercel-env -- https://<api-host>`.
+| Компонент | URL |
+|-----------|-----|
+| Вітрина | https://malva-garden.com |
+| Адмінка | https://admin.malva-garden.com |
+| API health | https://malva-garden.com/api/v1/health |
 
-## Тестовий деплой (Vercel)
-
-Монорепо: **два проєкти Vercel** + API з БД окремо.
-
-| Проєкт | Root Directory | Build | Env |
-|--------|----------------|-------|-----|
-| **malva-web** | `apps/web` | `npm run build -w web` (або через `vercel.json`) | `NEXT_PUBLIC_API_URL` → URL API |
-| **malva-admin** | `apps/admin` | `npm run build -w admin` | `NEXT_PUBLIC_API_URL` |
-| **API** | — | Nest на Railway / Render / Fly тощо | `DATABASE_URL`, `JWT_SECRET`, `WEB_ORIGIN`, `ADMIN_ORIGIN` |
-
-1. Підняти **PostgreSQL** (Neon, Vercel Postgres, або Docker на VPS) і задеплоїти **API** (`npm run build -w api`, `prisma migrate deploy`, `db:seed` на staging).
-2. У Vercel створити проєкт для `apps/web`, вказати Root Directory `apps/web`, додати `NEXT_PUBLIC_API_URL=https://…/api/v1`.
-3. Другий проєкт для `apps/admin`, Root `apps/admin`; у API виставити `ADMIN_ORIGIN` = preview-URL адмінки.
-4. У API: `WEB_ORIGIN` = preview-URL вітрини. Перевірити логін адмінки та каталог з `?page=2`.
-
-CLI: `npm run deploy:web` / `npm run deploy:admin`
+CI/CD: push гілки `deploy/vps-production` → GitHub Actions (`deploy-vps.yml`).
 
 Локально каталог: `/catalog/kvity?page=2` — пагінація 24 товари на сторінку.
 
