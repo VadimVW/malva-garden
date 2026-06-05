@@ -23,6 +23,12 @@ export const ORDER_STATUS_LABELS: Record<string, string> = {
   CANCELLED: "Скасовано",
 };
 
+export const REVIEW_STATUS_LABELS: Record<string, string> = {
+  PENDING: "На модерації",
+  PUBLISHED: "Опубліковано",
+  REJECTED: "Відхилено",
+};
+
 export const PAYMENT_STATUS_LABELS: Record<string, string> = {
   PENDING: "Очікує",
   PAID: "Оплачено",

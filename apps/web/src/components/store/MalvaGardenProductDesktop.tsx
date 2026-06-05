@@ -8,6 +8,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 import { Montserrat_Alternates } from "next/font/google";
 import { FigmaStoreFooter } from "@/components/store/FigmaStoreFooter";
 import { FigmaStoreHeader } from "@/components/store/FigmaStoreHeader";
@@ -16,6 +17,7 @@ import { ProductFigmaBuyBlock } from "@/components/store/product/ProductFigmaBuy
 import type { GalleryImage } from "@/components/store/product/ProductFigmaGallery";
 import { ProductFigmaGallery } from "@/components/store/product/ProductFigmaGallery";
 import { ProductFigmaTabs } from "@/components/store/product/ProductFigmaTabs";
+import type { ProductReviewsSummary } from "@/lib/product-reviews";
 
 const montserratAlternates = Montserrat_Alternates({
   weight: ["400", "600", "700"],
@@ -67,11 +69,13 @@ export default function MalvaGardenProductDesktop({
   preview = false,
   categoryBreadcrumbs,
   activeRootSlug,
+  reviewSummary,
 }: {
   product?: MalvaGardenProductPayload;
   preview?: boolean;
   categoryBreadcrumbs?: { name: string; slug: string }[];
   activeRootSlug?: string;
+  reviewSummary?: ProductReviewsSummary;
 }) {
   const p = product;
   const priceLabel = p.price.includes("грн") ? p.price : `${p.price} грн`;
@@ -140,10 +144,21 @@ export default function MalvaGardenProductDesktop({
                   )}
                 </section>
 
-                <ProductFigmaTabs
-                  description={p.description}
-                  careDescription={p.careDescription}
-                />
+                <Suspense
+                  fallback={
+                    <section className="rounded-2xl bg-white p-6 shadow-[0px_6px_20px_rgba(0,0,0,0.08)]">
+                      <p className="text-[14px] text-[#9C9A9A]">Завантаження…</p>
+                    </section>
+                  }
+                >
+                  <ProductFigmaTabs
+                    description={p.description}
+                    careDescription={p.careDescription}
+                    productSlug={p.slug}
+                    preview={preview}
+                    initialReviewSummary={reviewSummary}
+                  />
+                </Suspense>
               </div>
             </div>
           </div>

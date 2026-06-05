@@ -5,6 +5,7 @@ import { fetchCategoryBySlug } from "@/lib/catalogCategory";
 import { apiFetch } from "@/lib/api";
 import { getOfflineProductPayload } from "@/lib/offlineDemoProducts";
 import { buildSeoTitleMetadata } from "@/lib/seo/metadata";
+import type { ProductReviewsPage } from "@/lib/product-reviews";
 import MalvaGardenProductDesktop, {
   type MalvaGardenProductPayload,
 } from "@/components/store/MalvaGardenProductDesktop";
@@ -109,6 +110,13 @@ export default async function ProductPage({
     ? await fetchCategoryBySlug(payload.category.slug).catch(() => null)
     : null;
 
+  const reviewsData = !preview
+    ? await apiFetch<ProductReviewsPage>(
+        `/products/${encodeURIComponent(slug)}/reviews?limit=2`,
+        { revalidateSeconds: 60 },
+      ).catch(() => null)
+    : null;
+
   return (
     <div className="min-h-screen w-full bg-[#F5F5F5]">
       {!preview && seoSource ? (
@@ -119,6 +127,12 @@ export default async function ProductPage({
           price={seoSource.price}
           stockQuantity={seoSource.stockQuantity}
           imageUrls={imageUrls}
+          reviewSummary={reviewsData?.summary}
+          sampleReviews={reviewsData?.items.map((r) => ({
+            authorDisplayName: r.authorDisplayName,
+            rating: r.rating,
+            body: r.body,
+          }))}
         />
       ) : null}
       <MalvaGardenProductDesktop
@@ -126,6 +140,7 @@ export default async function ProductPage({
         preview={preview}
         categoryBreadcrumbs={categoryMeta?.breadcrumbs}
         activeRootSlug={categoryMeta?.breadcrumbs[0]?.slug}
+        reviewSummary={reviewsData?.summary}
       />
     </div>
   );

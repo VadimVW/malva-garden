@@ -111,3 +111,33 @@ export type SiteSetting = {
 };
 
 export type LoginResponse = { access_token: string };
+
+export type ReviewStatus = "PENDING" | "PUBLISHED" | "REJECTED";
+
+export type ReviewListItem = {
+  id: string;
+  rating: number;
+  body: string;
+  authorDisplayName: string;
+  status: ReviewStatus;
+  rejectedReason: string | null;
+  verifiedPurchase: boolean;
+  publishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  product: { id: string; name: string; slug: string };
+  customer: { id: string; email: string; fullName: string | null };
+  order: {
+    id: string;
+    orderNumber: string;
+    orderStatus: OrderStatus;
+  } | null;
+};
+
+export type ReviewsPage = {
+  items: ReviewListItem[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+};
