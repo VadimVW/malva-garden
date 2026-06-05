@@ -110,7 +110,12 @@ export type SiteSetting = {
   updatedAt: string;
 };
 
-export type LoginResponse = { access_token: string };
+export type LoginResponse = {
+  access_token?: string;
+  refresh_token?: string;
+  expires_in: number;
+  auth_mode?: "cookie";
+};
 
 export type ReviewStatus = "PENDING" | "PUBLISHED" | "REJECTED";
 

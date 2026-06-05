@@ -9,12 +9,15 @@ import {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
-import { adminFetch } from "@/lib/api";
+import { adminFetch, adminLogout, checkAdminSession } from "@/lib/api";
+import { useAdminAuthCookies } from "@/lib/auth-mode";
 import {
   clearStoredToken,
+  getStoredRefreshToken,
   getStoredToken,
   isSessionExpired,
-  setStoredToken,
+  setStoredTokens,
+  touchActivity,
 } from "@/lib/auth";
 import type { LoginResponse } from "@/lib/types";
 
@@ -22,7 +25,7 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -33,14 +36,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const token = getStoredToken();
-    if (!token || isSessionExpired()) {
-      clearStoredToken();
-      setIsAuthenticated(false);
-    } else {
-      setIsAuthenticated(true);
+    let cancelled = false;
+
+    async function init() {
+      if (useAdminAuthCookies) {
+        if (isSessionExpired()) {
+          clearStoredToken();
+          if (!cancelled) setIsAuthenticated(false);
+        } else {
+          const ok = await checkAdminSession();
+          if (!cancelled) setIsAuthenticated(ok);
+        }
+      } else {
+        const token = getStoredToken();
+        const refresh = getStoredRefreshToken();
+        if (!token || !refresh || isSessionExpired()) {
+          clearStoredToken();
+          if (!cancelled) setIsAuthenticated(false);
+        } else if (!cancelled) {
+          setIsAuthenticated(true);
+        }
+      }
+      if (!cancelled) setIsLoading(false);
     }
-    setIsLoading(false);
+
+    void init();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const login = useCallback(
@@ -50,15 +73,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email, password }),
         skipAuth: true,
       });
-      setStoredToken(res.access_token);
+      if (!useAdminAuthCookies) {
+        if (!res.access_token || !res.refresh_token) {
+          throw new Error("Немає токенів у відповіді API");
+        }
+        setStoredTokens(res.access_token, res.refresh_token);
+      } else {
+        touchActivity();
+      }
       setIsAuthenticated(true);
       router.replace("/products");
     },
     [router],
   );
 
-  const logout = useCallback(() => {
-    clearStoredToken();
+  const logout = useCallback(async () => {
+    await adminLogout();
     setIsAuthenticated(false);
     router.replace("/login");
   }, [router]);

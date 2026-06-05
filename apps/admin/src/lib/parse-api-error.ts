@@ -2,6 +2,7 @@ export function parseApiError(body: string, status: number): string {
   if (!body) {
     if (status === 401) return "Сесія закінчилась. Увійдіть знову.";
     if (status === 403) return "Немає доступу.";
+    if (status === 429) return "Забагато спроб. Спробуйте пізніше.";
     return `Помилка сервера (${status})`;
   }
   try {

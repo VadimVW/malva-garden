@@ -2,7 +2,18 @@
 
 Базовий URL: `http://localhost:4000/api/v1` (або ваш `PORT`). Усі шляхи нижче — відносно цього префікса.
 
-Авторизація: `POST /admin/auth/login` з JSON `{ "email", "password" }` → у відповіді `access_token`. Далі заголовок `Authorization: Bearer <access_token>`.
+Авторизація:
+
+| Метод | Шлях | Опис |
+|--------|------|------|
+| POST | `/admin/auth/login` | `{ "email", "password" }`. Rate limit за IP (10 / 15 хв). **Bearer mode (dev):** `{ access_token, refresh_token, expires_in }`. **Cookie mode (prod):** заголовок `X-Admin-Auth: cookie` + `credentials: include` → `Set-Cookie` httpOnly, тіло `{ expires_in, auth_mode: "cookie" }`. |
+| POST | `/admin/auth/refresh` | Bearer: `{ refresh_token }`. Cookie: `X-Admin-Auth: cookie` + cookie `mg_admin_refresh`. Ротація refresh. |
+| POST | `/admin/auth/logout` | Відклик refresh; cookie mode — `Clear-Cookie`. |
+| GET | `/admin/auth/me` | JWT (Bearer або cookie `mg_admin_access`) → `{ id, email }`. |
+
+**Dual-mode:** локально — `Authorization: Bearer <access_token>`; production — httpOnly `mg_admin_access` / `mg_admin_refresh` (`Domain=.malva-garden.com`, `Path=/api/v1/admin*`). Env: `NEXT_PUBLIC_ADMIN_AUTH_COOKIES=true` (admin build), `ADMIN_COOKIE_DOMAIN` (API).
+
+Access token **15 хв**; refresh **7 днів** у `AdminRefreshToken`.
 
 ---
 

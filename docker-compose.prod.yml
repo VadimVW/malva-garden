@@ -56,6 +56,7 @@ services:
       WAYFORPAY_MERCHANT_DOMAIN: ${WAYFORPAY_MERCHANT_DOMAIN:-}
       WAYFORPAY_RETURN_URL: ${WAYFORPAY_RETURN_URL:-}
       WAYFORPAY_SERVICE_URL: ${WAYFORPAY_SERVICE_URL:-}
+      ADMIN_COOKIE_DOMAIN: ${ADMIN_COOKIE_DOMAIN:-}
     volumes:
       - api_uploads:/app/apps/api/uploads
     expose:
@@ -94,6 +95,7 @@ services:
       dockerfile: deploy/docker/Dockerfile.admin
       args:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        NEXT_PUBLIC_ADMIN_AUTH_COOKIES: ${NEXT_PUBLIC_ADMIN_AUTH_COOKIES:-true}
     restart: unless-stopped
     depends_on:
       - api

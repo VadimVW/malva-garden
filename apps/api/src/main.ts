@@ -2,11 +2,14 @@ import "reflect-metadata";
 import { RequestMethod, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { NestExpressApplication } from "@nestjs/platform-express";
+import cookieParser from "cookie-parser";
 import { resolve } from "path";
 import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.set("trust proxy", 1);
+  app.use(cookieParser());
   const uploadDir = resolve(process.env.UPLOAD_DIR?.trim() || "uploads");
   app.useStaticAssets(uploadDir, { prefix: "/uploads" });
   app.setGlobalPrefix("api/v1", {
