@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
+import { CommonModule } from "./common/common.module";
 import { AuthModule } from "./auth/auth.module";
 import { CartModule } from "./cart/cart.module";
 import { CategoriesModule } from "./categories/categories.module";
@@ -19,6 +20,7 @@ import { AppService } from "./app.service";
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    CommonModule,
     PrismaModule,
     AuthModule,
     CategoriesModule,

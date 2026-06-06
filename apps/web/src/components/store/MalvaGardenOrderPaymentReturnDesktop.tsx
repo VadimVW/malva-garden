@@ -8,6 +8,10 @@ import {
   MalvaGardenFigmaPageShell,
 } from "@/components/store/MalvaGardenFigmaPageShell";
 import { getApiBaseUrl } from "@/lib/api";
+import {
+  clearPaymentAccessToken,
+  withPaymentAccessQuery,
+} from "@/lib/payment-access";
 
 type PaymentStatus = "PENDING" | "PAID" | "FAILED";
 
@@ -31,14 +35,16 @@ export function MalvaGardenOrderPaymentReturnDesktop() {
     const poll = async () => {
       try {
         const syncFirst = attempts === 0;
-        const endpoint = syncFirst
+        const base = syncFirst
           ? `${getApiBaseUrl()}/orders/${encodeURIComponent(orderNumber)}/payment/wayforpay/sync`
           : `${getApiBaseUrl()}/orders/${encodeURIComponent(orderNumber)}/payment-status`;
+        const endpoint = withPaymentAccessQuery(base, orderNumber);
         const res = await fetch(endpoint, syncFirst ? { method: "POST" } : undefined);
         if (res.ok) {
           const data = (await res.json()) as { paymentStatus: PaymentStatus };
           setStatus(data.paymentStatus);
           if (data.paymentStatus === "PAID") {
+            clearPaymentAccessToken(orderNumber);
             router.replace(
               `/order/success?orderNumber=${encodeURIComponent(orderNumber)}&paid=1`,
             );

@@ -1,13 +1,13 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-
-type Bucket = { count: number; resetAt: number };
+import { RateLimitService } from "../common/rate-limit.service";
 
 @Injectable()
 export class LoginRateLimitService {
-  private readonly buckets = new Map<string, Bucket>();
-
-  constructor(private readonly config: ConfigService) {}
+  constructor(
+    private readonly config: ConfigService,
+    private readonly rateLimit: RateLimitService,
+  ) {}
 
   private maxAttempts(): number {
     const raw = this.config.get<string>("ADMIN_LOGIN_RATE_LIMIT");
@@ -21,32 +21,23 @@ export class LoginRateLimitService {
     return Number.isFinite(n) && n > 0 ? Math.floor(n) : 15 * 60 * 1000;
   }
 
-  assertAllowed(key: string) {
-    const now = Date.now();
-    const bucket = this.buckets.get(key);
-    if (!bucket || now >= bucket.resetAt) return;
+  private bucketKey(key: string) {
+    return `admin-login:${key}`;
+  }
 
-    if (bucket.count >= this.maxAttempts()) {
-      const retrySec = Math.max(1, Math.ceil((bucket.resetAt - now) / 1000));
-      throw new HttpException(
-        `Забагато спроб входу. Спробуйте через ${retrySec} с.`,
-        HttpStatus.TOO_MANY_REQUESTS,
-      );
-    }
+  assertAllowed(key: string) {
+    this.rateLimit.assertAllowed(this.bucketKey(key), this.maxAttempts());
   }
 
   recordAttempt(key: string) {
-    const now = Date.now();
-    const windowMs = this.windowMs();
-    const bucket = this.buckets.get(key);
-    if (!bucket || now >= bucket.resetAt) {
-      this.buckets.set(key, { count: 1, resetAt: now + windowMs });
-      return;
-    }
-    bucket.count += 1;
+    this.rateLimit.record(
+      this.bucketKey(key),
+      this.maxAttempts(),
+      this.windowMs(),
+    );
   }
 
   clear(key: string) {
-    this.buckets.delete(key);
+    this.rateLimit.clear(this.bucketKey(key));
   }
 }

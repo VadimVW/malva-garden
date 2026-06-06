@@ -25,6 +25,10 @@ import { isCartGoneError } from "@/lib/cart-errors";
 import type { CartResponse } from "@/lib/cart-types";
 import { clearCartToken, getCartToken } from "@/lib/cart-token";
 import {
+  clearPaymentAccessToken,
+  storePaymentAccessToken,
+} from "@/lib/payment-access";
+import {
   customerAddressToNpPrefill,
   pickDefaultNovaPoshtaAddress,
 } from "@/lib/customer-checkout-prefill";
@@ -299,14 +303,19 @@ export function MalvaGardenCheckoutDesktop() {
       const data = (await res.json()) as {
         orderNumber: string;
         paymentMethod?: string;
+        paymentAccessToken?: string;
       };
       clearCartToken();
       dispatchCartUpdated(0);
       if (data.paymentMethod === "wayforpay") {
+        if (data.paymentAccessToken) {
+          storePaymentAccessToken(data.orderNumber, data.paymentAccessToken);
+        }
         router.push(
           `/order/pay?orderNumber=${encodeURIComponent(data.orderNumber)}`,
         );
       } else {
+        clearPaymentAccessToken(data.orderNumber);
         router.push(
           `/order/success?orderNumber=${encodeURIComponent(data.orderNumber)}`,
         );

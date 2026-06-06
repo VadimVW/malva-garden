@@ -7,6 +7,7 @@ import {
   MalvaGardenFigmaPageShell,
 } from "@/components/store/MalvaGardenFigmaPageShell";
 import { getApiBaseUrl } from "@/lib/api";
+import { withPaymentAccessQuery } from "@/lib/payment-access";
 import { submitWayforpayForm } from "@/lib/wayforpay";
 
 export function MalvaGardenOrderPayDesktop() {
@@ -23,7 +24,10 @@ export function MalvaGardenOrderPayDesktop() {
     void (async () => {
       try {
         const res = await fetch(
-          `${getApiBaseUrl()}/orders/${encodeURIComponent(orderNumber)}/payment/wayforpay`,
+          withPaymentAccessQuery(
+            `${getApiBaseUrl()}/orders/${encodeURIComponent(orderNumber)}/payment/wayforpay`,
+            orderNumber,
+          ),
           { method: "POST" },
         );
         if (!res.ok) {

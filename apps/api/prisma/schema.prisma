@@ -173,9 +173,10 @@ model Order {
   paidAt          DateTime?
   orderStatus     OrderStatus          @default(NEW)
   totalAmount     Decimal              @db.Decimal(10, 2)
-  comment         String?
-  managerComment  String?
-  createdAt       DateTime             @default(now())
+  comment                 String?
+  managerComment          String?
+  paymentAccessTokenHash  String?
+  createdAt               DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
   items           OrderItem[]
   paymentLogs     PaymentCallbackLog[]

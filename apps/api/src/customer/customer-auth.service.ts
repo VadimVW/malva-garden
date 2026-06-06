@@ -12,6 +12,7 @@ import { createHash, randomUUID } from "crypto";
 import { OAuth2Client } from "google-auth-library";
 import { MailService } from "../mail/mail.service";
 import { PrismaService } from "../prisma/prisma.service";
+import { RateLimitService } from "../common/rate-limit.service";
 import type { CustomerJwtPayload } from "./customer.types";
 import { CustomerLoginDto } from "./dto/customer-login.dto";
 import { CustomerRegisterDto } from "./dto/customer-register.dto";
@@ -26,6 +27,11 @@ const PASSWORD_RESET_TTL_MINUTES = 60;
 const PASSWORD_RESET_COOLDOWN_MINUTES = 5;
 const BCRYPT_ROUNDS = 10;
 
+const AUTH_LOGIN_MAX = 10;
+const AUTH_REGISTER_MAX = 5;
+const AUTH_FORGOT_MAX = 5;
+const AUTH_WINDOW_MS = 15 * 60 * 1000;
+
 @Injectable()
 export class CustomerAuthService {
   constructor(
@@ -33,7 +39,12 @@ export class CustomerAuthService {
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
     private readonly mail: MailService,
+    private readonly rateLimit: RateLimitService,
   ) {}
+
+  private throttleAuth(action: string, ip: string, max: number) {
+    this.rateLimit.throttle(`customer-auth:${action}:${ip}`, max, AUTH_WINDOW_MS);
+  }
 
   private async signToken(customer: { id: string; email: string }) {
     const payload: CustomerJwtPayload = {
@@ -98,7 +109,8 @@ export class CustomerAuthService {
     };
   }
 
-  async register(dto: CustomerRegisterDto) {
+  async register(dto: CustomerRegisterDto, ip: string) {
+    this.throttleAuth("register", ip, AUTH_REGISTER_MAX);
     const email = dto.email.trim().toLowerCase();
     const existing = await this.prisma.customer.findUnique({ where: { email } });
     if (existing) {
@@ -136,7 +148,8 @@ export class CustomerAuthService {
     };
   }
 
-  async login(dto: CustomerLoginDto) {
+  async login(dto: CustomerLoginDto, ip: string) {
+    this.throttleAuth("login", ip, AUTH_LOGIN_MAX);
     const email = dto.email.trim().toLowerCase();
     const customer = await this.prisma.customer.findUnique({ where: { email } });
     if (!customer) {
@@ -157,7 +170,8 @@ export class CustomerAuthService {
     };
   }
 
-  async google(dto: GoogleAuthDto) {
+  async google(dto: GoogleAuthDto, ip: string) {
+    this.throttleAuth("google", ip, AUTH_LOGIN_MAX);
     const clientId = this.config.get<string>("GOOGLE_CLIENT_ID");
     if (!clientId?.trim()) {
       throw new InternalServerErrorException("Google auth is not configured");
@@ -230,7 +244,8 @@ export class CustomerAuthService {
     };
   }
 
-  async forgotPassword(dto: ForgotPasswordDto) {
+  async forgotPassword(dto: ForgotPasswordDto, ip: string) {
+    this.throttleAuth("forgot", ip, AUTH_FORGOT_MAX);
     const email = dto.email.trim().toLowerCase();
     const response = {
       message:
@@ -270,7 +285,8 @@ export class CustomerAuthService {
     };
   }
 
-  async resetPassword(dto: ResetPasswordDto) {
+  async resetPassword(dto: ResetPasswordDto, ip: string) {
+    this.throttleAuth("reset", ip, AUTH_LOGIN_MAX);
     const customer = await this.prisma.customer.findFirst({
       where: {
         passwordResetTokenHash: this.tokenHash(dto.token),
@@ -300,7 +316,8 @@ export class CustomerAuthService {
     };
   }
 
-  async verifyEmail(token: string) {
+  async verifyEmail(token: string, ip: string) {
+    this.throttleAuth("verify", ip, AUTH_LOGIN_MAX);
     const customer = await this.prisma.customer.findFirst({
       where: {
         emailVerifyToken: token,

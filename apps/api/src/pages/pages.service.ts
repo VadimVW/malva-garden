@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { sanitizeContentHtml } from "../common/html-sanitize";
 import { CreateContentPageDto } from "./dto/create-content-page.dto";
 import { UpdateContentPageDto } from "./dto/update-content-page.dto";
 
@@ -20,7 +21,7 @@ export class PagesService {
     return {
       title: page.title,
       slug: page.slug,
-      content: page.content,
+      content: sanitizeContentHtml(page.content),
       seoTitle: page.seoTitle,
       seoDescription: page.seoDescription,
       updatedAt: page.updatedAt,
@@ -42,7 +43,7 @@ export class PagesService {
       data: {
         title: dto.title,
         slug: dto.slug,
-        content: dto.content,
+        content: sanitizeContentHtml(dto.content),
         seoTitle: dto.seoTitle,
         seoDescription: dto.seoDescription,
       },
@@ -59,9 +60,13 @@ export class PagesService {
   async updateBySlug(slug: string, dto: UpdateContentPageDto) {
     const cur = await this.prisma.contentPage.findUnique({ where: { slug } });
     if (!cur) throw new NotFoundException("Сторінку не знайдено");
+    const data = { ...dto };
+    if (data.content !== undefined) {
+      data.content = sanitizeContentHtml(data.content);
+    }
     return this.prisma.contentPage.update({
       where: { slug },
-      data: dto,
+      data,
     });
   }
 }

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
@@ -11,6 +12,11 @@ import { SettingsService } from "../settings/settings.service";
 import { moneyToString } from "../common/money";
 import { CreateOrderDto } from "./dto/create-order.dto";
 import { normalizePhoneUa } from "../customer/phone.util";
+import {
+  generatePaymentAccessToken,
+  hashPaymentAccessToken,
+  verifyPaymentAccessToken,
+} from "./payment-access";
 
 function generateOrderNumber() {
   const t = Date.now().toString(36).toUpperCase();
@@ -81,6 +87,13 @@ export class OrdersService {
       const normalizedPhone =
         normalizePhoneUa(dto.customerPhone) ?? dto.customerPhone.trim();
 
+      let paymentAccessToken: string | undefined;
+      let paymentAccessTokenHash: string | undefined;
+      if (dto.paymentMethod === "wayforpay") {
+        paymentAccessToken = generatePaymentAccessToken();
+        paymentAccessTokenHash = hashPaymentAccessToken(paymentAccessToken);
+      }
+
       const order = await tx.order.create({
         data: {
           orderNumber,
@@ -96,6 +109,7 @@ export class OrdersService {
           orderStatus: OrderStatus.NEW,
           totalAmount: total,
           comment: dto.comment,
+          paymentAccessTokenHash,
           items: {
             create: cart.items.map((line) => {
               const lineTotal = line.product.price.mul(line.quantity);
@@ -120,6 +134,7 @@ export class OrdersService {
         paymentMethod: order.paymentMethod,
         paymentStatus: order.paymentStatus,
         totalAmount: moneyToString(order.totalAmount),
+        ...(paymentAccessToken ? { paymentAccessToken } : {}),
       };
     });
   }
@@ -213,5 +228,25 @@ export class OrdersService {
       where: { id },
       data: { paymentStatus },
     });
+  }
+
+  /** Gate public payment endpoints; same error for missing order / bad token. */
+  async assertPaymentAccess(orderNumber: string, accessToken?: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { orderNumber },
+      select: {
+        id: true,
+        orderNumber: true,
+        paymentMethod: true,
+        paymentAccessTokenHash: true,
+      },
+    });
+    if (
+      !order ||
+      !verifyPaymentAccessToken(accessToken, order.paymentAccessTokenHash)
+    ) {
+      throw new ForbiddenException("Немає доступу до замовлення");
+    }
+    return order;
   }
 }

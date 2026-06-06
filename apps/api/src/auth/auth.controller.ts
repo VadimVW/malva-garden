@@ -17,15 +17,8 @@ import {
 } from "./admin-auth-cookies";
 import { AdminLoginDto } from "./dto/admin-login.dto";
 import { AdminRefreshDto } from "./dto/admin-refresh.dto";
+import { clientIp } from "../common/client-ip";
 import { JwtAdminAuthGuard } from "./jwt-admin.guard";
-
-function clientIp(req: Request): string {
-  const forwarded = req.headers["x-forwarded-for"];
-  if (typeof forwarded === "string" && forwarded.length > 0) {
-    return forwarded.split(",")[0]?.trim() || "unknown";
-  }
-  return req.ip || req.socket.remoteAddress || "unknown";
-}
 
 type AdminRequestUser = { id: string; email: string };
 
