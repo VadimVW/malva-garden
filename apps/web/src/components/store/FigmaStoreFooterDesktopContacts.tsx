@@ -3,7 +3,6 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { FigmaStoreFooterCustomerLinks } from "@/components/store/FigmaStoreFooterCustomerLinks";
-import { FigmaStoreFooterLegalLines } from "@/components/store/FigmaStoreFooterLegalLines";
 import {
   LOGO_MARK_INTRINSIC,
   resolveFigmaSocialSvg,
@@ -76,34 +75,31 @@ export function FigmaStoreFooterDesktopContacts() {
 
   return (
     <div className="grid w-full flex-1 grid-cols-[1fr_auto_1fr] items-start gap-x-24 gap-y-8">
-      <div className="flex min-h-full flex-col justify-between justify-self-end self-stretch">
-        <div className="flex gap-x-16 items-start">
-          <Image
-            src={figmaImg.logoMark}
-            alt="Malva Garden"
-            width={LOGO_MARK_INTRINSIC.width}
-            height={LOGO_MARK_INTRINSIC.height}
-            sizes="151px"
-            quality={90}
-            className="h-auto w-[151px] shrink-0 object-contain brightness-0 invert"
-          />
-          <div className="flex min-w-[140px] flex-col gap-2">
-            <p className="text-[14px] font-bold">Контакти:</p>
-            {telHref ? (
-              <a href={telHref} className="text-[14px] hover:underline">
-                {phone}
-              </a>
-            ) : (
-              <p className="text-[14px]">{phone}</p>
-            )}
-            {email ? (
-              <a href={`mailto:${email}`} className="text-[14px] hover:underline">
-                {email}
-              </a>
-            ) : null}
-          </div>
+      <div className="flex gap-x-16 items-start justify-self-end">
+        <Image
+          src={figmaImg.logoMark}
+          alt="Malva Garden"
+          width={LOGO_MARK_INTRINSIC.width}
+          height={LOGO_MARK_INTRINSIC.height}
+          sizes="151px"
+          quality={90}
+          className="h-auto w-[151px] shrink-0 object-contain brightness-0 invert"
+        />
+        <div className="flex min-w-[140px] flex-col gap-2">
+          <p className="text-[14px] font-bold">Контакти:</p>
+          {telHref ? (
+            <a href={telHref} className="text-[14px] hover:underline">
+              {phone}
+            </a>
+          ) : (
+            <p className="text-[14px]">{phone}</p>
+          )}
+          {email ? (
+            <a href={`mailto:${email}`} className="text-[14px] hover:underline">
+              {email}
+            </a>
+          ) : null}
         </div>
-        <FigmaStoreFooterLegalLines className="whitespace-nowrap text-left" />
       </div>
       <div className="flex min-w-[200px] flex-col items-center gap-3">
         <p className="w-full text-center text-[14px] font-bold">

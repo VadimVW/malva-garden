@@ -51,6 +51,7 @@ function FigmaStoreFooterDesktop() {
         className={`mx-auto flex min-h-[280px] w-full max-w-[1280px] flex-col px-4 pb-10 pt-6 sm:px-8 lg:px-12 ${inter.className}`}
       >
         <FigmaStoreFooterDesktopContacts />
+        <FigmaStoreFooterLegalLines className="mt-auto pt-6 text-center whitespace-nowrap" />
       </div>
     </footer>
   );
