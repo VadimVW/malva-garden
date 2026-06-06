@@ -13,6 +13,7 @@ import {
   DEFAULT_DESCRIPTION,
   DEFAULT_OG_IMAGE_PATH,
   getSiteUrl,
+  SITE_FAVICON,
   SITE_FAVICON_48,
   SITE_FAVICON_96,
   SITE_FAVICON_192,
@@ -62,12 +63,13 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: SITE_FAVICON, type: "image/png" },
       { url: SITE_FAVICON_48, sizes: "48x48", type: "image/png" },
       { url: SITE_FAVICON_96, sizes: "96x96", type: "image/png" },
       { url: SITE_FAVICON_192, sizes: "192x192", type: "image/png" },
     ],
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
-    shortcut: SITE_FAVICON_48,
+    shortcut: SITE_FAVICON,
   },
 };
 

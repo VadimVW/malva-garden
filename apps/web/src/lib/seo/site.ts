@@ -11,7 +11,8 @@ export const DEFAULT_DESCRIPTION =
 
 export const DEFAULT_OG_IMAGE_PATH = "/images/figma/home/logo-mark.png";
 
-/** Square favicons (generated from logo-mark via scripts/generate-web-favicons.mjs). */
+/** Master favicon + generated sizes (see scripts/generate-web-favicons.mjs). */
+export const SITE_FAVICON = "/favicon.png";
 export const SITE_FAVICON_48 = "/favicon-48.png";
 export const SITE_FAVICON_96 = "/favicon-96.png";
 export const SITE_FAVICON_192 = "/favicon-192.png";
