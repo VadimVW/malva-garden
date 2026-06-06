@@ -91,6 +91,8 @@ async function refreshAccessToken(): Promise<boolean> {
 
 function redirectToLogin(reason: "idle" | "session") {
   if (typeof window === "undefined") return;
+  // Avoid reload loop on /login when session check fails (cookie mode init).
+  if (window.location.pathname.startsWith("/login")) return;
   window.location.href = `/login?reason=${reason}`;
 }
 
@@ -269,9 +271,28 @@ export async function adminLogout(): Promise<void> {
 
 /** Перевірка сесії в cookie mode (httpOnly — токенів у JS немає). */
 export async function checkAdminSession(): Promise<boolean> {
+  const credentials = adminFetchCredentials();
+  const headers = {
+    "Content-Type": "application/json",
+    ...adminAuthModeHeaders(),
+  };
+
+  async function fetchMe(): Promise<boolean> {
+    const url = `${getApiBaseUrl()}/admin/auth/me`;
+    const res = await fetch(url, {
+      headers,
+      ...(credentials ? { credentials } : {}),
+      cache: "no-store",
+    });
+    return res.ok;
+  }
+
   try {
-    await adminFetch<{ id: string; email: string }>("/admin/auth/me");
-    return true;
+    if (await fetchMe()) return true;
+    if (!useAdminAuthCookies) return false;
+    const refreshed = await refreshAccessToken();
+    if (!refreshed) return false;
+    return fetchMe();
   } catch {
     return false;
   }
