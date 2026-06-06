@@ -13,6 +13,9 @@ import {
   DEFAULT_DESCRIPTION,
   DEFAULT_OG_IMAGE_PATH,
   getSiteUrl,
+  SITE_FAVICON_48,
+  SITE_FAVICON_96,
+  SITE_FAVICON_192,
   SITE_NAME,
 } from "@/lib/seo/site";
 import { MobileStoreLayout } from "@/components/store/mobile/MobileStoreLayout";
@@ -56,6 +59,15 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: absoluteUrl("/"),
+  },
+  icons: {
+    icon: [
+      { url: SITE_FAVICON_48, sizes: "48x48", type: "image/png" },
+      { url: SITE_FAVICON_96, sizes: "96x96", type: "image/png" },
+      { url: SITE_FAVICON_192, sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: SITE_FAVICON_48,
   },
 };
 

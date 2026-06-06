@@ -26,6 +26,12 @@ const apiUploads = apiUploadsRemotePattern();
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: "standalone",
+  async rewrites() {
+    return [
+      { source: "/favicon.ico", destination: "/favicon-48.png" },
+      { source: "/apple-touch-icon.png", destination: "/apple-icon.png" },
+    ];
+  },
   async headers() {
     return [
       {
