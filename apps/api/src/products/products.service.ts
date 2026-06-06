@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { Prisma, ProductStatus } from "@prisma/client";
+import { parseHomeLeaderProductIds } from "../settings/public-site-settings";
 import { PrismaService } from "../prisma/prisma.service";
 import { moneyToString } from "../common/money";
 import { CreateProductImageDto } from "./dto/create-product-image.dto";
@@ -264,6 +265,40 @@ export class ProductsService {
       total,
       totalPages: Math.ceil(total / limit) || 0,
     };
+  }
+
+  async findManyPublicByIds(ids: string[]) {
+    const unique = [...new Set(ids.map((id) => id.trim()).filter(Boolean))];
+    if (!unique.length) return [];
+
+    const rows = await this.prisma.product.findMany({
+      where: { id: { in: unique }, status: ProductStatus.ACTIVE },
+      include: { images: true, category: true },
+    });
+    const byId = new Map(rows.map((p) => [p.id, p]));
+    return unique
+      .map((id) => byId.get(id))
+      .filter((p): p is NonNullable<typeof p> => Boolean(p))
+      .map((p) => this.mapPublicProduct(p));
+  }
+
+  async findHomeLeaders(limit = 6) {
+    const row = await this.prisma.siteSetting.findUnique({
+      where: { key: "home_leader_product_ids" },
+      select: { value: true },
+    });
+    const curatedIds = parseHomeLeaderProductIds(row?.value);
+    if (curatedIds.length) {
+      const items = await this.findManyPublicByIds(curatedIds);
+      if (items.length) return { items };
+    }
+
+    const fallback = await this.findManyPublic({
+      page: 1,
+      limit,
+      sort: "new",
+    });
+    return { items: fallback.items };
   }
 
   async findBySlugPublic(slug: string) {

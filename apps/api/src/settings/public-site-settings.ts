@@ -15,7 +15,10 @@ export const PUBLIC_SITE_SETTING_KEYS = [
   "footer_instagram_url",
   "footer_copyright",
   "order_minimum_amount",
+  "home_leader_product_ids",
 ] as const;
+
+export const HOME_LEADER_SLOT_COUNT = 6;
 
 export type PublicSiteSettingKey = (typeof PUBLIC_SITE_SETTING_KEYS)[number];
 
@@ -35,6 +38,7 @@ export const PUBLIC_SITE_SETTING_DEFAULTS: Record<
   footer_instagram_url: "https://www.instagram.com/",
   footer_copyright: "",
   order_minimum_amount: "200",
+  home_leader_product_ids: "[]",
 };
 
 export type PublicSiteSettingFieldType =
@@ -131,6 +135,54 @@ export const PUBLIC_SITE_SETTING_FIELDS: PublicSiteSettingFieldMeta[] = [
 ];
 
 /** Парсить мін. суму з SiteSetting; некоректне значення → дефолт 200. */
+/** Парсить до 6 унікальних product id для блоку «Лідери продажу». */
+export function parseHomeLeaderProductIds(
+  value: string | undefined | null,
+): string[] {
+  if (value == null || !String(value).trim()) return [];
+  try {
+    const parsed: unknown = JSON.parse(String(value));
+    if (!Array.isArray(parsed)) return [];
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const item of parsed) {
+      if (typeof item !== "string") continue;
+      const id = item.trim();
+      if (!id || seen.has(id)) continue;
+      seen.add(id);
+      out.push(id);
+      if (out.length >= HOME_LEADER_SLOT_COUNT) break;
+    }
+    return out;
+  } catch {
+    return [];
+  }
+}
+
+export function serializeHomeLeaderProductIds(
+  slots: readonly string[],
+): string {
+  const ids: string[] = [];
+  const seen = new Set<string>();
+  for (const raw of slots) {
+    const id = raw.trim();
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    ids.push(id);
+    if (ids.length >= HOME_LEADER_SLOT_COUNT) break;
+  }
+  return JSON.stringify(ids);
+}
+
+export function homeLeaderSlotsFromValue(
+  value: string | undefined | null,
+): string[] {
+  const ids = parseHomeLeaderProductIds(value);
+  const slots = [...ids];
+  while (slots.length < HOME_LEADER_SLOT_COUNT) slots.push("");
+  return slots.slice(0, HOME_LEADER_SLOT_COUNT);
+}
+
 export function parseOrderMinimumAmount(value: string | undefined | null): number {
   const fallback = Number(PUBLIC_SITE_SETTING_DEFAULTS.order_minimum_amount) || 200;
   if (value == null || !String(value).trim()) return fallback;

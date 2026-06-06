@@ -6,6 +6,7 @@ import { isPublicSiteSettingKey } from "@malva/site-settings";
 import { adminFetch, ApiError } from "@/lib/api";
 import type { SiteSetting } from "@/lib/types";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { HomeLeaderProductsForm } from "@/components/HomeLeaderProductsForm";
 import { PublicSiteSettingsForm } from "@/components/PublicSiteSettingsForm";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -80,6 +81,8 @@ export default function SettingsPage() {
       />
 
       <PublicSiteSettingsForm />
+
+      <HomeLeaderProductsForm />
 
       <Card className="mb-6 p-6">
         <button

@@ -11,6 +11,11 @@ export class PublicProductsController {
     return this.products.findManyPublic(query);
   }
 
+  @Get("leaders")
+  leaders() {
+    return this.products.findHomeLeaders(6);
+  }
+
   @Get(":slug")
   bySlug(@Param("slug") slug: string) {
     return this.products.findBySlugPublic(slug);
