@@ -75,20 +75,18 @@ export function FigmaStoreFooterDesktopContacts() {
   const email = contactEmail.trim();
 
   return (
-    <>
-      <div className="grid w-full grid-cols-[1fr_auto_1fr] items-start gap-x-24 gap-y-8">
-        <div className="flex gap-x-16 justify-self-end">
-          <div className="flex w-[151px] flex-col gap-4">
-            <Image
-              src={figmaImg.logoMark}
-              alt="Malva Garden"
-              width={LOGO_MARK_INTRINSIC.width}
-              height={LOGO_MARK_INTRINSIC.height}
-              sizes="120px"
-              quality={90}
-              className="h-auto w-[120px] object-contain brightness-0 invert"
-            />
-          </div>
+    <div className="grid w-full flex-1 grid-cols-[1fr_auto_1fr] items-start gap-x-24 gap-y-8">
+      <div className="flex min-h-full flex-col justify-between justify-self-end self-stretch">
+        <div className="flex gap-x-16 items-start">
+          <Image
+            src={figmaImg.logoMark}
+            alt="Malva Garden"
+            width={LOGO_MARK_INTRINSIC.width}
+            height={LOGO_MARK_INTRINSIC.height}
+            sizes="151px"
+            quality={90}
+            className="h-auto w-[151px] shrink-0 object-contain brightness-0 invert"
+          />
           <div className="flex min-w-[140px] flex-col gap-2">
             <p className="text-[14px] font-bold">Контакти:</p>
             {telHref ? (
@@ -105,64 +103,64 @@ export function FigmaStoreFooterDesktopContacts() {
             ) : null}
           </div>
         </div>
-        <div className="flex min-w-[200px] flex-col items-center gap-3">
-          <p className="w-full text-center text-[14px] font-bold">
-            Ми в соцмережах
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <FooterSocialLink label="YouTube" href={youtubeUrl}>
-              <SocialSvgImg
-                src={figmaSocial.youtube}
-                width={24}
-                height={24}
-                className="h-6 w-6 object-contain"
-              />
-            </FooterSocialLink>
-            <FooterSocialLink label="TikTok" href={tiktokUrl}>
-              <SocialSvgImg
-                src={figmaSocial.tiktok}
-                width={24}
-                height={24}
-                className="h-6 w-6 object-contain"
-              />
-            </FooterSocialLink>
-            <FooterSocialLink label="Facebook" href={facebookUrl}>
-              <SocialSvgImg
-                src={figmaSocial.facebook}
-                width={24}
-                height={24}
-                className="h-6 w-6 object-contain"
-              />
-            </FooterSocialLink>
-            <FooterSocialLink label="Instagram" href={instagramUrl}>
-              <SocialSvgImg
-                src={figmaSocial.instagram}
-                width={24}
-                height={24}
-                className="h-6 w-6 object-contain"
-              />
-            </FooterSocialLink>
-            <FooterSocialLink label="Telegram" href={telegramUrl}>
-              <SocialSvgImg
-                src={figmaSocial.telegram}
-                width={24}
-                height={24}
-                className="h-6 w-6 object-contain"
-              />
-            </FooterSocialLink>
-            <FooterSocialLink label="Viber" href={viberUrl}>
-              <SocialSvgImg
-                src={figmaSocial.viber}
-                width={24}
-                height={24}
-                className="h-6 w-6 object-contain"
-              />
-            </FooterSocialLink>
-          </div>
-        </div>
-        <FigmaStoreFooterCustomerLinks className="flex min-w-[200px] flex-col gap-[10px] justify-self-start text-[14px]" />
+        <FigmaStoreFooterLegalLines className="whitespace-nowrap text-left" />
       </div>
-      <FigmaStoreFooterLegalLines className="mt-6" />
-    </>
+      <div className="flex min-w-[200px] flex-col items-center gap-3">
+        <p className="w-full text-center text-[14px] font-bold">
+          Ми в соцмережах
+        </p>
+        <div className="flex flex-wrap justify-center gap-4">
+          <FooterSocialLink label="YouTube" href={youtubeUrl}>
+            <SocialSvgImg
+              src={figmaSocial.youtube}
+              width={24}
+              height={24}
+              className="h-6 w-6 object-contain"
+            />
+          </FooterSocialLink>
+          <FooterSocialLink label="TikTok" href={tiktokUrl}>
+            <SocialSvgImg
+              src={figmaSocial.tiktok}
+              width={24}
+              height={24}
+              className="h-6 w-6 object-contain"
+            />
+          </FooterSocialLink>
+          <FooterSocialLink label="Facebook" href={facebookUrl}>
+            <SocialSvgImg
+              src={figmaSocial.facebook}
+              width={24}
+              height={24}
+              className="h-6 w-6 object-contain"
+            />
+          </FooterSocialLink>
+          <FooterSocialLink label="Instagram" href={instagramUrl}>
+            <SocialSvgImg
+              src={figmaSocial.instagram}
+              width={24}
+              height={24}
+              className="h-6 w-6 object-contain"
+            />
+          </FooterSocialLink>
+          <FooterSocialLink label="Telegram" href={telegramUrl}>
+            <SocialSvgImg
+              src={figmaSocial.telegram}
+              width={24}
+              height={24}
+              className="h-6 w-6 object-contain"
+            />
+          </FooterSocialLink>
+          <FooterSocialLink label="Viber" href={viberUrl}>
+            <SocialSvgImg
+              src={figmaSocial.viber}
+              width={24}
+              height={24}
+              className="h-6 w-6 object-contain"
+            />
+          </FooterSocialLink>
+        </div>
+      </div>
+      <FigmaStoreFooterCustomerLinks className="flex min-w-[200px] flex-col gap-[10px] justify-self-start text-[14px]" />
+    </div>
   );
 }

@@ -22,7 +22,7 @@ function FigmaStoreFooterMobile() {
       <div
         className={`flex flex-col gap-[10px] px-[15px] pb-4 pt-[15px] ${inter.className}`}
       >
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center gap-3">
           <Image
             src={figmaImg.logoMark}
             alt="Malva Garden"
@@ -32,13 +32,13 @@ function FigmaStoreFooterMobile() {
             quality={90}
             className="h-[107px] w-[151px] object-contain brightness-0 invert"
           />
+          <FigmaStoreFooterLegalLines className="max-w-[280px] text-center" />
         </div>
         <FigmaStoreFooterMobileContacts />
         <FigmaStoreFooterCustomerLinks
           className="flex flex-col gap-[5px] text-[14px]"
           titleClassName="text-[20px] font-bold"
         />
-        <FigmaStoreFooterLegalLines className="mt-4" />
       </div>
     </footer>
   );

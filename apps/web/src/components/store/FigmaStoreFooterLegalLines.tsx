@@ -9,14 +9,20 @@ type Props = {
   className?: string;
 };
 
-/** Copyright з адмінки та підпис розробника сайту. */
+/** Copyright з адмінки та підпис розробника в один рядок. */
 export function FigmaStoreFooterLegalLines({ className }: Props) {
   const { copyright } = useStoreHeaderSettings();
-  const hasCopyright = copyright.trim().length > 0;
+  const trimmedCopyright = copyright.trim();
 
   return (
-    <div className={className}>
-      <p className="text-center text-[12px] text-[#F7F4EF]/70">
+    <p className={`text-[12px] text-[#F7F4EF]/90 ${className ?? ""}`}>
+      {trimmedCopyright ? (
+        <>
+          {trimmedCopyright}
+          <span className="text-[#F7F4EF]/70"> · </span>
+        </>
+      ) : null}
+      <span className="text-[#F7F4EF]/70">
         Made by{" "}
         <a
           href={DEVELOPER_TELEGRAM_URL}
@@ -26,12 +32,7 @@ export function FigmaStoreFooterLegalLines({ className }: Props) {
         >
           {DEVELOPER_TELEGRAM_HANDLE}
         </a>
-      </p>
-      {hasCopyright ? (
-        <p className="mt-1 text-center text-[12px] text-[#F7F4EF]/90">
-          {copyright}
-        </p>
-      ) : null}
-    </div>
+      </span>
+    </p>
   );
 }
