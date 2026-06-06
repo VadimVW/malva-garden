@@ -16,12 +16,7 @@ export function FigmaStoreFooterLegalLines({ className }: Props) {
 
   return (
     <div className={className}>
-      {hasCopyright ? (
-        <p className="text-center text-[12px] text-[#F7F4EF]/90">{copyright}</p>
-      ) : null}
-      <p
-        className={`text-center text-[12px] text-[#F7F4EF]/70 ${hasCopyright ? "mt-1" : ""}`}
-      >
+      <p className="text-center text-[12px] text-[#F7F4EF]/70">
         Made by{" "}
         <a
           href={DEVELOPER_TELEGRAM_URL}
@@ -32,6 +27,11 @@ export function FigmaStoreFooterLegalLines({ className }: Props) {
           {DEVELOPER_TELEGRAM_HANDLE}
         </a>
       </p>
+      {hasCopyright ? (
+        <p className="mt-1 text-center text-[12px] text-[#F7F4EF]/90">
+          {copyright}
+        </p>
+      ) : null}
     </div>
   );
 }
