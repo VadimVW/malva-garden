@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Inter } from "next/font/google";
 import { FigmaCartLink } from "@/components/ui/FigmaCartLink";
 import { FigmaStoreProfileLink } from "@/components/ui/FigmaStoreProfileLink";
@@ -71,18 +71,44 @@ type Props = {
   activeRootSlug?: string;
 };
 
+/** Компактна шапка після ~88px; розгорнута знову лише біля верху (<16px). */
+const HEADER_COMPACT_AFTER_PX = 88;
+const HEADER_EXPAND_BEFORE_PX = 16;
+
 export function FigmaStoreHeader({ activeRootSlug }: Props) {
   const figmaImg = resolveFigmaStoreImg();
   const figmaSocial = resolveFigmaSocialSvg();
   const { phone, viberUrl, telegramUrl } = useStoreHeaderSettings();
   const telHref = phoneToTelHref(phone);
   const [scrolled, setScrolled] = useState(false);
+  const scrollRafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 32);
-    onScroll();
+    const syncScrolled = () => {
+      const y = window.scrollY;
+      setScrolled((prev) => {
+        if (!prev && y > HEADER_COMPACT_AFTER_PX) return true;
+        if (prev && y < HEADER_EXPAND_BEFORE_PX) return false;
+        return prev;
+      });
+    };
+
+    const onScroll = () => {
+      if (scrollRafRef.current != null) return;
+      scrollRafRef.current = window.requestAnimationFrame(() => {
+        scrollRafRef.current = null;
+        syncScrolled();
+      });
+    };
+
+    syncScrolled();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (scrollRafRef.current != null) {
+        window.cancelAnimationFrame(scrollRafRef.current);
+      }
+    };
   }, []);
 
   return (
