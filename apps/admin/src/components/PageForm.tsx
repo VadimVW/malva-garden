@@ -65,7 +65,7 @@ export function PageForm({
         <Textarea
           label="Контент (HTML)"
           rows={12}
-          hint="Дозволені базові HTML-теги. Уникайте небезпечного скрипту."
+          hint="Дозволені HTML-теги та безпечні inline-стилі (layout, кольори, шрифти). Після зміни збережіть сторінку."
           {...register("content")}
           error={errors.content?.message}
         />
