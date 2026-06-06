@@ -2,6 +2,7 @@
 import { Inter } from "next/font/google";
 import { FigmaStoreFooterCustomerLinks } from "@/components/store/FigmaStoreFooterCustomerLinks";
 import { FigmaStoreFooterDesktopContacts } from "@/components/store/FigmaStoreFooterDesktopContacts";
+import { FigmaStoreFooterLegalLines } from "@/components/store/FigmaStoreFooterLegalLines";
 import { FigmaStoreFooterMobileContacts } from "@/components/store/FigmaStoreFooterMobileContacts";
 import {
   LOGO_MARK_INTRINSIC,
@@ -37,6 +38,7 @@ function FigmaStoreFooterMobile() {
           className="flex flex-col gap-[5px] text-[14px]"
           titleClassName="text-[20px] font-bold"
         />
+        <FigmaStoreFooterLegalLines className="mt-4" />
       </div>
     </footer>
   );

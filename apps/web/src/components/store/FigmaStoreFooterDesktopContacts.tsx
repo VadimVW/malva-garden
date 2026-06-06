@@ -3,6 +3,7 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { FigmaStoreFooterCustomerLinks } from "@/components/store/FigmaStoreFooterCustomerLinks";
+import { FigmaStoreFooterLegalLines } from "@/components/store/FigmaStoreFooterLegalLines";
 import {
   LOGO_MARK_INTRINSIC,
   resolveFigmaSocialSvg,
@@ -69,39 +70,40 @@ export function FigmaStoreFooterDesktopContacts() {
     tiktokUrl,
     facebookUrl,
     instagramUrl,
-    copyright,
   } = useStoreHeaderSettings();
   const telHref = phoneToTelHref(phone);
   const email = contactEmail.trim();
 
   return (
     <>
-      <div className="flex flex-wrap gap-x-10 gap-y-8 lg:gap-x-16">
-        <div className="flex w-[151px] flex-col gap-4">
-          <Image
-            src={figmaImg.logoMark}
-            alt="Malva Garden"
-            width={LOGO_MARK_INTRINSIC.width}
-            height={LOGO_MARK_INTRINSIC.height}
-            sizes="120px"
-            quality={90}
-            className="h-auto w-[120px] object-contain brightness-0 invert"
-          />
-        </div>
-        <div className="flex min-w-[140px] flex-col gap-2">
-          <p className="text-[14px] font-bold">Контакти:</p>
-          {telHref ? (
-            <a href={telHref} className="text-[14px] hover:underline">
-              {phone}
-            </a>
-          ) : (
-            <p className="text-[14px]">{phone}</p>
-          )}
-          {email ? (
-            <a href={`mailto:${email}`} className="text-[14px] hover:underline">
-              {email}
-            </a>
-          ) : null}
+      <div className="grid w-full grid-cols-[1fr_auto_1fr] items-start gap-x-24 gap-y-8">
+        <div className="flex gap-x-16 justify-self-end">
+          <div className="flex w-[151px] flex-col gap-4">
+            <Image
+              src={figmaImg.logoMark}
+              alt="Malva Garden"
+              width={LOGO_MARK_INTRINSIC.width}
+              height={LOGO_MARK_INTRINSIC.height}
+              sizes="120px"
+              quality={90}
+              className="h-auto w-[120px] object-contain brightness-0 invert"
+            />
+          </div>
+          <div className="flex min-w-[140px] flex-col gap-2">
+            <p className="text-[14px] font-bold">Контакти:</p>
+            {telHref ? (
+              <a href={telHref} className="text-[14px] hover:underline">
+                {phone}
+              </a>
+            ) : (
+              <p className="text-[14px]">{phone}</p>
+            )}
+            {email ? (
+              <a href={`mailto:${email}`} className="text-[14px] hover:underline">
+                {email}
+              </a>
+            ) : null}
+          </div>
         </div>
         <div className="flex min-w-[200px] flex-col items-center gap-3">
           <p className="w-full text-center text-[14px] font-bold">
@@ -158,13 +160,9 @@ export function FigmaStoreFooterDesktopContacts() {
             </FooterSocialLink>
           </div>
         </div>
-        <FigmaStoreFooterCustomerLinks className="flex min-w-[200px] flex-col gap-[10px] text-[14px]" />
+        <FigmaStoreFooterCustomerLinks className="flex min-w-[200px] flex-col gap-[10px] justify-self-start text-[14px]" />
       </div>
-      {copyright.trim() ? (
-        <p className="mt-6 text-center text-[12px] text-[#F7F4EF]/90">
-          {copyright}
-        </p>
-      ) : null}
+      <FigmaStoreFooterLegalLines className="mt-6" />
     </>
   );
 }
