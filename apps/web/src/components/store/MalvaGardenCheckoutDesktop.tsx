@@ -452,7 +452,7 @@ export function MalvaGardenCheckoutDesktop() {
                   className={figmaInputClass}
                   defaultValue="cash_on_delivery"
                 >
-                  <option value="cash_on_delivery">Оплата при отриманні</option>
+                  {/*<option value="cash_on_delivery">Оплата при отриманні</option>*/}
                   <option value="wayforpay">
                     Онлайн (картка, Apple Pay, Google Pay, WayForPay)
                   </option>
