@@ -450,7 +450,7 @@ export function MalvaGardenCheckoutDesktop() {
                   required
                   name="paymentMethod"
                   className={figmaInputClass}
-                  defaultValue="cash_on_delivery"
+                  defaultValue="wayforpay"
                 >
                   {/*<option value="cash_on_delivery">Оплата при отриманні</option>*/}
                   <option value="wayforpay">
