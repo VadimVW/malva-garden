@@ -125,7 +125,7 @@ function EmptyCart() {
       <p className="mt-2 max-w-sm text-[14px] text-[#5a5a5a]">
         Додайте насіння або рослини з каталогу — вони з’являться тут.
       </p>
-      <FigmaSecondaryLink href="/catalog/kvity" className="mt-8">
+      <FigmaSecondaryLink href="/catalog" className="mt-8">
         Перейти до каталогу
       </FigmaSecondaryLink>
     </div>
