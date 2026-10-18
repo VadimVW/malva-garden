@@ -87,8 +87,3 @@ admin.malva-garden.com {
 		}
 	}
 }
-
-:3001 {
-	import admin_basicauth
-	reverse_proxy admin:3000
-}
